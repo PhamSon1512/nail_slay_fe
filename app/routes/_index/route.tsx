@@ -1,5 +1,5 @@
-import type { Route } from './+types/_index';
-import { Welcome } from '~/welcome/welcome';
+import type { Route } from './+types/route';
+import { Welcome } from './welcome';
 
 export const meta = ({}: Route.MetaArgs) => [
   { title: 'New React Router App' },

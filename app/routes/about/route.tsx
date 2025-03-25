@@ -1,4 +1,4 @@
-import type { Route } from './+types/about';
+import type { Route } from './+types/route';
 
 export const meta = ({}: Route.MetaArgs) => [{ title: 'About' }, { name: 'description', content: 'Welcome to React Router!' }];
 
