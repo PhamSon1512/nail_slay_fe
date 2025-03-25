@@ -7,6 +7,8 @@ module.exports = {
     '<TYPES>',
     '<BUILTIN_MODULES>',
     '^react$',
+    '^react-dom',
+    '^react-router',
     '<THIRD_PARTY_MODULES>',
     '^~',
     '^[.]',
