@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Route } from './+types/root';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import { MantineProvider } from '@mantine/core';
 import './app.css';
 
 export const links: Route.LinksFunction = () => [
@@ -36,11 +35,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  return (
-    <MantineProvider>
-      <Outlet />
-    </MantineProvider>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
