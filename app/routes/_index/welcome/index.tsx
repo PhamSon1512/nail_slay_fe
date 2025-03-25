@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import Accessibility from '~/icons/accessibility.svg?react';
 import logoDark from './logo-dark.svg';
 import logoLight from './logo-light.svg';
 
@@ -17,6 +18,7 @@ export function Welcome({ message }: { message: string }) {
             <p className="text-center leading-6 text-gray-700 dark:text-gray-200">What&apos;s next?</p>
             <ul>
               <li>
+                <Accessibility className="inline h-8 text-red-500" />
                 <Link to="/about">About</Link>
               </li>
               {resources.map(({ href, text, icon }) => (
