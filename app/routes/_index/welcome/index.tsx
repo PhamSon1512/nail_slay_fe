@@ -18,7 +18,7 @@ export function Welcome({ message }: { message: string }) {
             <p className="text-center leading-6 text-gray-700 dark:text-gray-200">What&apos;s next?</p>
             <ul>
               <li>
-                <Accessibility className="inline h-8 text-red-500" />
+                <Accessibility className="text-primary-500 inline h-8" />
                 <Link to="/about">About</Link>
               </li>
               {resources.map(({ href, text, icon }) => (
