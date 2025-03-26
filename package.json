@@ -13,6 +13,7 @@
   "dependencies": {
     "@mantine/core": "^7.17.2",
     "@mantine/hooks": "^7.17.2",
+    "@react-router/cloudflare": "^7.4.0",
     "@react-router/fs-routes": "^7.4.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.6.0",
