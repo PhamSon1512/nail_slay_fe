@@ -1,4 +1,4 @@
-import type { AppLoadContext, EntryContext } from 'react-router';
+import type { EntryContext } from 'react-router';
 import { renderToReadableStream } from 'react-dom/server';
 import { ServerRouter } from 'react-router';
 import { isbot } from 'isbot';
@@ -7,28 +7,18 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  routerContext: EntryContext,
-  _loadContext: AppLoadContext,
+  context: EntryContext,
 ) {
-  let shellRendered = false;
-  const userAgent = request.headers.get('user-agent');
-
-  const body = await renderToReadableStream(<ServerRouter context={routerContext} url={request.url} />, {
+  const body = await renderToReadableStream(<ServerRouter context={context} url={request.url} />, {
+    signal: request.signal,
     onError(error: unknown) {
+      // Log streaming rendering errors from inside the shell
+      console.error(error);
       responseStatusCode = 500;
-      // Log streaming rendering errors from inside the shell.  Don't log
-      // errors encountered during initial shell rendering since they'll
-      // reject and get logged in handleDocumentRequest.
-      if (shellRendered) {
-        console.error(error);
-      }
     },
   });
-  shellRendered = true;
 
-  // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
-  // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
-  if ((userAgent && isbot(userAgent)) || routerContext.isSpaMode) {
+  if (isbot(request.headers.get('user-agent') || '')) {
     await body.allReady;
   }
 
