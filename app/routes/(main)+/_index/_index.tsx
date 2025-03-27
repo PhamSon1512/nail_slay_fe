@@ -1,4 +1,4 @@
-import type { Route } from './+types/route';
+import type { Route } from './+types/_index';
 import { Welcome } from './welcome';
 
 export const meta = ({}: Route.MetaArgs) => [
