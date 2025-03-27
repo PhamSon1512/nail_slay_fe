@@ -21,7 +21,7 @@ export function Welcome() {
             <ul>
               <li>
                 <Link to="/about">
-                  <Button className="bg-amber-200" variant="filled">
+                  <Button className="bg-red-500" variant="filled">
                     About
                   </Button>
                 </Link>
