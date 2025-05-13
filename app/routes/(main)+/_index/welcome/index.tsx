@@ -20,11 +20,9 @@ export function Welcome() {
             <p className="text-center leading-6 text-gray-700 dark:text-gray-200">What&apos;s next?</p>
             <ul>
               <li>
-                <Link to="/about">
-                  <Button className="bg-red-500" variant="filled">
-                    About
-                  </Button>
-                </Link>
+                <Button className="bg-red-500" variant="filled">
+                  <Link to="/about">About</Link>
+                </Button>
               </li>
               {resources.map(({ href, text, icon }) => (
                 <li key={href}>
