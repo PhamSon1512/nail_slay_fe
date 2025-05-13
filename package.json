@@ -11,8 +11,8 @@
     "typecheck": "wrangler types && react-router typegen && tsc -b"
   },
   "dependencies": {
-    "@mantine/core": "^7.17.7",
-    "@mantine/hooks": "^7.17.7",
+    "@mantine/core": "^8.0.0",
+    "@mantine/hooks": "^8.0.0",
     "@react-router/cloudflare": "^7.5.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.9.4",
