@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Route } from './+types/root';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
+import { HeroUIProvider } from '@heroui/react';
 import './app.css';
 
 export const links: Route.LinksFunction = () => [
@@ -23,16 +23,15 @@ export default function App() {
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" {...mantineHtmlProps}>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <ColorSchemeScript />
         <Meta />
         <Links />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <HeroUIProvider>{children}</HeroUIProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
