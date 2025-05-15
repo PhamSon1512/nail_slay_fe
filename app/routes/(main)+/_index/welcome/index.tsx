@@ -1,5 +1,4 @@
-import { Accordion, AccordionItem } from '@heroui/accordion';
-import { Autocomplete, AutocompleteItem, Button } from '@heroui/react';
+import { Accordion, AccordionItem, Autocomplete, AutocompleteItem, Button } from '@heroui/react';
 import LogoDark from './logo-dark.svg?react';
 import LogoLight from './logo-light.svg?react';
 import { FiFileText } from 'react-icons/fi';
