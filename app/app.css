@@ -1,5 +1,6 @@
 @import "tailwindcss/preflight";
 @import "tailwindcss/theme";
+@import 'nprogress/nprogress.css';
 @import "tailwindcss/utilities";
 
 @source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
