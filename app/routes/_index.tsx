@@ -1,5 +1,4 @@
 import type { Route } from './+types/_index';
-import { Welcome } from './welcome';
 
 export const meta = ({}: Route.MetaArgs) => [
   { title: 'New React Router App' },
@@ -7,5 +6,7 @@ export const meta = ({}: Route.MetaArgs) => [
 ];
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome />;
+  return <div className='container'>
+    <h1>Welcome to React Router!</h1>
+  </div>;
 }
