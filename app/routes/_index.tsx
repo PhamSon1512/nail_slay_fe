@@ -1,12 +1,12 @@
 import type { Route } from './+types/_index';
 
 export const meta = ({}: Route.MetaArgs) => [
-  { title: 'New React Router App' },
-  { name: 'description', content: 'Welcome to React Router!' },
+  { title: 'Z9 Studio' },
+  { name: 'description', content: 'Welcome to Z9 Studio!' },
 ];
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return <div className='container'>
-    <h1>Welcome to React Router!</h1>
+    <h1>Welcome to Z9 Studio!</h1>
   </div>;
 }
