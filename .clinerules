@@ -28,55 +28,252 @@ app/
 └── styles/              # Tailwind globals
 ```
 
+## 🚨 CRITICAL FIGMA RULES - MUST FOLLOW
+
+### Rule #1: NEVER Code Without Figma Data
+**IF Figma MCP fetch fails or returns error:**
+- ❌ DO NOT proceed with coding
+- ❌ DO NOT guess or assume design values
+- ❌ DO NOT use placeholder values
+- ❌ DO NOT create generic components
+- ✅ STOP immediately
+- ✅ Inform user about the error
+- ✅ Show exact error message from Figma MCP
+- ✅ Ask user to verify Figma URL/permissions
+- ✅ Request user to provide screenshot if MCP unavailable
+- ✅ WAIT for successful Figma data retrieval before coding
+
+**Example Response When Figma Fetch Fails:**
+```
+❌ Cannot retrieve Figma design data. Error: [exact error message]
+
+I cannot proceed with implementation without accurate design data.
+
+Please:
+1. Verify the Figma URL is correct: [show URL]
+2. Check if I have access permissions to this file
+3. Try these Figma MCP tools in order:
+   - Figma:get_design_context (for full design + code)
+   - Figma:get_screenshot (for visual reference)
+   - Figma:get_metadata (for structure overview)
+
+OR provide a screenshot of the design so I can extract:
+- Exact colors (hex codes)
+- Typography specs (font, size, weight, line-height)
+- Spacing values (padding, margin, gap)
+- Component structure
+
+I will NOT guess these values as it will result in inaccurate implementation.
+```
+
+### Rule #2: Verify Figma Data Before Starting
+Before any coding:
+```typescript
+// ✅ REQUIRED: Confirm data received
+console.log("Figma data received:");
+console.log("- Colors: [list extracted colors]");
+console.log("- Typography: [list font specs]");
+console.log("- Spacing: [list spacing values]");
+console.log("- Components: [list component structure]");
+
+// ❌ NEVER start with:
+"Based on typical designs..." // NO!
+"I'll create a standard..." // NO!
+"Using common values..." // NO!
+```
+
+### Rule #3: No Absolute Positioning
+**❌ NEVER USE:**
+```css
+position: absolute
+position: fixed (except for modals/overlays/sticky headers with explicit Figma requirement)
+top: [value]
+left: [value]
+right: [value]
+bottom: [value]
+```
+
+**✅ ALWAYS USE:**
+```css
+/* Flexbox for alignment */
+display: flex
+justify-content: [value]
+align-items: [value]
+gap: [value]
+
+/* Grid for complex layouts */
+display: grid
+grid-template-columns: [value]
+grid-gap: [value]
+
+/* Relative positioning for minor adjustments */
+position: relative (only when necessary)
+transform: translate() (for centering/minor shifts)
+```
+
+**Exceptions (only when Figma explicitly shows):**
+- Fixed headers/navigation: `fixed top-0`
+- Modals/overlays: `fixed inset-0`
+- Floating action buttons: `fixed bottom-4 right-4`
+- Tooltips/dropdowns: `absolute` with proper z-index
+
+**Example - Convert Absolute to Flex:**
+```typescript
+// ❌ BAD - Using absolute
+<div className="relative h-screen">
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+    Content
+  </div>
+</div>
+
+// ✅ GOOD - Using flex
+<div className="flex items-center justify-center min-h-screen">
+  <div>Content</div>
+</div>
+```
+
 ## Figma Implementation Rules
 
-### 1. Analysis First
-- Take screenshot from Figma
-- Extract ALL design tokens: colors (hex), typography (font, size, weight, line-height), spacing (px)
-- Identify reusable components
-- Note all interactive states (hover, focus, active)
-- Check animations/transitions
+### 1. Analysis First (MANDATORY)
+**Step 1: Fetch Figma Data**
+```bash
+# Try these tools in order:
+1. Figma:get_design_context (fileKey, nodeId)
+   → Returns: code + design tokens + assets
+
+2. Figma:get_screenshot (fileKey, nodeId)
+   → Returns: visual reference image
+
+3. Figma:get_metadata (fileKey, nodeId)
+   → Returns: structure overview
+
+# If ALL fail → STOP and inform user
+```
+
+**Step 2: Extract & Verify Design Tokens**
+- ✅ Colors: Exact hex codes from Figma Inspector
+- ✅ Typography: Font family, size (px), weight, line-height, letter-spacing
+- ✅ Spacing: Padding, margin, gap values in px
+- ✅ Borders: Width, style, color, radius
+- ✅ Shadows: Offset, blur, spread, color, opacity
+- ✅ Interactive states: Hover, focus, active, disabled
+- ✅ Animations: Duration, easing, properties
+
+**Step 3: Component Structure**
+- Identify layout type: Flexbox vs Grid
+- Note component hierarchy (parent → children)
+- Check responsive behavior (mobile, tablet, desktop)
+- Verify stacking order (z-index only if overlapping)
 
 ### 2. Styling - 100% Accuracy Required
-**Colors**: Extract exact hex codes from Figma
-**Typography**:
-- Font family (exact from Figma)
-- Font size: px → rem conversion
-- Font weight: 300-800
-- Line height & letter spacing
-**Spacing**: Use Tailwind scale (1 = 4px)
-**Borders & Shadows**: Match Figma Inspector exactly
+
+**Colors** (from Figma Inspector):
+```typescript
+// ✅ Extract exact hex
+const colors = {
+  primary: '#0066FF',      // Exact from Figma
+  secondary: '#6B7280',    // Exact from Figma
+  background: '#FFFFFF',   // Exact from Figma
+  text: '#111827',         // Exact from Figma
+};
+
+// ❌ NEVER guess
+const colors = {
+  primary: 'blue',         // Too generic
+  secondary: '#6B7280',    // Guessed value
+};
+```
+
+**Typography** (exact specs):
+```typescript
+// ✅ From Figma Inspector
+const typography = {
+  h1: "text-[56px] leading-[64px] font-bold tracking-[-0.02em]",
+  body: "text-[16px] leading-[24px] font-normal",
+};
+
+// ❌ Approximate values
+const typography = {
+  h1: "text-5xl font-bold",  // Not exact
+};
+```
+
+**Spacing** (precise values):
+```typescript
+// ✅ Exact from Figma (use bracket notation for non-standard)
+className="px-6 py-4 gap-4"           // Standard (24px, 16px, 16px)
+className="px-[18px] py-[22px]"       // Custom values
+
+// ❌ Guessed spacing
+className="px-4 py-4"                 // Assumed values
+```
+
+**Layout** (no absolute positioning):
+```typescript
+// ✅ Flexbox/Grid approach
+<div className="flex flex-col items-center justify-between gap-8 p-6">
+  <header>Header</header>
+  <main className="flex-1">Content</main>
+  <footer>Footer</footer>
+</div>
+
+// ✅ Grid for complex layouts
+<div className="grid grid-cols-12 gap-6">
+  <aside className="col-span-3">Sidebar</aside>
+  <main className="col-span-9">Content</main>
+</div>
+
+// ❌ Absolute positioning
+<div className="relative h-screen">
+  <div className="absolute top-20 left-40">Content</div>
+</div>
+```
 
 ### 3. Component Pattern
 ```typescript
 import { cn } from "~/lib/utils";
 import { motion } from "framer-motion";
+import { Button } from "@heroui/react";
 
 interface Props {
   // TypeScript types required
+  className?: string;
 }
 
-export function Component({ ...props }: Props) {
+export function Component({ className, ...props }: Props) {
+  // ✅ Check if Figma data is available
+  // If not, throw error or return null
+
   return (
     <motion.div
+      // Animation from Figma (if specified)
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       className={cn(
-        // Layout
+        // Layout - NO absolute positioning
         "flex flex-col items-center",
-        // Spacing (match Figma exactly)
+
+        // Spacing (exact from Figma)
         "px-6 py-4 gap-4",
-        // Typography
-        "text-base font-semibold",
+
+        // Typography (exact from Figma)
+        "text-[16px] leading-[24px] font-semibold",
+
         // Colors (exact hex from Figma)
-        "bg-white text-gray-900",
-        // Effects
-        "rounded-lg shadow-lg",
-        // Responsive
+        "bg-white text-[#111827]",
+
+        // Effects (exact from Figma)
+        "rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.1)]",
+
+        // Responsive (from Figma breakpoints)
         "md:flex-row md:px-8 lg:gap-8",
-        // Interactive
-        "hover:shadow-xl transition-all duration-300",
-        props.className
+
+        // Interactive (from Figma states)
+        "hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]",
+        "transition-all duration-300",
+
+        className
       )}
     >
       {/* Content */}
@@ -85,91 +282,249 @@ export function Component({ ...props }: Props) {
 }
 ```
 
-### 4. Responsive Breakpoints
-- Mobile: < 768px (single column, touch-friendly)
-- Tablet: 768px - 1024px (2-column layouts)
-- Desktop: ≥ 1024px (full multi-column)
-
-Use: `useMediaQuery` from @mantine/hooks when needed
-
-### 5. Animations (Framer Motion)
+### 4. Error Handling for Figma Data
 ```typescript
-// Page transitions
-const variants = {
+// Add to component files when using Figma data
+const FIGMA_DATA_REQUIRED = true;
+
+export function Component() {
+  // ✅ Validate design data exists
+  if (FIGMA_DATA_REQUIRED && !designTokens) {
+    console.error("❌ Missing Figma design data. Cannot render component.");
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">
+            Design Data Missing
+          </h2>
+          <p className="text-gray-600">
+            Cannot render component without Figma design specifications.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Proceed with implementation using exact values
+  return (/* component */);
+}
+```
+
+### 5. Responsive Breakpoints
+- Mobile: < 768px (single column, touch-friendly, NO absolute)
+- Tablet: 768px - 1024px (2-column flex/grid layouts)
+- Desktop: ≥ 1024px (full multi-column flex/grid)
+
+**Use:** `useMediaQuery` from @mantine/hooks for JS logic
+```typescript
+import { useMediaQuery } from '@mantine/hooks';
+
+const isMobile = useMediaQuery('(max-width: 768px)');
+
+// ✅ Conditional rendering based on breakpoint
+{isMobile ? <MobileNav /> : <DesktopNav />}
+
+// ✅ Or use Tailwind responsive classes
+<div className="flex flex-col md:flex-row">
+```
+
+### 6. Animations (Framer Motion)
+
+**Only if specified in Figma:**
+```typescript
+// ✅ Figma shows fade-in animation
+const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
+  transition: { duration: 0.4, ease: "easeOut" }
 };
 
-// Hover effects
+// ✅ Figma shows hover scale
 <motion.button
   whileHover={{ scale: 1.05 }}
   whileTap={{ scale: 0.95 }}
-/>
+  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+>
+
+// ❌ Don't add animations not in Figma
+<motion.div animate={{ rotate: 360 }}> // Not in design!
 ```
 
-### 6. State Management (Valtio)
+### 7. State Management (Valtio)
 ```typescript
 import { proxy, useSnapshot } from 'valtio';
 
-export const store = proxy({
-  data: [],
-  updateData(newData) {
-    this.data = newData;
-  }
+// ✅ Simple, reactive state
+export const uiStore = proxy({
+  isMenuOpen: false,
+  theme: 'light' as 'light' | 'dark',
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  },
 });
 
 // In component
-const snap = useSnapshot(store);
+const snap = useSnapshot(uiStore);
 ```
 
-### 7. API Calls (xior)
+### 8. API Calls (xior)
 ```typescript
 import xior from 'xior';
 
-const api = xior.create({ baseURL: '/api' });
-export const fetchData = () => api.get('/endpoint');
+const api = xior.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 10000,
+});
+
+// ✅ Type-safe API calls
+export const fetchProducts = () => api.get<Product[]>('/products');
 ```
 
-### 8. Utilities
-- `cn()` from ~/lib/utils for className merging (tailwind-merge + clsx)
-- Ramda for functional programming
-- js-cookie for cookie management
-- query-string for URL params
+### 9. Utilities
 
-### 9. UI Components Priority
-1. Use HeroUI components as base (Button, Input, Card, Modal, etc.)
-2. Extend with Tailwind classes for custom styling
-3. Wrap with Framer Motion for animations
-4. Match Figma design exactly
+- **cn()**: `~/lib/utils` for className merging (tailwind-merge + clsx)
+- **Ramda**: Functional programming utilities
+- **js-cookie**: Cookie management
+- **query-string**: URL param parsing
 
-### 10. Verification Checklist
-- [ ] Visual comparison: screenshot code vs Figma
-- [ ] Colors match exactly (use color picker)
-- [ ] Typography: font, size, weight, line-height
-- [ ] Spacing: padding, margin, gap
-- [ ] Responsive: test all breakpoints
+### 10. UI Components Priority
+
+1. **Use HeroUI** components as base (Button, Input, Card, Modal)
+2. **Extend** with Tailwind classes for exact Figma styling
+3. **Wrap** with Framer Motion for animations (if in Figma)
+4. **Match** Figma design 100% - NO assumptions
+```typescript
+import { Button } from "@heroui/react";
+
+// ✅ Extend HeroUI with exact Figma styles
+<Button
+  className={cn(
+    "bg-[#0066FF]",              // Exact from Figma
+    "text-white",
+    "px-6 py-3",                 // Exact spacing
+    "rounded-lg",
+    "hover:bg-[#0052CC]",        // Exact hover color
+    "transition-colors duration-200"
+  )}
+>
+  Click Me
+</Button>
+```
+
+### 11. Verification Checklist
+
+**Before Coding:**
+- [ ] Figma data retrieved successfully (no errors)
+- [ ] Design tokens extracted (colors, typography, spacing)
+- [ ] Component structure understood
+- [ ] Layout approach planned (flex/grid, NO absolute)
+- [ ] Responsive behavior defined
+
+**After Coding:**
+- [ ] Visual comparison: screenshot code vs Figma side-by-side
+- [ ] Colors match exactly (use color picker to verify)
+- [ ] Typography: font, size, weight, line-height matches
+- [ ] Spacing: padding, margin, gap matches Figma Inspector values
+- [ ] NO absolute positioning used (unless explicit overlay/modal)
+- [ ] Layout responds properly at all breakpoints
 - [ ] Interactions: hover, focus, active states work
-- [ ] Animations smooth (no janky animations)
+- [ ] Animations smooth (only if in Figma)
 - [ ] Performance: lazy loading, optimized images
-- [ ] Accessibility: keyboard nav, ARIA labels, contrast ratio ≥ 4.5:1
-- [ ] No console errors
+- [ ] Accessibility: keyboard nav, ARIA labels, contrast ≥ 4.5:1
+- [ ] No console errors or warnings
+- [ ] TypeScript types complete (no `any`)
 
-## Critical Rules
-⚠️ NEVER approximate - get exact values from Figma Inspector
-⚠️ Use React Router v7 patterns (NO react-router-dom imports)
-⚠️ Use Valtio for state (NO Redux/Zustand)
-⚠️ Use xior for HTTP (NO axios directly)
-⚠️ Tailwind CSS v4 with @tailwindcss/vite plugin
-⚠️ All animations via Framer Motion
-⚠️ TypeScript strict mode - no `any` types
-⚠️ Mobile-first responsive design
+## Critical Rules Summary
+
+### 🚨 BLOCKING RULES (Must follow or STOP)
+1. **NO CODE WITHOUT FIGMA DATA** - If fetch fails, STOP and inform user
+2. **NO ASSUMPTIONS** - Never guess colors, spacing, or typography
+3. **NO ABSOLUTE POSITIONING** - Use flex/grid (except explicit overlays)
+4. **100% ACCURACY** - All values must match Figma Inspector exactly
+
+### ⚠️ ESSENTIAL RULES (Must follow)
+- Use React Router v7 patterns (NO react-router-dom imports)
+- Use Valtio for state (NO Redux/Zustand)
+- Use xior for HTTP (NO axios directly)
+- Tailwind CSS v4 with @tailwindcss/vite plugin
+- All animations via Framer Motion (only if in Figma)
+- TypeScript strict mode - NO `any` types
+- Mobile-first responsive design
+- HeroUI as base for UI components
+
+### 📋 PROCESS RULES (Follow in order)
+1. Fetch Figma data → Verify success → Extract tokens
+2. Plan layout (flex/grid) → Identify components → Structure hierarchy
+3. Implement section by section → Verify each section
+4. Add interactions/animations (only from Figma)
+5. Test responsive → Verify accessibility
+6. Optimize performance → Final comparison
 
 ## Workflow
-1. Analyze Figma design thoroughly
-2. Extract all design tokens
-3. Plan component hierarchy
-4. Implement section by section
-5. Add animations & interactions
-6. Verify against Figma
-7. Optimize performance
+```mermaid
+graph TD
+    A[Start] --> B{Fetch Figma Data}
+    B -->|Success| C[Extract Design Tokens]
+    B -->|Fail| D[STOP - Inform User]
+    C --> E[Plan Layout - Flex/Grid]
+    E --> F[Implement Components]
+    F --> G[Verify vs Figma]
+    G -->|Match| H[Add Interactions]
+    G -->|Not Match| I[Debug & Fix]
+    I --> G
+    H --> J[Test Responsive]
+    J --> K[Optimize & Deploy]
+    D --> L[Wait for Fix/Screenshot]
+    L --> B
+```
+
+## Error Messages Templates
+
+**When Figma Fetch Fails:**
+```
+❌ FIGMA DATA FETCH FAILED
+
+Error: [exact error message]
+
+CANNOT PROCEED - Accurate design data required.
+
+Next steps:
+1. Verify Figma URL: [url]
+2. Check access permissions
+3. Try alternative: provide screenshot
+
+I will NOT implement without verified design specifications.
+```
+
+**When User Asks to Proceed Without Data:**
+```
+❌ CANNOT PROCEED WITHOUT FIGMA DATA
+
+Per project rules (.clinerules):
+- NO assumptions or guesses allowed
+- 100% accuracy required
+- All values must come from Figma Inspector
+
+Please provide:
+- Working Figma URL with access, OR
+- High-quality screenshot with visible specs
+
+I must ensure implementation matches your design exactly.
+```
+
+**When Absolute Positioning Requested:**
+```
+⚠️ ABSOLUTE POSITIONING NOT RECOMMENDED
+
+Per project rules (.clinerules):
+- Use Flexbox/Grid for layouts
+- Absolute only for overlays/modals
+
+Can I implement this using flex/grid instead?
+This will be:
+- More maintainable
+- More responsive
+- Easier to adjust
+
+If absolute is required, please confirm this is an overlay/modal/tooltip.
+```
