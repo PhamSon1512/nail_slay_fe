@@ -1,0 +1,175 @@
+# FIGMA TO CODE RULES
+
+## Tech Stack
+- React 19 + React Router v7 (file-based routing)
+- TypeScript 5.8+
+- Tailwind CSS v4 + HeroUI v2.8+
+- Framer Motion v12+ (animations)
+- Valtio v2+ (state management)
+- xior v0.7+ (HTTP client)
+- Embla Carousel React (sliders)
+- react-hot-toast (notifications)
+- @mantine/hooks (utility hooks)
+- Cloudflare Pages deployment
+
+## Project Structure
+```
+app/
+├── routes/                # File-based routing (flat routes)
+├── components/
+│   ├── ui/               # Atomic (HeroUI + custom)
+│   ├── sections/         # Composite sections
+│   └── layout/           # Header, Footer, Nav
+├── lib/
+│   ├── api/             # xior API clients
+│   ├── store/           # Valtio stores
+│   ├── hooks/           # Custom hooks
+│   └── utils/           # Ramda utilities
+└── styles/              # Tailwind globals
+```
+
+## Figma Implementation Rules
+
+### 1. Analysis First
+- Take screenshot from Figma
+- Extract ALL design tokens: colors (hex), typography (font, size, weight, line-height), spacing (px)
+- Identify reusable components
+- Note all interactive states (hover, focus, active)
+- Check animations/transitions
+
+### 2. Styling - 100% Accuracy Required
+**Colors**: Extract exact hex codes from Figma
+**Typography**:
+- Font family (exact from Figma)
+- Font size: px → rem conversion
+- Font weight: 300-800
+- Line height & letter spacing
+**Spacing**: Use Tailwind scale (1 = 4px)
+**Borders & Shadows**: Match Figma Inspector exactly
+
+### 3. Component Pattern
+```typescript
+import { cn } from "~/lib/utils";
+import { motion } from "framer-motion";
+
+interface Props {
+  // TypeScript types required
+}
+
+export function Component({ ...props }: Props) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        // Layout
+        "flex flex-col items-center",
+        // Spacing (match Figma exactly)
+        "px-6 py-4 gap-4",
+        // Typography
+        "text-base font-semibold",
+        // Colors (exact hex from Figma)
+        "bg-white text-gray-900",
+        // Effects
+        "rounded-lg shadow-lg",
+        // Responsive
+        "md:flex-row md:px-8 lg:gap-8",
+        // Interactive
+        "hover:shadow-xl transition-all duration-300",
+        props.className
+      )}
+    >
+      {/* Content */}
+    </motion.div>
+  );
+}
+```
+
+### 4. Responsive Breakpoints
+- Mobile: < 768px (single column, touch-friendly)
+- Tablet: 768px - 1024px (2-column layouts)
+- Desktop: ≥ 1024px (full multi-column)
+
+Use: `useMediaQuery` from @mantine/hooks when needed
+
+### 5. Animations (Framer Motion)
+```typescript
+// Page transitions
+const variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+};
+
+// Hover effects
+<motion.button
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+/>
+```
+
+### 6. State Management (Valtio)
+```typescript
+import { proxy, useSnapshot } from 'valtio';
+
+export const store = proxy({
+  data: [],
+  updateData(newData) {
+    this.data = newData;
+  }
+});
+
+// In component
+const snap = useSnapshot(store);
+```
+
+### 7. API Calls (xior)
+```typescript
+import xior from 'xior';
+
+const api = xior.create({ baseURL: '/api' });
+export const fetchData = () => api.get('/endpoint');
+```
+
+### 8. Utilities
+- `cn()` from ~/lib/utils for className merging (tailwind-merge + clsx)
+- Ramda for functional programming
+- js-cookie for cookie management
+- query-string for URL params
+
+### 9. UI Components Priority
+1. Use HeroUI components as base (Button, Input, Card, Modal, etc.)
+2. Extend with Tailwind classes for custom styling
+3. Wrap with Framer Motion for animations
+4. Match Figma design exactly
+
+### 10. Verification Checklist
+- [ ] Visual comparison: screenshot code vs Figma
+- [ ] Colors match exactly (use color picker)
+- [ ] Typography: font, size, weight, line-height
+- [ ] Spacing: padding, margin, gap
+- [ ] Responsive: test all breakpoints
+- [ ] Interactions: hover, focus, active states work
+- [ ] Animations smooth (no janky animations)
+- [ ] Performance: lazy loading, optimized images
+- [ ] Accessibility: keyboard nav, ARIA labels, contrast ratio ≥ 4.5:1
+- [ ] No console errors
+
+## Critical Rules
+⚠️ NEVER approximate - get exact values from Figma Inspector
+⚠️ Use React Router v7 patterns (NO react-router-dom imports)
+⚠️ Use Valtio for state (NO Redux/Zustand)
+⚠️ Use xior for HTTP (NO axios directly)
+⚠️ Tailwind CSS v4 with @tailwindcss/vite plugin
+⚠️ All animations via Framer Motion
+⚠️ TypeScript strict mode - no `any` types
+⚠️ Mobile-first responsive design
+
+## Workflow
+1. Analyze Figma design thoroughly
+2. Extract all design tokens
+3. Plan component hierarchy
+4. Implement section by section
+5. Add animations & interactions
+6. Verify against Figma
+7. Optimize performance
