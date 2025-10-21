@@ -13,21 +13,21 @@
 - Cloudflare Pages deployment
 
 ## Project Structure
-```
 app/
-├── routes/                # File-based routing (flat routes)
-├── components/
-│   ├── ui/               # Atomic (HeroUI + custom)
-│   ├── sections/         # Composite sections
-│   └── layout/           # Header, Footer, Nav
-├── lib/
-│   ├── api/             # xior API clients
-│   ├── store/           # Valtio stores
-│   ├── hooks/           # Custom hooks
-│   └── utils/           # Ramda utilities
-└── styles/              # Tailwind globals
-```
+├── routes/           # File-based routing
+│   ├── _index.tsx   # Homepage
+│   └── _404.$.tsx   # Catch-all 404
+├── components/       # React components
+├── utils/            # Utility functions and configs
+│   └── hero.ts      # HeroUI Tailwind plugin config
+├── root.tsx          # Root layout with fonts and providers
+├── app.css           # Tailwind config and custom theme
+├── entry.client.tsx  # Client entry point
+└── entry.server.tsx  # SSR entry point
 
+public/
+└── images/
+```
 ## 🚨 CRITICAL FIGMA RULES - MUST FOLLOW
 
 ### Rule #1: NEVER Code Without Figma Data
@@ -82,40 +82,85 @@ console.log("- Components: [list component structure]");
 "Using common values..." // NO!
 ```
 
-### Rule #3: No Absolute Positioning
-**❌ NEVER USE:**
+### Rule #3: 🚨 STRICTLY NO ABSOLUTE POSITIONING
+**❌ ABSOLUTELY FORBIDDEN:**
 ```css
-position: absolute
-position: fixed (except for modals/overlays/sticky headers with explicit Figma requirement)
-top: [value]
-left: [value]
-right: [value]
-bottom: [value]
+position: absolute    /* NEVER USE - CAUSES LAYOUT ISSUES */
+position: fixed      /* ONLY for modals/overlays with explicit Figma requirement */
+top: [value]         /* NEVER USE - NOT RESPONSIVE */
+left: [value]        /* NEVER USE - NOT RESPONSIVE */
+right: [value]       /* NEVER USE - NOT RESPONSIVE */
+bottom: [value]      /* NEVER USE - NOT RESPONSIVE */
 ```
 
-**✅ ALWAYS USE:**
+**✅ MANDATORY APPROACH - FLEXBOX/GRID ONLY:**
 ```css
-/* Flexbox for alignment */
+/* Flexbox for all alignments - RESPONSIVE BY DEFAULT */
 display: flex
-justify-content: [value]
-align-items: [value]
-gap: [value]
+justify-content: center | start | end | between | around | evenly
+align-items: center | start | end | stretch
+flex-direction: row | column
+gap: [tailwind-spacing]
 
-/* Grid for complex layouts */
+/* Grid for complex layouts - RESPONSIVE BY DEFAULT */
 display: grid
-grid-template-columns: [value]
-grid-gap: [value]
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
+grid-template-columns: 1fr 2fr 1fr
+gap: [tailwind-spacing]
 
-/* Relative positioning for minor adjustments */
-position: relative (only when necessary)
-transform: translate() (for centering/minor shifts)
+/* Container queries for responsive components */
+@container (min-width: 768px) { ... }
 ```
 
-**Exceptions (only when Figma explicitly shows):**
-- Fixed headers/navigation: `fixed top-0`
-- Modals/overlays: `fixed inset-0`
-- Floating action buttons: `fixed bottom-4 right-4`
-- Tooltips/dropdowns: `absolute` with proper z-index
+**🚫 ZERO EXCEPTIONS POLICY:**
+- ❌ NO "quick fixes" with absolute positioning
+- ❌ NO "it's just temporary" absolute positioning
+- ❌ NO absolute positioning for "simple centering"
+- ✅ ONLY exception: Modals/overlays/tooltips with `fixed inset-0` or `absolute` with proper z-index WHEN explicitly shown in Figma
+
+### Rule #4: 🚨 STRICTLY NO INLINE STYLES
+**❌ ABSOLUTELY FORBIDDEN:**
+```tsx
+// ❌ NEVER USE inline styles - NOT MAINTAINABLE, NOT RESPONSIVE
+<div style={{ color: 'red', fontSize: '16px', padding: '10px' }}>
+<div style={{ position: 'absolute', top: '50%' }}>
+<div style={{ backgroundColor: '#ff0000' }}>
+
+// ❌ NEVER USE style prop with objects
+const styles = { color: 'red', padding: '10px' };
+<div style={styles}>
+
+// ❌ NEVER USE CSS-in-JS inline
+<div style={{
+  display: 'flex',
+  justifyContent: 'center',
+  '@media (max-width: 768px)': { flexDirection: 'column' } // This won't work!
+}}>
+```
+
+**✅ MANDATORY APPROACH - TAILWIND CLASSES ONLY:**
+```tsx
+// ✅ ALWAYS USE Tailwind classes - MAINTAINABLE & RESPONSIVE
+<div className="text-red-500 text-base p-2.5">
+<div className="flex justify-center items-center">
+<div className="bg-red-500 hover:bg-red-600 transition-colors">
+
+// ✅ USE cn() utility for conditional classes
+<div className={cn(
+  "flex items-center gap-4",
+  isActive && "bg-blue-500 text-white",
+  className
+)}>
+
+// ✅ USE Tailwind responsive classes
+<div className="flex flex-col md:flex-row lg:gap-8">
+```
+
+**🚫 ZERO EXCEPTIONS POLICY:**
+- ❌ NO inline styles for "quick prototyping"
+- ❌ NO style prop usage (except for dynamic values from Figma data)
+- ❌ NO CSS-in-JS inline objects
+- ✅ ONLY exception: Dynamic values from Figma API (colors, spacing) using CSS custom properties
 
 **Example - Convert Absolute to Flex:**
 ```typescript
@@ -167,45 +212,166 @@ transform: translate() (for centering/minor shifts)
 
 ### 2. Styling - 100% Accuracy Required
 
-**Colors** (from Figma Inspector):
+### Rule #5: 🚨 PRIORITIZE TAILWIND STANDARD CLASSES
+**✅ ALWAYS PREFER STANDARD TAILWIND CLASSES:**
 ```typescript
-// ✅ Extract exact hex
+// ✅ BEST - Use standard Tailwind classes (responsive by default)
+className="text-xl font-semibold text-gray-900"     // Instead of text-[20px]
+className="p-4 m-6 gap-4"                          // Instead of p-[16px] m-[24px]
+className="bg-blue-500 hover:bg-blue-600"          // Instead of bg-[#3B82F6]
+className="rounded-lg shadow-md"                    // Instead of custom values
+className="w-full max-w-md mx-auto"                // Instead of w-[400px]
+
+// ✅ GOOD - Use bracket notation ONLY when Figma has non-standard values
+className="text-[22px] leading-[28px]"             // When Figma shows 22px exactly
+className="px-[18px] py-[14px]"                    // When Figma shows 18px/14px exactly
+className="bg-[#FF6B35]"                           // When Figma shows exact brand color
+
+// ❌ BAD - Using brackets for standard values
+className="text-[16px] leading-[24px]"             // Use text-base instead
+className="p-[16px] m-[24px]"                      // Use p-4 m-6 instead
+className="bg-[#3B82F6]"                           // Use bg-blue-500 instead
+```
+
+**Colors** (prioritize Tailwind palette):
+```typescript
+// ✅ BEST - Map Figma colors to Tailwind palette when close
 const colors = {
-  primary: '#0066FF',      // Exact from Figma
-  secondary: '#6B7280',    // Exact from Figma
-  background: '#FFFFFF',   // Exact from Figma
-  text: '#111827',         // Exact from Figma
+  primary: 'blue-500',        // If Figma #3B82F6 matches blue-500
+  secondary: 'gray-500',      // If Figma #6B7280 matches gray-500
+  success: 'green-500',       // If Figma green matches green-500
+  danger: 'red-500',          // If Figma red matches red-500
 };
 
-// ❌ NEVER guess
+// ✅ ACCEPTABLE - Use exact hex only when no Tailwind match
 const colors = {
-  primary: 'blue',         // Too generic
-  secondary: '#6B7280',    // Guessed value
+  brand: '#FF6B35',           // Unique brand color not in Tailwind
+  accent: '#8B5CF6',          // Custom accent color
+};
+
+// ❌ BAD - Using hex when Tailwind equivalent exists
+const colors = {
+  primary: '#3B82F6',         // This IS blue-500!
+  text: '#111827',            // This IS gray-900!
 };
 ```
 
-**Typography** (exact specs):
+**Typography** (prefer Tailwind scale):
 ```typescript
-// ✅ From Figma Inspector
+// ✅ BEST - Use Tailwind typography scale when possible
 const typography = {
-  h1: "text-[56px] leading-[64px] font-bold tracking-[-0.02em]",
-  body: "text-[16px] leading-[24px] font-normal",
+  h1: "text-4xl font-bold leading-tight",      // Instead of text-[36px]
+  h2: "text-2xl font-semibold leading-8",      // Instead of text-[24px]
+  body: "text-base leading-6",                 // Instead of text-[16px]
+  small: "text-sm leading-5",                  // Instead of text-[14px]
 };
 
-// ❌ Approximate values
+// ✅ ACCEPTABLE - Use exact values when Figma doesn't match Tailwind scale
 const typography = {
-  h1: "text-5xl font-bold",  // Not exact
+  hero: "text-[56px] leading-[64px] font-bold tracking-[-0.02em]",
+  caption: "text-[13px] leading-[18px]",
 };
 ```
 
-**Spacing** (precise values):
+**Spacing** (prefer Tailwind spacing scale):
 ```typescript
-// ✅ Exact from Figma (use bracket notation for non-standard)
-className="px-6 py-4 gap-4"           // Standard (24px, 16px, 16px)
-className="px-[18px] py-[22px]"       // Custom values
+// ✅ BEST - Use Tailwind spacing scale (4px increments)
+className="p-4 m-6 gap-8"                    // 16px, 24px, 32px
+className="px-6 py-3"                        // 24px, 12px
+className="space-y-4"                        // 16px vertical spacing
 
-// ❌ Guessed spacing
-className="px-4 py-4"                 // Assumed values
+// ✅ ACCEPTABLE - Use exact values when Figma doesn't match scale
+className="px-[18px] py-[14px]"              // Non-standard spacing from Figma
+className="gap-[22px]"                       // Exact gap from Figma
+```
+
+### Rule #7: 🚨 MANDATORY RESPONSIVE LAYOUTS
+**✅ MOBILE-FIRST RESPONSIVE LAYOUTS:**
+```typescript
+// ✅ BEST - Auto-responsive flexbox layouts
+<div className="flex flex-col md:flex-row gap-4 md:gap-8">
+  <aside className="w-full md:w-1/3 lg:w-1/4">Sidebar</aside>
+  <main className="flex-1">Content</main>
+</div>
+
+// ✅ BEST - Auto-responsive grid layouts
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+  <div>Card 1</div>
+  <div>Card 2</div>
+  <div>Card 3</div>
+  <div>Card 4</div>
+</div>
+
+// ✅ BEST - Container with responsive max-width
+<div className="w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
+  Centered responsive container
+</div>
+
+// ✅ BEST - Responsive spacing and padding
+<section className="px-4 md:px-8 lg:px-12 xl:px-16 py-8 md:py-12 lg:py-16">
+  <div className="space-y-4 md:space-y-6 lg:space-y-8">
+    Content with responsive spacing
+  </div>
+</section>
+```
+
+**🚫 FORBIDDEN - NON-RESPONSIVE LAYOUTS:**
+```typescript
+// ❌ NEVER USE fixed layouts without responsive variants
+<div className="flex flex-row">                    // No mobile consideration
+<div className="grid grid-cols-4">                 // Breaks on mobile
+<div className="w-96">                             // Fixed width
+<div className="p-8">                              // Same padding all screens
+
+// ❌ NEVER USE absolute positioning for layouts
+<div className="absolute top-20 left-40">          // Not responsive
+<div className="fixed w-64 h-full">               // Fixed sidebar
+```
+
+**✅ RESPONSIVE LAYOUT PATTERNS:**
+```typescript
+// Hero section - Full responsive
+<section className="min-h-screen flex items-center justify-center px-4 md:px-8 lg:px-12">
+  <div className="max-w-4xl mx-auto text-center space-y-4 md:space-y-6 lg:space-y-8">
+    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">Hero Title</h1>
+    <p className="text-base md:text-lg lg:text-xl max-w-2xl mx-auto">Description</p>
+  </div>
+</section>
+
+// Card grid - Auto-responsive
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+  {items.map(item => (
+    <div key={item.id} className="bg-white rounded-lg p-4 md:p-6 shadow-md">
+      <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-4">{item.title}</h3>
+      <p className="text-sm md:text-base text-gray-600">{item.description}</p>
+    </div>
+  ))}
+</div>
+
+// Navigation - Responsive behavior
+<nav className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 p-4 md:p-6">
+  <div className="flex items-center gap-2">
+    <Logo className="w-8 h-8 md:w-10 md:h-10" />
+    <span className="text-lg md:text-xl font-bold">Brand</span>
+  </div>
+  <div className="flex flex-col md:flex-row gap-2 md:gap-6 w-full md:w-auto">
+    <a href="#" className="text-sm md:text-base hover:text-blue-600">Home</a>
+    <a href="#" className="text-sm md:text-base hover:text-blue-600">About</a>
+    <a href="#" className="text-sm md:text-base hover:text-blue-600">Contact</a>
+  </div>
+</nav>
+
+// Form layout - Responsive fields
+<form className="space-y-4 md:space-y-6 max-w-md md:max-w-lg lg:max-w-xl mx-auto">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base" />
+    <input className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base" />
+  </div>
+  <textarea className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base h-24 md:h-32" />
+  <button className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-blue-500 text-white rounded-lg text-sm md:text-base">
+    Submit
+  </button>
+</form>
 ```
 
 **Layout** (no absolute positioning):
@@ -310,21 +476,81 @@ export function Component() {
 }
 ```
 
-### 5. Responsive Breakpoints
+### 5. Responsive Breakpoints & Typography
 - Mobile: < 768px (single column, touch-friendly, NO absolute)
 - Tablet: 768px - 1024px (2-column flex/grid layouts)
 - Desktop: ≥ 1024px (full multi-column flex/grid)
+
+### Rule #6: 🚨 MANDATORY RESPONSIVE FONT SIZES
+**✅ ALWAYS USE RESPONSIVE TYPOGRAPHY:**
+```typescript
+// ✅ BEST - Mobile-first responsive typography
+className="text-2xl md:text-4xl lg:text-5xl"           // Scales up from mobile
+className="text-base md:text-lg lg:text-xl"            // Body text scaling
+className="text-sm md:text-base lg:text-lg"            // Small text scaling
+
+// ✅ COMPREHENSIVE responsive text example
+<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+  Hero Title
+</h1>
+
+<p className="text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
+  Body content that scales appropriately
+</p>
+
+// ✅ RESPONSIVE line-height and spacing
+className="leading-tight md:leading-normal lg:leading-relaxed"
+className="tracking-tight md:tracking-normal lg:tracking-wide"
+```
+
+**🚫 FORBIDDEN - NON-RESPONSIVE TYPOGRAPHY:**
+```typescript
+// ❌ NEVER USE fixed font sizes without responsive variants
+className="text-4xl"                    // Only desktop size
+className="text-[32px]"                 // Fixed pixel size
+className="text-lg font-bold"           // No mobile consideration
+
+// ❌ NEVER USE same size across all breakpoints
+<h1 className="text-6xl">              // Too big for mobile
+<p className="text-xs">                 // Too small for desktop
+```
+
+**✅ RESPONSIVE TYPOGRAPHY SCALE:**
+```typescript
+// Mobile-first typography system
+const responsiveText = {
+  // Headings - Scale significantly across breakpoints
+  h1: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+  h2: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl",
+  h3: "text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl",
+  h4: "text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl",
+
+  // Body text - Subtle scaling
+  body: "text-sm sm:text-base md:text-lg",
+  bodyLarge: "text-base sm:text-lg md:text-xl",
+
+  // Small text - Minimal scaling
+  caption: "text-xs sm:text-sm md:text-base",
+  small: "text-xs sm:text-sm",
+};
+
+// Usage in components
+<h1 className={cn(responsiveText.h1, "font-bold leading-tight")}>
+<p className={cn(responsiveText.body, "leading-relaxed")}>
+```
 
 **Use:** `useMediaQuery` from @mantine/hooks for JS logic
 ```typescript
 import { useMediaQuery } from '@mantine/hooks';
 
 const isMobile = useMediaQuery('(max-width: 768px)');
+const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1024px)');
+const isDesktop = useMediaQuery('(min-width: 1024px)');
 
 // ✅ Conditional rendering based on breakpoint
 {isMobile ? <MobileNav /> : <DesktopNav />}
 
-// ✅ Or use Tailwind responsive classes
+// ✅ Or use Tailwind responsive classes (PREFERRED)
 <div className="flex flex-col md:flex-row">
 ```
 
