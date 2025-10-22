@@ -55,7 +55,6 @@ public/
 ## Key Configurations
 
 **Tailwind CSS v4**: Configured in `app/app.css` using new `@theme` directive
-- Custom fonts: `font-geist`, `font-playfair`
 - Custom primary color scale (green theme)
 - Custom `container` utility: max-width 1280px with auto margins
 - Custom variants: `dark:`, `child:`
@@ -100,6 +99,7 @@ Route modules export:
 - **SVG imports**: Use `.svg?react` suffix to import as component
 - **Path alias**: `~` resolves to `app/` directory
 - **Deployment**: Requires Cloudflare account and wrangler auth
+
 ## 🚨 CRITICAL FIGMA RULES - MUST FOLLOW
 
 ### Rule #1: NEVER Code Without Figma Data
@@ -125,9 +125,8 @@ Please:
 1. Verify the Figma URL is correct: [show URL]
 2. Check if I have access permissions to this file
 3. Try these Figma MCP tools in order:
-   - Figma:get_design_context (for full design + code)
-   - Figma:get_screenshot (for visual reference)
-   - Figma:get_metadata (for structure overview)
+   - get_figma_data (for full design data)
+   - download_figma_images (for assets)
 
 OR provide a screenshot of the design so I can extract:
 - Exact colors (hex codes)
@@ -194,38 +193,38 @@ gap: [tailwind-spacing]
 **❌ ABSOLUTELY FORBIDDEN:**
 ```tsx
 // ❌ NEVER USE inline styles - NOT MAINTAINABLE, NOT RESPONSIVE
-<div style={{ color: 'red', fontSize: '16px', padding: '10px' }}>
-<div style={{ position: 'absolute', top: '50%' }}>
-<div style={{ backgroundColor: '#ff0000' }}>
+<div style={{ color: 'red', fontSize: '16px', padding: '10px' }}>Content</div>
+<div style={{ position: 'absolute', top: '50%' }}>Content</div>
+<div style={{ backgroundColor: '#ff0000' }}>Content</div>
 
 // ❌ NEVER USE style prop with objects
 const styles = { color: 'red', padding: '10px' };
-<div style={styles}>
+<div style={styles}>Content</div>
 
 // ❌ NEVER USE CSS-in-JS inline
 <div style={{
   display: 'flex',
   justifyContent: 'center',
   '@media (max-width: 768px)': { flexDirection: 'column' } // This won't work!
-}}>
+}}>Content</div>
 ```
 
 **✅ MANDATORY APPROACH - TAILWIND CLASSES ONLY:**
 ```tsx
 // ✅ ALWAYS USE Tailwind classes - MAINTAINABLE & RESPONSIVE
-<div className="text-red-500 text-base p-2.5">
-<div className="flex justify-center items-center">
-<div className="bg-red-500 hover:bg-red-600 transition-colors">
+<div className="text-red-500 text-base p-2.5">Content</div>
+<div className="flex justify-center items-center">Content</div>
+<div className="bg-red-500 hover:bg-red-600 transition-colors">Content</div>
 
 // ✅ USE cn() utility for conditional classes
 <div className={cn(
   "flex items-center gap-4",
   isActive && "bg-blue-500 text-white",
   className
-)}>
+)}>Content</div>
 
 // ✅ USE Tailwind responsive classes
-<div className="flex flex-col md:flex-row lg:gap-8">
+<div className="flex flex-col md:flex-row lg:gap-8">Content</div>
 ```
 
 **🚫 ZERO EXCEPTIONS POLICY:**
@@ -255,14 +254,11 @@ const styles = { color: 'red', padding: '10px' };
 **Step 1: Fetch Figma Data**
 ```bash
 # Try these tools in order:
-1. Figma:get_design_context (fileKey, nodeId)
-   → Returns: code + design tokens + assets
+1. get_figma_data (fileKey, nodeId)
+   → Returns: comprehensive design data, layout, content, visuals
 
-2. Figma:get_screenshot (fileKey, nodeId)
-   → Returns: visual reference image
-
-3. Figma:get_metadata (fileKey, nodeId)
-   → Returns: structure overview
+2. download_figma_images (fileKey, nodes, localPath)
+   → Returns: downloaded SVG and PNG assets
 
 # If ALL fail → STOP and inform user
 ```
@@ -390,14 +386,14 @@ className="gap-[22px]"                       // Exact gap from Figma
 **🚫 FORBIDDEN - NON-RESPONSIVE LAYOUTS:**
 ```typescript
 // ❌ NEVER USE fixed layouts without responsive variants
-<div className="flex flex-row">                    // No mobile consideration
-<div className="grid grid-cols-4">                 // Breaks on mobile
-<div className="w-96">                             // Fixed width
-<div className="p-8">                              // Same padding all screens
+<div className="flex flex-row">No mobile consideration</div>
+<div className="grid grid-cols-4">Breaks on mobile</div>
+<div className="w-96">Fixed width</div>
+<div className="p-8">Same padding all screens</div>
 
 // ❌ NEVER USE absolute positioning for layouts
-<div className="absolute top-20 left-40">          // Not responsive
-<div className="fixed w-64 h-full">               // Fixed sidebar
+<div className="absolute top-20 left-40">Not responsive</div>
+<div className="fixed w-64 h-full">Fixed sidebar</div>
 ```
 
 **✅ RESPONSIVE LAYOUT PATTERNS:**
@@ -469,7 +465,7 @@ className="gap-[22px]"                       // Exact gap from Figma
 
 ### 3. Component Pattern
 ```typescript
-import { cn } from "~/lib/utils";
+import { cn } from "~/utils";
 import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 
@@ -583,8 +579,8 @@ className="text-[32px]"                 // Fixed pixel size
 className="text-lg font-bold"           // No mobile consideration
 
 // ❌ NEVER USE same size across all breakpoints
-<h1 className="text-6xl">              // Too big for mobile
-<p className="text-xs">                 // Too small for desktop
+<h1 className="text-6xl">Title</h1>     // Too big for mobile
+<p className="text-xs">Text</p>        // Too small for desktop
 ```
 
 **✅ RESPONSIVE TYPOGRAPHY SCALE:**
@@ -607,8 +603,8 @@ const responsiveText = {
 };
 
 // Usage in components
-<h1 className={cn(responsiveText.h1, "font-bold leading-tight")}>
-<p className={cn(responsiveText.body, "leading-relaxed")}>
+<h1 className={cn(responsiveText.h1, "font-bold leading-tight")}>Title</h1>
+<p className={cn(responsiveText.body, "leading-relaxed")}>Content</p>
 ```
 
 **Use:** `useMediaQuery` from @mantine/hooks for JS logic
@@ -623,7 +619,7 @@ const isDesktop = useMediaQuery('(min-width: 1024px)');
 {isMobile ? <MobileNav /> : <DesktopNav />}
 
 // ✅ Or use Tailwind responsive classes (PREFERRED)
-<div className="flex flex-col md:flex-row">
+<div className="flex flex-col md:flex-row">Content</div>
 ```
 
 ### 6. Animations (Framer Motion)
@@ -643,9 +639,11 @@ const fadeIn = {
   whileTap={{ scale: 0.95 }}
   transition={{ type: "spring", stiffness: 400, damping: 17 }}
 >
+  Button Text
+</motion.button>
 
 // ❌ Don't add animations not in Figma
-<motion.div animate={{ rotate: 360 }}> // Not in design!
+<motion.div animate={{ rotate: 360 }}>Content</motion.div> // Not in design!
 ```
 
 ### 7. State Management (Valtio)
@@ -750,7 +748,6 @@ When implementing new sections from Figma:
 1. Components are pixel-perfect implementations from Figma designs
 2. All images are exported from Figma and saved to `public/images/`
 3. Use exact spacing, typography, and colors from design
-4. Components not include `data-name` attributes matching Figma layer names
 
 ## Critical Rules Summary
 
@@ -818,7 +815,7 @@ I will NOT implement without verified design specifications.
 ```
 ❌ CANNOT PROCEED WITHOUT FIGMA DATA
 
-Per project rules (.clinerules):
+Per project rules (WARP.md):
 - NO assumptions or guesses allowed
 - 100% accuracy required
 - All values must come from Figma Inspector
@@ -834,7 +831,7 @@ I must ensure implementation matches your design exactly.
 ```
 ⚠️ ABSOLUTE POSITIONING NOT RECOMMENDED
 
-Per project rules (.clinerules):
+Per project rules (WARP.md):
 - Use Flexbox/Grid for layouts
 - Absolute only for overlays/modals
 
