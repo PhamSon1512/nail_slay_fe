@@ -1,845 +1,369 @@
-# FIGMA TO CODE RULES
+# FIGMA TO CODE RULES - SONNET 4.5
 
-## Project Overview
+## 🚨 CRITICAL RULES (MUST FOLLOW)
 
-This is a **React Router v7** application deployed to **Cloudflare Pages** with SSR enabled. It's a garden transformation business website built with TypeScript, featuring pixel-perfect components from Figma designs.
+### 1. NO CODE WITHOUT FIGMA DATA
+- ❌ If Figma fetch fails → STOP immediately
+- ❌ NO guessing/assumptions about colors, spacing, typography
+- ✅ Show error message and wait for user to fix
+- ✅ Request screenshot if Figma MCP unavailable
 
-## Commands
+### 2. NO ABSOLUTE POSITIONING
+- ❌ NEVER use `position: absolute`, `top`, `left`, `right`, `bottom`
+- ✅ ONLY use flex/grid for layouts
+- ✅ Exception: Modals/overlays with `fixed inset-0` if shown in Figma
 
-### Development
-```bash
-npm run dev              # Start dev server at http://localhost:5173
-npm run build            # Production build
-npm run preview          # Preview production build locally
-npm run typecheck        # Run TypeScript type checking (requires wrangler.toml)
-```
+### 3. NO INLINE STYLES
+- ❌ NEVER use `style={{}}` prop
+- ✅ ALWAYS use Tailwind classes only
+- ✅ Use `cn()` utility for conditional classes
 
-### Deployment
-```bash
-npm run deploy           # Build and deploy to Cloudflare Pages
-npx wrangler versions upload    # Deploy preview URL
-npx wrangler versions deploy    # Promote version to production
-```
+### 4. PREFER STANDARD TAILWIND CLASSES
+- ✅ Use `text-xl` instead of `text-[20px]`
+- ✅ Use `p-4 m-6` instead of `p-[16px] m-[24px]`
+- ✅ Use `bg-blue-500` instead of `bg-[#3B82F6]`
+- ✅ Use brackets `[]` ONLY for non-standard Figma values
 
-## Tech Stack
-- React 19 + React Router v7 (file-based routing)
-- TypeScript 5.8+
-- Tailwind CSS v4 + HeroUI v2.8+
-- Framer Motion v12+ (animations)
-- Valtio v2+ (state management)
-- xior v0.7+ (HTTP client)
-- Embla Carousel React (sliders)
-- react-hot-toast (notifications)
-- @mantine/hooks (utility hooks)
-- Cloudflare Pages deployment
+### 5. ALWAYS USE HEROUI COMPONENTS FOR LAYOUT
+- ✅ Start with HeroUI: `Button`, `Card`, `Input`, `Modal`, `Navbar`
+- ✅ Extend with Tailwind for exact Figma styling
+- ✅ HeroUI provides: accessibility, responsive, interactions
+- ❌ DON'T build from scratch if HeroUI component exists
 
-## Project Structure
-
-```
-app/
-├── routes/           # File-based routing
-│   ├── _index.tsx   # Homepage
-│   └── _404.$.tsx   # Catch-all 404
-├── components/       # React components
-├── utils/            # Utility functions and configs
-│   └── hero.ts      # HeroUI Tailwind plugin config
-├── root.tsx          # Root layout with fonts and providers
-├── app.css           # Tailwind config and custom theme
-├── entry.client.tsx  # Client entry point
-└── entry.server.tsx  # SSR entry point
-
-public/
-└── images/
-```
-
-## Key Configurations
-
-**Tailwind CSS v4**: Configured in `app/app.css` using new `@theme` directive
-- Custom primary color scale (green theme)
-- Custom `container` utility: max-width 1280px with auto margins
-- Custom variants: `dark:`, `child:`
-- Integrates HeroUI components via plugin
-
-**Vite Plugins**:
-- `@tailwindcss/vite` - Tailwind CSS v4
-- `vite-plugin-svgr` - Import SVGs as React components (use `.svg?react`)
-- `tsconfigPaths` - Path alias support (`~` = `app/`)
-- `cloudflareDevProxy` - Cloudflare runtime during dev
-- `reactRouterDevTools` - React Router debugging
-
-**React Router Config**: SSR enabled in `react-router.config.ts`
-
-## Routing
-
-File-based routing in `app/routes/`:
-- `_index.tsx` → `/`
-- `_404.$.tsx` → catch-all 404
-
-Route modules export:
-- `meta` - Page metadata (title, description)
-- `loader` - Server data loading
-- `action` - Form submissions
-- `default` - Component
-
-## Styling System
-
-**Fonts**: Loaded via Google Fonts in `app/root.tsx`
-
-## SSR Considerations
-
-- Server renders HTML stream for SEO and performance
-- Bot detection with `isbot` - waits for full render
-- Components must be SSR-safe (no window/document in module scope)
-- Use `useEffect` for client-only code
-
-## Important Notes
-
-- **Tailwind CSS v4** uses new syntax (`@theme`, `@utility`) - different from v3
-- **HeroUI** is a NextUI fork - use for pre-built components
-- **SVG imports**: Use `.svg?react` suffix to import as component
-- **Path alias**: `~` resolves to `app/` directory
-- **Deployment**: Requires Cloudflare account and wrangler auth
-
-## 🚨 CRITICAL FIGMA RULES - MUST FOLLOW
-
-### Rule #1: NEVER Code Without Figma Data
-**IF Figma MCP fetch fails or returns error:**
-- ❌ DO NOT proceed with coding
-- ❌ DO NOT guess or assume design values
-- ❌ DO NOT use placeholder values
-- ❌ DO NOT create generic components
-- ✅ STOP immediately
-- ✅ Inform user about the error
-- ✅ Show exact error message from Figma MCP
-- ✅ Ask user to verify Figma URL/permissions
-- ✅ Request user to provide screenshot if MCP unavailable
-- ✅ WAIT for successful Figma data retrieval before coding
-
-**Example Response When Figma Fetch Fails:**
-```
-❌ Cannot retrieve Figma design data. Error: [exact error message]
-
-I cannot proceed with implementation without accurate design data.
-
-Please:
-1. Verify the Figma URL is correct: [show URL]
-2. Check if I have access permissions to this file
-3. Try these Figma MCP tools in order:
-   - get_figma_data (for full design data)
-   - download_figma_images (for assets)
-
-OR provide a screenshot of the design so I can extract:
-- Exact colors (hex codes)
-- Typography specs (font, size, weight, line-height)
-- Spacing values (padding, margin, gap)
-- Component structure
-
-I will NOT guess these values as it will result in inaccurate implementation.
-```
-
-### Rule #2: Verify Figma Data Before Starting
-Before any coding:
-```typescript
-// ✅ REQUIRED: Confirm data received
-console.log("Figma data received:");
-console.log("- Colors: [list extracted colors]");
-console.log("- Typography: [list font specs]");
-console.log("- Spacing: [list spacing values]");
-console.log("- Components: [list component structure]");
-
-// ❌ NEVER start with:
-"Based on typical designs..." // NO!
-"I'll create a standard..." // NO!
-"Using common values..." // NO!
-```
-
-### Rule #3: 🚨 STRICTLY NO ABSOLUTE POSITIONING
-**❌ ABSOLUTELY FORBIDDEN:**
-```css
-position: absolute    /* NEVER USE - CAUSES LAYOUT ISSUES */
-position: fixed      /* ONLY for modals/overlays with explicit Figma requirement */
-top: [value]         /* NEVER USE - NOT RESPONSIVE */
-left: [value]        /* NEVER USE - NOT RESPONSIVE */
-right: [value]       /* NEVER USE - NOT RESPONSIVE */
-bottom: [value]      /* NEVER USE - NOT RESPONSIVE */
-```
-
-**✅ MANDATORY APPROACH - FLEXBOX/GRID ONLY:**
-```css
-/* Flexbox for all alignments - RESPONSIVE BY DEFAULT */
-display: flex
-justify-content: center | start | end | between | around | evenly
-align-items: center | start | end | stretch
-flex-direction: row | column
-gap: [tailwind-spacing]
-
-/* Grid for complex layouts - RESPONSIVE BY DEFAULT */
-display: grid
-grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
-grid-template-columns: 1fr 2fr 1fr
-gap: [tailwind-spacing]
-
-/* Container queries for responsive components */
-@container (min-width: 768px) { ... }
-```
-
-**🚫 ZERO EXCEPTIONS POLICY:**
-- ❌ NO "quick fixes" with absolute positioning
-- ❌ NO "it's just temporary" absolute positioning
-- ❌ NO absolute positioning for "simple centering"
-- ✅ ONLY exception: Modals/overlays/tooltips with `fixed inset-0` or `absolute` with proper z-index WHEN explicitly shown in Figma
-
-### Rule #4: 🚨 STRICTLY NO INLINE STYLES
-**❌ ABSOLUTELY FORBIDDEN:**
+### 6. IMAGES & ASSETS OPTIMIZATION
+- ✅ Use WebP format with PNG/JPG fallback
+- ✅ Add `loading="lazy"` for images below fold
+- ✅ Use `width` and `height` attributes (prevent layout shift)
+- ✅ Optimize images: max 100KB for hero, 50KB for thumbnails
+- ✅ Use `<picture>` for responsive images
 ```tsx
-// ❌ NEVER USE inline styles - NOT MAINTAINABLE, NOT RESPONSIVE
-<div style={{ color: 'red', fontSize: '16px', padding: '10px' }}>Content</div>
-<div style={{ position: 'absolute', top: '50%' }}>Content</div>
-<div style={{ backgroundColor: '#ff0000' }}>Content</div>
-
-// ❌ NEVER USE style prop with objects
-const styles = { color: 'red', padding: '10px' };
-<div style={styles}>Content</div>
-
-// ❌ NEVER USE CSS-in-JS inline
-<div style={{
-  display: 'flex',
-  justifyContent: 'center',
-  '@media (max-width: 768px)': { flexDirection: 'column' } // This won't work!
-}}>Content</div>
+<picture>
+  <source srcset="/images/hero-mobile.webp" media="(max-width: 768px)" />
+  <source srcset="/images/hero-desktop.webp" media="(min-width: 769px)" />
+  <img src="/images/hero-desktop.jpg" alt="Hero" width="1920" height="1080" />
+</picture>
 ```
 
-**✅ MANDATORY APPROACH - TAILWIND CLASSES ONLY:**
+### 7. MICRO-INTERACTIONS & POLISH
+- ✅ Add hover states to ALL interactive elements
+- ✅ Use `transition-all duration-200` for smooth effects
+- ✅ Add focus states: `focus:ring-2 focus:ring-primary`
+- ✅ Disabled states: `disabled:opacity-50 disabled:cursor-not-allowed`
+- ✅ Loading states: Show spinners or skeleton loaders
 ```tsx
-// ✅ ALWAYS USE Tailwind classes - MAINTAINABLE & RESPONSIVE
-<div className="text-red-500 text-base p-2.5">Content</div>
-<div className="flex justify-center items-center">Content</div>
-<div className="bg-red-500 hover:bg-red-600 transition-colors">Content</div>
-
-// ✅ USE cn() utility for conditional classes
-<div className={cn(
-  "flex items-center gap-4",
-  isActive && "bg-blue-500 text-white",
-  className
-)}>Content</div>
-
-// ✅ USE Tailwind responsive classes
-<div className="flex flex-col md:flex-row lg:gap-8">Content</div>
-```
-
-**🚫 ZERO EXCEPTIONS POLICY:**
-- ❌ NO inline styles for "quick prototyping"
-- ❌ NO style prop usage (except for dynamic values from Figma data)
-- ❌ NO CSS-in-JS inline objects
-- ✅ ONLY exception: Dynamic values from Figma API (colors, spacing) using CSS custom properties
-
-**Example - Convert Absolute to Flex:**
-```typescript
-// ❌ BAD - Using absolute
-<div className="relative h-screen">
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-    Content
-  </div>
-</div>
-
-// ✅ GOOD - Using flex
-<div className="flex items-center justify-center min-h-screen">
-  <div>Content</div>
-</div>
-```
-
-## Figma Implementation Rules
-
-### 1. Analysis First (MANDATORY)
-**Step 1: Fetch Figma Data**
-```bash
-# Try these tools in order:
-1. get_figma_data (fileKey, nodeId)
-   → Returns: comprehensive design data, layout, content, visuals
-
-2. download_figma_images (fileKey, nodes, localPath)
-   → Returns: downloaded SVG and PNG assets
-
-# If ALL fail → STOP and inform user
-```
-
-**Step 2: Extract & Verify Design Tokens**
-- ✅ Colors: Exact hex codes from Figma Inspector
-- ✅ Typography: Font family, size (px), weight, line-height, letter-spacing
-- ✅ Spacing: Padding, margin, gap values in px
-- ✅ Borders: Width, style, color, radius
-- ✅ Shadows: Offset, blur, spread, color, opacity
-- ✅ Interactive states: Hover, focus, active, disabled
-- ✅ Animations: Duration, easing, properties
-
-**Step 3: Component Structure**
-- Identify layout type: Flexbox vs Grid
-- Note component hierarchy (parent → children)
-- Check responsive behavior (mobile, tablet, desktop)
-- Verify stacking order (z-index only if overlapping)
-
-### 2. Styling - 100% Accuracy Required
-
-### Rule #5: 🚨 PRIORITIZE TAILWIND STANDARD CLASSES
-**✅ ALWAYS PREFER STANDARD TAILWIND CLASSES:**
-```typescript
-// ✅ BEST - Use standard Tailwind classes (responsive by default)
-className="text-xl font-semibold text-gray-900"     // Instead of text-[20px]
-className="p-4 m-6 gap-4"                          // Instead of p-[16px] m-[24px]
-className="bg-blue-500 hover:bg-blue-600"          // Instead of bg-[#3B82F6]
-className="rounded-lg shadow-md"                    // Instead of custom values
-className="w-full max-w-md mx-auto"                // Instead of w-[400px]
-
-// ✅ GOOD - Use bracket notation ONLY when Figma has non-standard values
-className="text-[22px] leading-[28px]"             // When Figma shows 22px exactly
-className="px-[18px] py-[14px]"                    // When Figma shows 18px/14px exactly
-className="bg-[#FF6B35]"                           // When Figma shows exact brand color
-
-// ❌ BAD - Using brackets for standard values
-className="text-[16px] leading-[24px]"             // Use text-base instead
-className="p-[16px] m-[24px]"                      // Use p-4 m-6 instead
-className="bg-[#3B82F6]"                           // Use bg-blue-500 instead
-```
-
-**Colors** (prioritize Tailwind palette):
-```typescript
-// ✅ BEST - Map Figma colors to Tailwind palette when close
-const colors = {
-  primary: 'blue-500',        // If Figma #3B82F6 matches blue-500
-  secondary: 'gray-500',      // If Figma #6B7280 matches gray-500
-  success: 'green-500',       // If Figma green matches green-500
-  danger: 'red-500',          // If Figma red matches red-500
-};
-
-// ✅ ACCEPTABLE - Use exact hex only when no Tailwind match
-const colors = {
-  brand: '#FF6B35',           // Unique brand color not in Tailwind
-  accent: '#8B5CF6',          // Custom accent color
-};
-
-// ❌ BAD - Using hex when Tailwind equivalent exists
-const colors = {
-  primary: '#3B82F6',         // This IS blue-500!
-  text: '#111827',            // This IS gray-900!
-};
-```
-
-**Typography** (prefer Tailwind scale):
-```typescript
-// ✅ BEST - Use Tailwind typography scale when possible
-const typography = {
-  h1: "text-4xl font-bold leading-tight",      // Instead of text-[36px]
-  h2: "text-2xl font-semibold leading-8",      // Instead of text-[24px]
-  body: "text-base leading-6",                 // Instead of text-[16px]
-  small: "text-sm leading-5",                  // Instead of text-[14px]
-};
-
-// ✅ ACCEPTABLE - Use exact values when Figma doesn't match Tailwind scale
-const typography = {
-  hero: "text-[56px] leading-[64px] font-bold tracking-[-0.02em]",
-  caption: "text-[13px] leading-[18px]",
-};
-```
-
-**Spacing** (prefer Tailwind spacing scale):
-```typescript
-// ✅ BEST - Use Tailwind spacing scale (4px increments)
-className="p-4 m-6 gap-8"                    // 16px, 24px, 32px
-className="px-6 py-3"                        // 24px, 12px
-className="space-y-4"                        // 16px vertical spacing
-
-// ✅ ACCEPTABLE - Use exact values when Figma doesn't match scale
-className="px-[18px] py-[14px]"              // Non-standard spacing from Figma
-className="gap-[22px]"                       // Exact gap from Figma
-```
-
-### Rule #7: 🚨 MANDATORY RESPONSIVE LAYOUTS
-**✅ MOBILE-FIRST RESPONSIVE LAYOUTS:**
-```typescript
-// ✅ BEST - Auto-responsive flexbox layouts
-<div className="flex flex-col md:flex-row gap-4 md:gap-8">
-  <aside className="w-full md:w-1/3 lg:w-1/4">Sidebar</aside>
-  <main className="flex-1">Content</main>
-</div>
-
-// ✅ BEST - Auto-responsive grid layouts
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-  <div>Card 1</div>
-  <div>Card 2</div>
-  <div>Card 3</div>
-  <div>Card 4</div>
-</div>
-
-// ✅ BEST - Container with responsive max-width
-<div className="w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-4">
-  Centered responsive container
-</div>
-
-// ✅ BEST - Responsive spacing and padding
-<section className="px-4 md:px-8 lg:px-12 xl:px-16 py-8 md:py-12 lg:py-16">
-  <div className="space-y-4 md:space-y-6 lg:space-y-8">
-    Content with responsive spacing
-  </div>
-</section>
-```
-
-**🚫 FORBIDDEN - NON-RESPONSIVE LAYOUTS:**
-```typescript
-// ❌ NEVER USE fixed layouts without responsive variants
-<div className="flex flex-row">No mobile consideration</div>
-<div className="grid grid-cols-4">Breaks on mobile</div>
-<div className="w-96">Fixed width</div>
-<div className="p-8">Same padding all screens</div>
-
-// ❌ NEVER USE absolute positioning for layouts
-<div className="absolute top-20 left-40">Not responsive</div>
-<div className="fixed w-64 h-full">Fixed sidebar</div>
-```
-
-**✅ RESPONSIVE LAYOUT PATTERNS:**
-```typescript
-// Hero section - Full responsive
-<section className="min-h-screen flex items-center justify-center px-4 md:px-8 lg:px-12">
-  <div className="max-w-4xl mx-auto text-center space-y-4 md:space-y-6 lg:space-y-8">
-    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">Hero Title</h1>
-    <p className="text-base md:text-lg lg:text-xl max-w-2xl mx-auto">Description</p>
-  </div>
-</section>
-
-// Card grid - Auto-responsive
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-  {items.map(item => (
-    <div key={item.id} className="bg-white rounded-lg p-4 md:p-6 shadow-md">
-      <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-4">{item.title}</h3>
-      <p className="text-sm md:text-base text-gray-600">{item.description}</p>
-    </div>
-  ))}
-</div>
-
-// Navigation - Responsive behavior
-<nav className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 p-4 md:p-6">
-  <div className="flex items-center gap-2">
-    <Logo className="w-8 h-8 md:w-10 md:h-10" />
-    <span className="text-lg md:text-xl font-bold">Brand</span>
-  </div>
-  <div className="flex flex-col md:flex-row gap-2 md:gap-6 w-full md:w-auto">
-    <a href="#" className="text-sm md:text-base hover:text-blue-600">Home</a>
-    <a href="#" className="text-sm md:text-base hover:text-blue-600">About</a>
-    <a href="#" className="text-sm md:text-base hover:text-blue-600">Contact</a>
-  </div>
-</nav>
-
-// Form layout - Responsive fields
-<form className="space-y-4 md:space-y-6 max-w-md md:max-w-lg lg:max-w-xl mx-auto">
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base" />
-    <input className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base" />
-  </div>
-  <textarea className="w-full p-3 md:p-4 border rounded-lg text-sm md:text-base h-24 md:h-32" />
-  <button className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-blue-500 text-white rounded-lg text-sm md:text-base">
-    Submit
-  </button>
-</form>
-```
-
-**Layout** (no absolute positioning):
-```typescript
-// ✅ Flexbox/Grid approach
-<div className="flex flex-col items-center justify-between gap-8 p-6">
-  <header>Header</header>
-  <main className="flex-1">Content</main>
-  <footer>Footer</footer>
-</div>
-
-// ✅ Grid for complex layouts
-<div className="grid grid-cols-12 gap-6">
-  <aside className="col-span-3">Sidebar</aside>
-  <main className="col-span-9">Content</main>
-</div>
-
-// ❌ Absolute positioning
-<div className="relative h-screen">
-  <div className="absolute top-20 left-40">Content</div>
-</div>
-```
-
-### 3. Component Pattern
-```typescript
-import { cn } from "~/utils";
-import { motion } from "framer-motion";
-import { Button } from "@heroui/react";
-
-interface Props {
-  // TypeScript types required
-  className?: string;
-}
-
-export function Component({ className, ...props }: Props) {
-  // ✅ Check if Figma data is available
-  // If not, throw error or return null
-
-  return (
-    <motion.div
-      // Animation from Figma (if specified)
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={cn(
-        // Layout - NO absolute positioning
-        "flex flex-col items-center",
-
-        // Spacing (exact from Figma)
-        "px-6 py-4 gap-4",
-
-        // Typography (exact from Figma)
-        "text-[16px] leading-[24px] font-semibold",
-
-        // Colors (exact hex from Figma)
-        "bg-white text-[#111827]",
-
-        // Effects (exact from Figma)
-        "rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.1)]",
-
-        // Responsive (from Figma breakpoints)
-        "md:flex-row md:px-8 lg:gap-8",
-
-        // Interactive (from Figma states)
-        "hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]",
-        "transition-all duration-300",
-
-        className
-      )}
-    >
-      {/* Content */}
-    </motion.div>
-  );
-}
-```
-
-### 4. Error Handling for Figma Data
-```typescript
-// Add to component files when using Figma data
-const FIGMA_DATA_REQUIRED = true;
-
-export function Component() {
-  // ✅ Validate design data exists
-  if (FIGMA_DATA_REQUIRED && !designTokens) {
-    console.error("❌ Missing Figma design data. Cannot render component.");
-    return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">
-            Design Data Missing
-          </h2>
-          <p className="text-gray-600">
-            Cannot render component without Figma design specifications.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Proceed with implementation using exact values
-  return (/* component */);
-}
-```
-
-### 5. Responsive Breakpoints & Typography
-- Mobile: < 768px (single column, touch-friendly, NO absolute)
-- Tablet: 768px - 1024px (2-column flex/grid layouts)
-- Desktop: ≥ 1024px (full multi-column flex/grid)
-
-### Rule #6: 🚨 MANDATORY RESPONSIVE FONT SIZES
-**✅ ALWAYS USE RESPONSIVE TYPOGRAPHY:**
-```typescript
-// ✅ BEST - Mobile-first responsive typography
-className="text-2xl md:text-4xl lg:text-5xl"           // Scales up from mobile
-className="text-base md:text-lg lg:text-xl"            // Body text scaling
-className="text-sm md:text-base lg:text-lg"            // Small text scaling
-
-// ✅ COMPREHENSIVE responsive text example
-<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-  Hero Title
-</h1>
-
-<p className="text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
-  Body content that scales appropriately
-</p>
-
-// ✅ RESPONSIVE line-height and spacing
-className="leading-tight md:leading-normal lg:leading-relaxed"
-className="tracking-tight md:tracking-normal lg:tracking-wide"
-```
-
-**🚫 FORBIDDEN - NON-RESPONSIVE TYPOGRAPHY:**
-```typescript
-// ❌ NEVER USE fixed font sizes without responsive variants
-className="text-4xl"                    // Only desktop size
-className="text-[32px]"                 // Fixed pixel size
-className="text-lg font-bold"           // No mobile consideration
-
-// ❌ NEVER USE same size across all breakpoints
-<h1 className="text-6xl">Title</h1>     // Too big for mobile
-<p className="text-xs">Text</p>        // Too small for desktop
-```
-
-**✅ RESPONSIVE TYPOGRAPHY SCALE:**
-```typescript
-// Mobile-first typography system
-const responsiveText = {
-  // Headings - Scale significantly across breakpoints
-  h1: "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
-  h2: "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl",
-  h3: "text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl",
-  h4: "text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl",
-
-  // Body text - Subtle scaling
-  body: "text-sm sm:text-base md:text-lg",
-  bodyLarge: "text-base sm:text-lg md:text-xl",
-
-  // Small text - Minimal scaling
-  caption: "text-xs sm:text-sm md:text-base",
-  small: "text-xs sm:text-sm",
-};
-
-// Usage in components
-<h1 className={cn(responsiveText.h1, "font-bold leading-tight")}>Title</h1>
-<p className={cn(responsiveText.body, "leading-relaxed")}>Content</p>
-```
-
-**Use:** `useMediaQuery` from @mantine/hooks for JS logic
-```typescript
-import { useMediaQuery } from '@mantine/hooks';
-
-const isMobile = useMediaQuery('(max-width: 768px)');
-const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1024px)');
-const isDesktop = useMediaQuery('(min-width: 1024px)');
-
-// ✅ Conditional rendering based on breakpoint
-{isMobile ? <MobileNav /> : <DesktopNav />}
-
-// ✅ Or use Tailwind responsive classes (PREFERRED)
-<div className="flex flex-col md:flex-row">Content</div>
-```
-
-### 6. Animations (Framer Motion)
-
-**Only if specified in Figma:**
-```typescript
-// ✅ Figma shows fade-in animation
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.4, ease: "easeOut" }
-};
-
-// ✅ Figma shows hover scale
-<motion.button
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
-  transition={{ type: "spring", stiffness: 400, damping: 17 }}
->
-  Button Text
-</motion.button>
-
-// ❌ Don't add animations not in Figma
-<motion.div animate={{ rotate: 360 }}>Content</motion.div> // Not in design!
-```
-
-### 7. State Management (Valtio)
-```typescript
-import { proxy, useSnapshot } from 'valtio';
-
-// ✅ Simple, reactive state
-export const uiStore = proxy({
-  isMenuOpen: false,
-  theme: 'light' as 'light' | 'dark',
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  },
-});
-
-// In component
-const snap = useSnapshot(uiStore);
-```
-
-### 8. API Calls (xior)
-```typescript
-import xior from 'xior';
-
-const api = xior.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
-});
-
-// ✅ Type-safe API calls
-export const fetchProducts = () => api.get<Product[]>('/products');
-```
-
-### 9. Utilities
-
-- **cn()**: `~/utils` for className merging (tailwind-merge + clsx)
-- **Ramda**: Functional programming utilities
-- **js-cookie**: Cookie management
-- **query-string**: URL param parsing
-- `app/utils/http.ts` - HTTP client utilities (xior)
-- `app/utils/animations.ts` - Animation utilities (framer-motion)
-
-### 10. UI Components Priority
-
-1. **Use HeroUI** components as base (Button, Input, Card, Modal)
-2. **Extend** with Tailwind classes for exact Figma styling
-3. **Wrap** with Framer Motion for animations (if in Figma)
-4. **Match** Figma design 100% - NO assumptions
-```typescript
-import { Button } from "@heroui/react";
-
-// ✅ Extend HeroUI with exact Figma styles
-<Button
-  className={cn(
-    "bg-[#0066FF]",              // Exact from Figma
-    "text-white",
-    "px-6 py-3",                 // Exact spacing
-    "rounded-lg",
-    "hover:bg-[#0052CC]",        // Exact hover color
-    "transition-colors duration-200"
-  )}
+<Button 
+  className="
+    bg-primary hover:bg-primary-hover 
+    hover:scale-105 hover:shadow-lg
+    active:scale-95
+    transition-all duration-200
+    focus:ring-2 focus:ring-primary focus:ring-offset-2
+  "
 >
   Click Me
 </Button>
 ```
 
-### 11. Verification Checklist
+### 8. SPACING & LAYOUT CONSISTENCY
+- ✅ Use consistent spacing scale: 4, 8, 12, 16, 24, 32, 48, 64px
+- ✅ Maintain vertical rhythm with gap utilities
+- ✅ Use `space-y-*` for vertical stacks
+- ✅ Use `gap-*` for flex/grid layouts
+- ✅ Container padding: `px-4 md:px-6 lg:px-8`
 
+### 9. TYPOGRAPHY HIERARCHY
+- ✅ Clear size progression: h1 > h2 > h3 > body > small
+- ✅ Consistent line-height: 1.2 for headings, 1.6 for body
+- ✅ Letter-spacing: tighter for headings, normal for body
+- ✅ Font weights: Bold (700) headings, Regular (400) body
+```tsx
+<h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
+<h2 className="text-3xl md:text-4xl font-bold leading-tight">
+<p className="text-base md:text-lg leading-relaxed">
+```
+
+### 10. CAROUSEL DETECTION & IMPLEMENTATION
+**🚨 AUTO-DETECT CAROUSEL FROM FIGMA:**
+- ✅ If Figma has arrow icons (← →) near content → Implement carousel
+- ✅ If Figma shows horizontal scrollable content → Implement carousel
+- ✅ Use `embla-carousel-react` (already in dependencies)
+- ✅ Add prev/next buttons with arrow icons from Figma
+
+## SETUP PROCESS (AFTER FIGMA DATA)
+
+### 1. Configure Tailwind Theme (`app/app.css`)
+```css
+@theme {
+  /* Extract from Figma and add here */
+  --font-family-sans: "Inter", system-ui;
+  --color-primary: #0066FF;        /* Figma brand color */
+  --color-secondary: #6B7280;      /* Figma secondary */
+  --container-xl: 1280px;           /* Figma max-width */
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+```
+
+### 2. Use Custom Tokens in Components
+```tsx
+// ✅ Use configured tokens
+<div className="font-sans text-primary bg-white">
+  <div className="container mx-auto max-w-xl">
+    <Button className="bg-primary hover:bg-primary-hover">
+      Action
+    </Button>
+  </div>
+</div>
+```
+
+## TECH STACK
+- React 19 + React Router v7 (file-based routing)
+- TypeScript 5.8+ (NO `any` types)
+- Tailwind CSS v4 + HeroUI v2.8+
+- Framer Motion v12+ (animations)
+- Valtio v2+ (state)
+- xior v0.7+ (HTTP)
+- Cloudflare Pages (SSR)
+
+## WORKFLOW
+
+### Step 1: Fetch Figma
+```bash
+get_figma_data(fileKey, nodeId)
+# If fails → STOP and inform user
+```
+
+### Step 2: Setup Tailwind Config (MANDATORY)
+**After getting Figma data, setup in `app/app.css`:**
+
+```css
+@theme {
+  /* Fonts from Figma */
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-heading: "Poppins", system-ui, sans-serif;
+  
+  /* Colors from Figma - exact hex values */
+  --color-primary: #0066FF;
+  --color-primary-hover: #0052CC;
+  --color-secondary: #6B7280;
+  --color-accent: #FF6B35;
+  --color-success: #10B981;
+  --color-danger: #EF4444;
+  
+  /* Container max-widths from Figma */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+}
+
+/* Load fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+```
+
+### Step 3: Extract Design Tokens
+- ✅ Colors → Add to `@theme`
+- ✅ Typography → Add fonts to `@theme`, use in classes
+- ✅ Spacing → Note for consistent use
+- ✅ Container widths → Add to `@theme`
+- ✅ Border radius, shadows → Note for components
+
+### Step 4: Plan Layout with HeroUI
+**🚨 ALWAYS USE HEROUI COMPONENTS FIRST:**
+
+```tsx
+import { 
+  Button, Card, Input, Modal, Navbar,
+  Divider, Chip, Avatar, Dropdown, Tabs
+} from "@heroui/react";
+
+// ✅ Use HeroUI for structure
+<Navbar>...</Navbar>           // Navigation
+<Card>...</Card>                // Content blocks
+<Button>...</Button>            // Actions
+<Input>...</Input>              // Forms
+<Modal>...</Modal>              // Overlays
+
+// ✅ Extend with Tailwind for exact Figma match
+<Button 
+  className="bg-primary hover:bg-primary-hover px-6 py-3"
+  radius="lg"
+  size="lg"
+>
+  Click Me
+</Button>
+
+<Card className="p-8 shadow-lg rounded-2xl">
+  <h2 className="text-2xl font-heading font-bold">Title</h2>
+  <p className="text-base text-secondary">Content</p>
+</Card>
+```
+
+### Step 5: Build Layout Structure
+- ✅ Use HeroUI components for UI elements
+- ✅ Use Flexbox/Grid for positioning (NO absolute)
+- ✅ Mobile-first responsive classes
+- ✅ Apply custom Tailwind tokens from `@theme`
+
+### Step 6: Implement & Style
+- ✅ Start with HeroUI component
+- ✅ Add exact spacing from Figma with Tailwind
+- ✅ Use custom color/font tokens: `bg-primary`, `font-heading`
+- ✅ Add Framer Motion ONLY if in Figma
+
+### Step 7: Verify Checklist
 **Before Coding:**
-- [ ] Figma data retrieved successfully (no errors)
-- [ ] Design tokens extracted (colors, typography, spacing)
-- [ ] Component structure understood
-- [ ] Layout approach planned (flex/grid, NO absolute)
-- [ ] Responsive behavior defined
+- [ ] Figma data fetched successfully
+- [ ] Tailwind `@theme` configured with Figma tokens
+- [ ] Fonts loaded and added to theme
+- [ ] Colors added to theme (custom tokens)
+- [ ] Container widths configured
+- [ ] HeroUI components identified for layout
 
 **After Coding:**
-- [ ] Visual comparison: screenshot code vs Figma side-by-side
-- [ ] Colors match exactly (use color picker to verify)
-- [ ] Typography: font, size, weight, line-height matches
-- [ ] Spacing: padding, margin, gap matches Figma Inspector values
-- [ ] NO absolute positioning used (unless explicit overlay/modal)
-- [ ] Layout responds properly at all breakpoints
-- [ ] Interactions: hover, focus, active states work
-- [ ] Animations smooth (only if in Figma)
-- [ ] Performance: lazy loading, optimized images
-- [ ] Accessibility: keyboard nav, ARIA labels, contrast ≥ 4.5:1
-- [ ] No console errors or warnings
-- [ ] TypeScript types complete (no `any`)
+- [ ] Visual match: code vs Figma 100%
+- [ ] Using HeroUI components where applicable
+- [ ] Colors from custom tokens (not hardcoded)
+- [ ] Typography matches Figma
+- [ ] Spacing matches exactly
+- [ ] NO absolute positioning
+- [ ] Responsive at all breakpoints
+- [ ] NO console errors
+- [ ] TypeScript complete (NO `any`)
+- [ ] Hover/focus states on interactive elements
+- [ ] Loading states implemented
+- [ ] Accessibility: ARIA labels, keyboard nav, contrast ≥4.5:1
 
-## Figma Integration
+## RESPONSIVE DESIGN
+```tsx
+// ✅ Mobile-first Tailwind
+<div className="flex flex-col md:flex-row lg:gap-8">
+  <h1 className="text-2xl md:text-4xl lg:text-5xl">Title</h1>
+</div>
 
-When implementing new sections from Figma:
-1. Use Figma MCP tools if available to get design context
-2. Download all assets (images, icons) to `public/images/[section-name]/`
-3. Create component in `app/components/Section[Name].tsx`
-4. Match exact pixel values, fonts, and colors from design
-5. Add to page in `app/routes/_index.tsx`
-6. Update `app/components/README.md` with documentation
-
-## Component Patterns
-
-**Figma-to-Code Workflow**:
-1. Components are pixel-perfect implementations from Figma designs
-2. All images are exported from Figma and saved to `public/images/`
-3. Use exact spacing, typography, and colors from design
-
-## Critical Rules Summary
-
-### 🚨 BLOCKING RULES (Must follow or STOP)
-1. **NO CODE WITHOUT FIGMA DATA** - If fetch fails, STOP and inform user
-2. **NO ASSUMPTIONS** - Never guess colors, spacing, or typography
-3. **NO ABSOLUTE POSITIONING** - Use flex/grid (except explicit overlays)
-4. **100% ACCURACY** - All values must match Figma Inspector exactly
-
-### ⚠️ ESSENTIAL RULES (Must follow)
-- Use React Router v7 patterns (NO react-router-dom imports)
-- Use Valtio for state (NO Redux/Zustand)
-- Use xior for HTTP (NO axios directly)
-- Tailwind CSS v4 with @tailwindcss/vite plugin
-- All animations via Framer Motion (only if in Figma)
-- TypeScript strict mode - NO `any` types
-- Mobile-first responsive design
-- HeroUI as base for UI components
-
-### 📋 PROCESS RULES (Follow in order)
-1. Fetch Figma data → Verify success → Extract tokens
-2. Plan layout (flex/grid) → Identify components → Structure hierarchy
-3. Implement section by section → Verify each section
-4. Add interactions/animations (only from Figma)
-5. Test responsive → Verify accessibility
-6. Optimize performance → Final comparison
-
-## Workflow
-```mermaid
-graph TD
-    A[Start] --> B{Fetch Figma Data}
-    B -->|Success| C[Extract Design Tokens]
-    B -->|Fail| D[STOP - Inform User]
-    C --> E[Plan Layout - Flex/Grid]
-    E --> F[Implement Components]
-    F --> G[Verify vs Figma]
-    G -->|Match| H[Add Interactions]
-    G -->|Not Match| I[Debug & Fix]
-    I --> G
-    H --> J[Test Responsive]
-    J --> K[Optimize & Deploy]
-    D --> L[Wait for Fix/Screenshot]
-    L --> B
+// ✅ JS logic with @mantine/hooks
+import { useMediaQuery } from '@mantine/hooks';
+const isMobile = useMediaQuery('(max-width: 768px)');
 ```
 
-## Error Messages Templates
+## ANIMATIONS (Framer Motion)
+```tsx
+// ✅ ONLY if specified in Figma
+<motion.button
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  transition={{ type: "spring", stiffness: 400 }}
+>
+  Button
+</motion.button>
 
-**When Figma Fetch Fails:**
-```
-❌ FIGMA DATA FETCH FAILED
-
-Error: [exact error message]
-
-CANNOT PROCEED - Accurate design data required.
-
-Next steps:
-1. Verify Figma URL: [url]
-2. Check access permissions
-3. Try alternative: provide screenshot
-
-I will NOT implement without verified design specifications.
-```
-
-**When User Asks to Proceed Without Data:**
-```
-❌ CANNOT PROCEED WITHOUT FIGMA DATA
-
-Per project rules (WARP.md):
-- NO assumptions or guesses allowed
-- 100% accuracy required
-- All values must come from Figma Inspector
-
-Please provide:
-- Working Figma URL with access, OR
-- High-quality screenshot with visible specs
-
-I must ensure implementation matches your design exactly.
+// ✅ Page transitions
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -20 }}
+  transition={{ duration: 0.3 }}
+>
+  Content
+</motion.div>
 ```
 
-**When Absolute Positioning Requested:**
+## ACCESSIBILITY (A11Y)
+```tsx
+// ✅ Semantic HTML
+<nav aria-label="Main navigation">
+<main>
+<article>
+<button aria-label="Close menu" aria-expanded={isOpen}>
+
+// ✅ Keyboard navigation
+<button 
+  onClick={handleClick}
+  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+  tabIndex={0}
+>
+
+// ✅ Color contrast ≥4.5:1 for text
+// ✅ Focus visible: focus:ring-2 focus:ring-primary
+// ✅ Skip to content link for screen readers
+<a href="#main-content" className="sr-only focus:not-sr-only">
+  Skip to content
+</a>
 ```
-⚠️ ABSOLUTE POSITIONING NOT RECOMMENDED
 
-Per project rules (WARP.md):
-- Use Flexbox/Grid for layouts
-- Absolute only for overlays/modals
+## STATE (Valtio)
+```tsx
+import { proxy, useSnapshot } from 'valtio';
 
-Can I implement this using flex/grid instead?
-This will be:
-- More maintainable
-- More responsive
-- Easier to adjust
+export const store = proxy({
+  isMenuOpen: false,
+  toggle() { this.isMenuOpen = !this.isMenuOpen; }
+});
 
-If absolute is required, please confirm this is an overlay/modal/tooltip.
+// In component
+const snap = useSnapshot(store);
 ```
+
+## HEROUI COMPONENT EXAMPLES
+
+```tsx
+import { Button, Card, Input, Navbar, Modal } from "@heroui/react";
+
+// ✅ Navbar with HeroUI
+<Navbar className="bg-white shadow-sm">
+  <Navbar.Brand>Logo</Navbar.Brand>
+  <Navbar.Content>
+    <Navbar.Link href="/">Home</Navbar.Link>
+    <Navbar.Link href="/about">About</Navbar.Link>
+  </Navbar.Content>
+</Navbar>
+
+// ✅ Card with custom styling
+<Card className="p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+  <Card.Header>
+    <h3 className="text-2xl font-heading font-bold text-primary">Title</h3>
+  </Card.Header>
+  <Card.Body>
+    <p className="text-base text-secondary leading-relaxed">Content here</p>
+  </Card.Body>
+  <Card.Footer>
+    <Button className="bg-primary hover:bg-primary-hover">Action</Button>
+  </Card.Footer>
+</Card>
+
+// ✅ Form with HeroUI Input
+<form className="flex flex-col gap-4">
+  <Input 
+    label="Email"
+    type="email"
+    placeholder="Enter your email"
+    className="w-full"
+  />
+  <Button type="submit" className="bg-primary">Submit</Button>
+</form>
+```
+
+## REMEMBER
+1. **Setup First**: Configure `@theme` with Figma tokens before coding
+2. **HeroUI First**: Always check if HeroUI has the component
+3. **Custom Tokens**: Use `bg-primary`, `font-heading` (not hardcoded values)
+4. **Match 100%**: Code must match Figma exactly
+5. **No Assumptions**: All values from Figma only
+6. **Mobile-First**: Responsive classes on everything
+7. **TypeScript Strict**: NO `any` types allowed
+8. **Micro-interactions**: Hover, focus, active states on ALL interactive elements
+9. **Accessibility**: Semantic HTML, ARIA labels, keyboard nav, contrast ≥4.5:1
+
+## QUALITY CHECKLIST (BEFORE DELIVERY)
+- [ ] ✅ Pixel-perfect match with Figma (use color picker to verify)
+- [ ] ✅ All interactive elements have hover/focus/active states
+- [ ] ✅ Loading states for async operations
+- [ ] ✅ Error states with retry functionality
+- [ ] ✅ Empty states with helpful messages
+- [ ] ✅ Images optimized (WebP, lazy, dimensions set)
+- [ ] ✅ Responsive on mobile (320px), tablet (768px), desktop (1024px+)
+- [ ] ✅ Keyboard navigation works (Tab, Enter, Escape)
+- [ ] ✅ Screen reader friendly (ARIA labels, semantic HTML)
+- [ ] ✅ Color contrast ≥4.5:1 for text
+- [ ] ✅ TypeScript no errors/warnings
