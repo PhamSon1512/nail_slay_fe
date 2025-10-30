@@ -344,6 +344,110 @@ import { Button, Card, Input, Navbar, Modal } from "@heroui/react";
 </form>
 ```
 
+## NAMING CONVENTIONS
+
+### Files & Folders
+| Type | Convention | Example |
+| ---- | ---------- | ------- |
+| Route files | `kebab-case.tsx` | `login.tsx`, `user-profile.tsx` |
+| Component files | `PascalCase.tsx` | `UserCard.tsx`, `LoginForm.tsx` |
+| Utility files | `kebab-case.ts` | `format-date.ts`, `api-client.ts` |
+| Store files | `kebab-case.ts` + `Store` | `auth-store.ts`, `user-store.ts` |
+| Hook files | `camelCase.ts` + `use` prefix | `useAuth.ts`, `useDebounce.ts` |
+| Type files | `kebab-case.ts` | `user-types.ts`, `api-types.ts` |
+| Folders | `kebab-case` | `user-profile/`, `shared-components/` |
+
+### Code Naming
+| Type | Convention | Example |
+| ---- | ---------- | ------- |
+| Components | `PascalCase` | `UserProfile`, `LoginForm` |
+| Props interface | `{Component}Props` | `UserProfileProps`, `LoginFormProps` |
+| Variables | `camelCase` | `userName`, `fetchData` |
+| Boolean vars | `is/has/should/can` prefix | `isLoading`, `hasPermission` |
+| Functions | `camelCase` + verb | `getUserData`, `formatDate` |
+| Event handlers | `handle{Event}` | `handleClick`, `handleSubmit` |
+| Interfaces/Types | `PascalCase` | `User`, `AuthResponse`, `UserId` |
+| Enums | `PascalCase` + `UPPER_SNAKE_CASE` values | `UserRole.ADMIN` |
+| Constants | `UPPER_SNAKE_CASE` | `API_BASE_URL`, `MAX_RETRY` |
+| Config objects | `camelCase` | `apiConfig`, `routeConfig` |
+| Custom hooks | `use{Name}` | `useAuth`, `useLocalStorage` |
+| Stores (Valtio) | `camelCase` + `Store` | `authStore`, `userStore` |
+| Store actions | `camelCase` verbs | `login`, `logout`, `updateUser` |
+| API clients | `camelCase` + `Api` | `authApi`, `userApi` |
+| API methods | HTTP verb prefix | `getUser`, `postLogin`, `deleteAccount` |
+| Route loaders | `{route}Loader` | `userProfileLoader` |
+| Route actions | `{route}Action` | `loginAction` |
+
+### Examples
+```typescript
+// ✅ Component with Props
+interface UserProfileProps {
+  userId: string;
+  onEdit?: () => void;
+}
+
+export function UserProfile({ userId, onEdit }: UserProfileProps) {
+  const isLoading = false;
+  const hasPermission = true;
+  
+  function handleEditClick() {
+    onEdit?.();
+  }
+  
+  return <div>...</div>;
+}
+
+// ✅ Store (auth-store.ts)
+export const authStore = proxy({
+  user: null as User | null,
+  isAuthenticated: false,
+  login(user: User) {
+    this.user = user;
+    this.isAuthenticated = true;
+  },
+  logout() {
+    this.user = null;
+    this.isAuthenticated = false;
+  },
+});
+
+// ✅ API client (auth-api.ts)
+export const authApi = {
+  postLogin: (credentials: LoginCredentials) => 
+    api.post('/auth/login', credentials),
+  getProfile: () => api.get('/auth/profile'),
+  deleteAccount: (id: string) => api.delete(`/auth/${id}`),
+};
+
+// ✅ Custom hook (useAuth.ts)
+export function useAuth() {
+  const { isAuthenticated, user } = useSnapshot(authStore);
+  
+  const handleLogin = async (credentials: LoginCredentials) => {
+    const response = await authApi.postLogin(credentials);
+    authStore.login(response.user);
+  };
+  
+  return { isAuthenticated, user, handleLogin };
+}
+
+// ✅ Constants
+const API_BASE_URL = 'https://api.example.com';
+const MAX_LOGIN_ATTEMPTS = 3;
+
+const apiConfig = {
+  timeout: 5000,
+  retries: 3,
+};
+
+// ✅ Enum
+enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  GUEST = 'GUEST',
+}
+```
+
 ## REMEMBER
 1. **Setup First**: Configure `@theme` with Figma tokens before coding
 2. **HeroUI First**: Always check if HeroUI has the component
@@ -352,8 +456,9 @@ import { Button, Card, Input, Navbar, Modal } from "@heroui/react";
 5. **No Assumptions**: All values from Figma only
 6. **Mobile-First**: Responsive classes on everything
 7. **TypeScript Strict**: NO `any` types allowed
-8. **Micro-interactions**: Hover, focus, active states on ALL interactive elements
-9. **Accessibility**: Semantic HTML, ARIA labels, keyboard nav, contrast ≥4.5:1
+8. **Naming**: Follow conventions table (kebab-case files, PascalCase components, camelCase variables)
+9. **Micro-interactions**: Hover, focus, active states on ALL interactive elements
+10. **Accessibility**: Semantic HTML, ARIA labels, keyboard nav, contrast ≥4.5:1
 
 ## QUALITY CHECKLIST (BEFORE DELIVERY)
 - [ ] ✅ Pixel-perfect match with Figma (use color picker to verify)
