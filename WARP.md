@@ -140,7 +140,9 @@ mcp0_get_design_context({
   nodeId: "4:34960",  // Required: extracted from URL
   clientLanguages: "typescript",
   clientFrameworks: "react",
-  dirForAssetWrites: "/absolute/path/to/project/public/assets"  // Assets saved here
+  // 🚨 MUST use actual absolute path (run `pwd` to find root)
+  // Example: "/Users/username/projects/my-app/public/assets"
+  dirForAssetWrites: "/Users/hungvn6.sc/github/mine/react-router-vite-cfp-heroui/public/assets"
 })
 ```
 
@@ -148,7 +150,8 @@ mcp0_get_design_context({
 - Design structure (XML or JSON)
 - CSS styles and measurements
 - Color values, typography specs
-- Export assets (images, icons) → saved to `public/assets/`
+- Export assets (images, logos, custom icons) → saved to `public/assets/`
+- ❌ Standard UI icons → Use `react-icons` instead
 
 **If fetch fails:**
 1. Check Figma desktop app is running
@@ -174,6 +177,9 @@ mcp0_get_variable_defs({
 ```
 
 **Map to @theme later** in Step 2.2
+- Copy values from JSON output
+- Paste into `app/app.css` under `@theme`
+- Example: `"color/primary/500": "#0066FF"` → `--color-primary-500: #0066FF;`
 
 ---
 
