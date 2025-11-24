@@ -131,12 +131,6 @@ export const links: Route.LinksFunction = () => [
 }
 ```
 
-**Usage:**
-```tsx
-<div className="font-sans text-primary">       {/* NOT font-family-sans */}
-<h1 className="font-heading">                  {/* NOT font-family-heading */}
-<Button className="bg-primary hover:bg-primary-hover">
-```
 
 ---
 
@@ -251,11 +245,7 @@ npx tsc --noEmit     # TypeScript validation
 - [ ] No `any` types used
 - [ ] Responsive on mobile (320px), tablet (768px), desktop (1024px+)
 
-**Visual comparison:**
-1. Take screenshot from Figma
-2. Open dev server in browser
-3. Use overlay comparison or side-by-side
-4. Check pixel-perfect alignment
+
 
 #### Step 5.3: Accessibility Audit
 **Tools:** Browser DevTools → Lighthouse, [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
@@ -356,19 +346,7 @@ npx tsc --noEmit     # TypeScript validation
 
 ---
 
-## REMEMBER
 
-1. **Figma First**: Never code without Figma data
-2. **Setup First**: Configure fonts & theme before components
-3. **HeroUI First**: Always check if component exists
-4. **Custom Tokens**: Use `bg-primary`, `font-heading` (NOT hardcoded)
-5. **Variable Names**: Use `--font-sans` (NOT `--font-family-sans`)
-6. **Asset Paths**: Use `/assets/` from `public/assets/` folder
-7. **Match 100%**: Code must match Figma exactly
-8. **Mobile-First**: Responsive classes on everything
-9. **TypeScript Strict**: NO `any` types allowed
-
----
 
 ## REFERENCE - CODE STANDARDS
 
@@ -391,119 +369,19 @@ npx tsc --noEmit     # TypeScript validation
 - Hooks: `use{Name}` (e.g., `useAuth`)
 - Stores: `camelCase` + `Store` (e.g., `authStore`)
 
-### Responsive Design Patterns
-```tsx
-// Mobile-first Tailwind classes
-<div className="flex flex-col md:flex-row lg:gap-8">
-  <h1 className="text-2xl md:text-4xl lg:text-5xl">Title</h1>
-</div>
+### Best Practices
 
-// Responsive spacing
-<section className="py-8 md:py-12 lg:py-16">
-  <div className="px-4 md:px-6 lg:px-8">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-```
+**Responsive Design:**
+- Mobile-first: `text-2xl md:text-4xl lg:text-5xl`
+- Spacing: `py-8 md:py-12 lg:py-16`
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
 
-### Animations (Framer Motion)
-**🚨 ONLY add if shown in Figma**
-
+**Animations (ONLY if in Figma):**
 ```tsx
 import { motion } from 'framer-motion';
-
-// Button hover/tap
-<motion.button
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
-  transition={{ type: "spring", stiffness: 400 }}
->
-  Button
-</motion.button>
-
-// Page transitions
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
->
-  Content
-</motion.div>
+<motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
 ```
 
-### State Management (Valtio)
-```tsx
-import { proxy, useSnapshot } from 'valtio';
-
-// Create store
-export const store = proxy({
-  isMenuOpen: false,
-  toggle() { this.isMenuOpen = !this.isMenuOpen; }
-});
-
-// Use in component
-function Component() {
-  const snap = useSnapshot(store);
-  return <div>{snap.isMenuOpen && <Menu />}</div>;
-}
-```
-
-### Detailed Design Rules
-
-#### Spacing & Layout
-- Use consistent spacing scale: 4, 8, 12, 16, 24, 32, 48, 64px
-- Maintain vertical rhythm with gap utilities
-- Use `space-y-*` for vertical stacks, `gap-*` for flex/grid
-- Container padding: `px-4 md:px-6 lg:px-8`
-
-#### Typography Hierarchy
-- Clear size progression: h1 > h2 > h3 > body > small
-- Line-height: 1.2 for headings, 1.6 for body
-- Letter-spacing: tighter for headings, normal for body
-- Font weights: Bold (700) headings, Regular (400) body
-```tsx
-<h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
-<p className="text-base md:text-lg leading-relaxed">
-```
-
-#### Micro-interactions
-- Add hover states to ALL interactive elements
-- Use `transition-all duration-200` for smooth effects
-- Focus states: `focus:ring-2 focus:ring-primary`
-- Disabled states: `disabled:opacity-50 disabled:cursor-not-allowed`
-```tsx
-<Button 
-  className="
-    bg-primary hover:bg-primary-hover 
-    hover:scale-105 hover:shadow-lg
-    active:scale-95
-    transition-all duration-200
-    focus:ring-2 focus:ring-primary focus:ring-offset-2
-  "
->
-  Click Me
-</Button>
-```
-
-#### Images & Assets
-- Use WebP format with PNG/JPG fallback
-- Add `loading="lazy"` for images below fold
-- Use `width` and `height` attributes (prevent layout shift)
-- Optimize images: max 100KB for hero, 50KB for thumbnails
-```tsx
-<picture>
-  <source srcset="/assets/hero-mobile.webp" media="(max-width: 768px)" />
-  <source srcset="/assets/hero-desktop.webp" media="(min-width: 769px)" />
-  <img src="/assets/hero-desktop.jpg" alt="Hero" width="1920" height="1080" />
-</picture>
-```
-
-#### Carousel Implementation
-**Auto-detect from Figma:**
-- If Figma has arrow icons (← →) near content → Implement carousel
-- If Figma shows horizontal scrollable content → Implement carousel
-- Use `embla-carousel-react` (already in dependencies)
-
-#### Tailwind Best Practices
-- Prefer standard classes: `text-xl` instead of `text-[20px]`
-- Use `p-4 m-6` instead of `p-[16px] m-[24px]`
-- Use `bg-blue-500` instead of `bg-[#3B82F6]`
-- Use brackets `[]` ONLY for non-standard Figma values
+**Tailwind:**
+- Prefer standard: `text-xl` not `text-[20px]`
+- Use brackets `[]` ONLY for exact Figma values
