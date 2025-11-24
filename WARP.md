@@ -25,20 +25,10 @@
 - ❌ DON'T build from scratch if HeroUI component exists
 - 📖 Verify API at [HeroUI Docs](https://heroui.com/docs) before implementing
 
-### 5. PREFER REACT-ICONS FOR UI ICONS
-- ✅ For standard UI icons (arrows, user, home, etc.) → Use `react-icons`
-- ✅ Search at [react-icons.github.io](https://react-icons.github.io/react-icons/)
-- ✅ Export SVG/PNG **ONLY** for brand logos or unique illustrations
-```tsx
-import { FaArrowRight } from "react-icons/fa6";
-<Button endContent={<FaArrowRight />}>Get Started</Button>
-```
-
 ## TECH STACK
 - React 19 + React Router v7 (file-based routing)
 - TypeScript 5.8+ (NO `any` types)
 - Tailwind CSS v4 + HeroUI v2.8+
-- React Icons v5+ (for all icons)
 - Framer Motion v12+ (animations)
 - Valtio v2+ (state)
 - xior v0.7+ (HTTP)
@@ -85,8 +75,7 @@ mcp0_get_design_context({
 
 **You'll get:**
 - Design structure (XML/JSON), CSS styles, colors, typography
-- Assets exported to `public/assets/` (images, logos, custom icons)
-- ❌ Standard UI icons → Use `react-icons` instead
+- Assets exported to `public/assets/` (images, logos, icons)
 
 **If fetch fails:**
 1. Check Figma desktop app is running
@@ -166,18 +155,12 @@ import { Button, Card, Input, Modal, Navbar, Tabs } from "@heroui/react";
 - Navigation → `<Navbar>`, `<Tabs>`
 - Modals/Dialogs → `<Modal>`
 
-**Icons - Use react-icons:**
-- Search UI icons at [react-icons.github.io](https://react-icons.github.io)
-- Import from appropriate library: `import { FaArrowRight, FaUser } from "react-icons/fa6"`
-- Only export SVG for brand logos/unique illustrations
-
 #### Step 3.2: Create Component File
 **Location:** `app/components/sections/ComponentName.tsx`
 
 ```tsx
 // app/components/sections/HeroSection.tsx
 import { Button } from "@heroui/react";
-import { FaArrowRight } from "react-icons/fa6";
 
 export function HeroSection() {
   return (
@@ -188,8 +171,7 @@ export function HeroSection() {
           Welcome to Z9 Studio
         </h1>
         <Button 
-          className="bg-primary hover:bg-primary-hover" 
-          endContent={<FaArrowRight />}
+          className="bg-primary hover:bg-primary-hover"
         >
           Get Started
         </Button>
@@ -334,13 +316,6 @@ npx tsc --noEmit     # TypeScript validation
 3. Import types: `import type { Route } from './+types/_index'`
 4. Check props interface naming: `{Component}Props`
 
-### Can't find specific icon
-**Solutions:**
-1. Search synonyms (e.g., "user" → "person", "account")
-2. Check different icon sets (Fa, Md, Hi, Lu)
-3. Use `Lu` (Lucide) or `Hi` (Heroicons) for modern look
-4. ONLY export as SVG if absolutely unique (brand logo)
-
 ---
 
 ## QUALITY CHECKLIST
@@ -389,10 +364,9 @@ npx tsc --noEmit     # TypeScript validation
 4. **Custom Tokens**: Use `bg-primary`, `font-heading` (NOT hardcoded)
 5. **Variable Names**: Use `--font-sans` (NOT `--font-family-sans`)
 6. **Asset Paths**: Use `/assets/` from `public/assets/` folder
-7. **Icons**: Prefer `react-icons` for UI, export SVG only for brand logos
-8. **Match 100%**: Code must match Figma exactly
-9. **Mobile-First**: Responsive classes on everything
-10. **TypeScript Strict**: NO `any` types allowed
+7. **Match 100%**: Code must match Figma exactly
+8. **Mobile-First**: Responsive classes on everything
+9. **TypeScript Strict**: NO `any` types allowed
 
 ---
 
