@@ -50,17 +50,30 @@ import { FaArrowRight } from "react-icons/fa6";
 flowchart TD
     A[Receive Figma URL/Node-ID] --> B{Can fetch Figma?}
     B -->|No| C[STOP - Request screenshot]
-    B -->|Yes| D[Extract design context + assets]
-    D --> E{Has custom fonts?}
-    E -->|Yes| F[Add to root.tsx + @theme]
-    E -->|No| G[Use default Inter]
-    F --> H[Extract Figma variables]
-    G --> H
-    H --> I[Plan layout with HeroUI]
+    B -->|Yes| D{Multi-Node or Single?}
+    
+    D -->|Multi-Node<br/>Page with sections| E[Get Metadata]
+    E --> F[List child nodes]
+    F --> G[Setup global config<br/>fonts + theme]
+    G --> H[Loop: Process each node]
+    H --> I[Fetch node design]
     I --> J[Create component]
-    J --> K[Export in index.ts]
-    K --> L[Import in _index.tsx]
-    L --> M[Verify & Test]
+    J --> K{More nodes?}
+    K -->|Yes| H
+    K -->|No| L[Integrate all in _index.tsx]
+    
+    D -->|Single Node<br/>One component| M[Fetch design context]
+    M --> N{Has custom fonts?}
+    N -->|Yes| O[Add to root.tsx + @theme]
+    N -->|No| P[Use default Inter]
+    O --> Q[Extract variables]
+    P --> Q
+    Q --> R[Create component]
+    R --> S[Export in index.ts]
+    S --> T[Import in _index.tsx]
+    
+    L --> V[Verify & Test]
+    T --> V
 ```
 
 ### Phase 1: Fetch Figma Data
@@ -72,7 +85,115 @@ URL: https://figma.com/design/:fileKey/:fileName?node-id=4-34960
 NodeId: "4:34960"  (replace hyphen with colon)
 ```
 
-#### Step 1.2: Fetch Design Context
+#### Step 1.2: Choose Workflow Path
+
+**🔀 DECISION: Single Node vs Multi-Node**
+
+**Use SINGLE NODE workflow if:**
+- You're implementing one specific component/section
+- User provides a specific node-id for a component
+
+**Use MULTI-NODE workflow if:**
+- Parent node contains multiple sections (e.g., entire page)
+- Need to setup global config first, then process children
+- User says "implement this page" or "implement all sections"
+
+---
+
+### 🔀 Path A: MULTI-NODE WORKFLOW
+
+**Use this when parent node has multiple child components**
+
+#### Step A.1: Get Metadata & List Child Nodes
+```typescript
+mcp0_get_metadata({
+  nodeId: "0:1",  // Parent node (usually page level)
+  clientLanguages: "typescript",
+  clientFrameworks: "react"
+})
+```
+
+**You'll get XML structure with:**
+- List of all child nodes with IDs, names, types
+- Overall design structure
+- Node hierarchy
+
+**Example output:**
+```xml
+<Frame id="0:1" name="Homepage">
+  <Frame id="4:100" name="Hero Section" />
+  <Frame id="4:200" name="Features Section" />
+  <Frame id="4:300" name="Testimonials Section" />
+</Frame>
+```
+
+#### Step A.2: Extract Global Design Tokens
+**From metadata, identify:**
+- Common font families across all nodes
+- Consistent color palette
+- Container max-widths
+- Spacing patterns
+
+**Create global config checklist:**
+- [ ] List all unique font families
+- [ ] List all unique colors used
+- [ ] Note container widths
+- [ ] Note spacing values
+
+#### Step A.3: Setup Global Configuration (Once)
+
+**Configure fonts in `app/root.tsx`:**
+```tsx
+// From metadata: found "Inter" and "Poppins" across multiple sections
+export const links: Route.LinksFunction = () => [
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+  { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap' },
+  { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap' },
+];
+```
+
+**Configure theme in `app/app.css`:**
+```css
+@theme {
+  /* Global fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Global colors from metadata */
+  --color-primary: #0066FF;
+  --color-secondary: #6B7280;
+  
+  /* Container widths */
+  --container-xl: 1280px;
+}
+```
+
+#### Step A.4: Process Each Child Node
+**Create task list from metadata:**
+```markdown
+Components to implement:
+- [ ] Hero Section (node: 4:100)
+- [ ] Features Section (node: 4:200)
+- [ ] Testimonials Section (node: 4:300)
+```
+
+**For EACH node, follow Single Node Workflow (Step B.1 → B.3):**
+1. Fetch node design context
+2. Create component
+3. Export component
+
+**After all nodes processed:**
+- Integrate all components in `_index.tsx`
+- Run verification (Phase 5)
+
+---
+
+### 🔀 Path B: SINGLE NODE WORKFLOW
+
+**Use this for implementing one specific component**
+
+#### Step B.1: Fetch Design Context
 ```typescript
 mcp0_get_design_context({
   nodeId: "4:34960",
@@ -93,7 +214,7 @@ mcp0_get_design_context({
 2. Verify node-id is correct
 3. Ask user for screenshot as fallback
 
-#### Step 1.3: Extract Figma Variables (Optional)
+#### Step B.2: Extract Figma Variables (Optional)
 ```typescript
 mcp0_get_variable_defs({ nodeId: "4:34960" })
 ```
@@ -102,9 +223,22 @@ Returns: `{"color/primary/500": "#0066FF", "spacing/base": "16px"}`
 **Map to @theme:** Copy values → Paste into `app/app.css` → Convert to CSS variables
 - Example: `"color/primary/500": "#0066FF"` → `--color-primary-500: #0066FF;`
 
+#### Step B.3: Continue to Phase 2 (Configuration)
+**If using Single Node workflow:**
+- Proceed to Phase 2 to configure fonts & theme for this component
+- Then continue to Phase 3-5 as normal
+
+---
+
+**📌 WORKFLOW RECAP:**
+- **Multi-Node (Path A):** Get metadata → Setup global config → Loop through nodes (each uses Path B steps)
+- **Single Node (Path B):** Fetch design → Extract variables → Continue to Phase 2
+
 ---
 
 ### Phase 2: Configuration
+
+**Note:** If you came from Multi-Node workflow (Path A), you already completed global configuration in Step A.3. Skip to Phase 3.
 
 #### Step 2.1: Add Google Fonts to `app/root.tsx`
 **Extract font names from Figma → Add to links:**
@@ -384,15 +518,16 @@ npx tsc --noEmit     # TypeScript validation
 ## REMEMBER
 
 1. **Figma First**: Never code without Figma data
-2. **Setup First**: Configure fonts & theme before components
-3. **HeroUI First**: Always check if component exists
-4. **Custom Tokens**: Use `bg-primary`, `font-heading` (NOT hardcoded)
-5. **Variable Names**: Use `--font-sans` (NOT `--font-family-sans`)
-6. **Asset Paths**: Use `/assets/` from `public/assets/` folder
-7. **Icons**: Prefer `react-icons` for UI, export SVG only for brand logos
-8. **Match 100%**: Code must match Figma exactly
-9. **Mobile-First**: Responsive classes on everything
-10. **TypeScript Strict**: NO `any` types allowed
+2. **Multi-Node vs Single**: If parent has children → Get metadata first, setup global config, then loop
+3. **Setup First**: Configure fonts & theme before components
+4. **HeroUI First**: Always check if component exists
+5. **Custom Tokens**: Use `bg-primary`, `font-heading` (NOT hardcoded)
+6. **Variable Names**: Use `--font-sans` (NOT `--font-family-sans`)
+7. **Asset Paths**: Use `/assets/` from `public/assets/` folder
+8. **Icons**: Prefer `react-icons` for UI, export SVG only for brand logos
+9. **Match 100%**: Code must match Figma exactly
+10. **Mobile-First**: Responsive classes on everything
+11. **TypeScript Strict**: NO `any` types allowed
 
 ---
 
