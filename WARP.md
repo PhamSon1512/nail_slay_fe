@@ -29,6 +29,7 @@
 - ✅ Extend with Tailwind for exact Figma styling
 - ✅ HeroUI provides: accessibility, responsive, interactions
 - ❌ DON'T build from scratch if HeroUI component exists
+- 📖 Verify API at [HeroUI Docs](https://heroui.com/docs) before implementing
 
 ### 6. IMAGES & ASSETS OPTIMIZATION
 - ✅ Use WebP format with PNG/JPG fallback
@@ -38,9 +39,9 @@
 - ✅ Use `<picture>` for responsive images
 ```tsx
 <picture>
-  <source srcset="/images/hero-mobile.webp" media="(max-width: 768px)" />
-  <source srcset="/images/hero-desktop.webp" media="(min-width: 769px)" />
-  <img src="/images/hero-desktop.jpg" alt="Hero" width="1920" height="1080" />
+  <source srcset="/assets/hero-mobile.webp" media="(max-width: 768px)" />
+  <source srcset="/assets/hero-desktop.webp" media="(min-width: 769px)" />
+  <img src="/assets/hero-desktop.jpg" alt="Hero" width="1920" height="1080" />
 </picture>
 ```
 
@@ -89,11 +90,103 @@
 - ✅ Use `embla-carousel-react` (already in dependencies)
 - ✅ Add prev/next buttons with arrow icons from Figma
 
-## SETUP PROCESS (AFTER FIGMA DATA)
+## TECH STACK
+- React 19 + React Router v7 (file-based routing)
+- TypeScript 5.8+ (NO `any` types)
+- Tailwind CSS v4 + HeroUI v2.8+
+- Framer Motion v12+ (animations)
+- Valtio v2+ (state)
+- xior v0.7+ (HTTP)
+- Cloudflare Pages (SSR)
 
-### 1. Configure Google Fonts in Root (`app/root.tsx`)
-**🚨 IMPORTANT: Configure fonts BEFORE creating components**
+## COMPLETE WORKFLOW (FOLLOW IN ORDER)
 
+```mermaid
+flowchart TD
+    A[Receive Figma URL/Node-ID] --> B{Can fetch Figma?}
+    B -->|No| C[STOP - Request screenshot]
+    B -->|Yes| D[Extract design context + assets]
+    D --> E{Has custom fonts?}
+    E -->|Yes| F[Add to root.tsx + @theme]
+    E -->|No| G[Use default Inter]
+    F --> H[Extract Figma variables]
+    G --> H
+    H --> I[Plan layout with HeroUI]
+    I --> J[Create component]
+    J --> K[Export in index.ts]
+    K --> L[Import in _index.tsx]
+    L --> M[Verify & Test]
+```
+
+### Phase 1: Preparation & Figma Data Extraction
+
+#### Step 1.1: Extract Figma Node ID from URL
+**URL formats:**
+```
+Design file: https://figma.com/design/:fileKey/:fileName?node-id=1-2
+Board file:  https://figma.com/board/:fileKey/:fileName?node-id=1-2
+```
+
+**Convert node-id to nodeId:**
+- URL format: `node-id=1-2` (hyphen)
+- Tool format: `nodeId: "1:2"` (colon)
+- Example: `node-id=4-34960` → `nodeId: "4:34960"`
+
+#### Step 1.2: Fetch Figma Design Context
+**Use Figma MCP tool:**
+
+```typescript
+mcp0_get_design_context({
+  nodeId: "4:34960",  // Required: extracted from URL
+  clientLanguages: "typescript",
+  clientFrameworks: "react",
+  dirForAssetWrites: "/absolute/path/to/project/public/assets"  // Assets saved here
+})
+```
+
+**What you'll get:**
+- Design structure (XML or JSON)
+- CSS styles and measurements
+- Color values, typography specs
+- Export assets (images, icons) → saved to `public/assets/`
+
+**If fetch fails:**
+1. Check Figma desktop app is running
+2. Verify node-id is correct
+3. Ask user for screenshot as fallback
+
+#### Step 1.3: Extract Figma Variables (Optional)
+**If design uses Figma variables/tokens:**
+
+```typescript
+mcp0_get_variable_defs({
+  nodeId: "4:34960"
+})
+```
+
+**You'll get:**
+```json
+{
+  "color/primary/500": "#0066FF",
+  "spacing/base": "16px",
+  "font/family/heading": "Poppins"
+}
+```
+
+**Map to @theme later** in Step 2.2
+
+---
+
+### Phase 2: Configuration
+
+#### Step 2.1: Configure Google Fonts in Root (`app/root.tsx`)
+**🚨 IMPORTANT: Add fonts BEFORE creating components**
+
+**Get font families from Figma design context:**
+- Check typography section for font names
+- Note all unique font families used
+
+**Add to root.tsx:**
 ```tsx
 // app/root.tsx
 export const links: Route.LinksFunction = () => [
@@ -118,40 +211,115 @@ export const links: Route.LinksFunction = () => [
 
 **How to get Google Font URLs:**
 1. Go to [Google Fonts](https://fonts.google.com)
-2. Select font families found in Figma design
-3. Copy the `<link>` href URL
-4. Add to `links` function in `app/root.tsx`
+2. Select font families found in Figma
+3. Select weights needed (check Figma design for font-weight values)
+4. Copy `<link>` href URL
+5. Add to `links` function
 
-### 2. Configure Tailwind Theme (`app/app.css`)
-**After adding fonts to root.tsx, configure them in theme:**
+#### Step 2.2: Configure Tailwind Theme (`app/app.css`)
+**Extract tokens from Figma and configure:**
 
 ```css
 @theme {
-  /* ✅ Add fonts from Figma (match with root.tsx) */
+  /* ✅ Fonts - match with root.tsx (use --font-sans, NOT --font-family-sans) */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
   
-  /* ✅ Extract colors from Figma */
-  --color-primary: #0066FF;        /* Figma brand color */
-  --color-secondary: #6B7280;      /* Figma secondary */
+  /* ✅ Colors from Figma - exact hex values */
+  --color-primary: #0066FF;           /* Main brand color */
+  --color-primary-hover: #0052CC;     /* Hover state (darker) */
+  --color-secondary: #6B7280;
+  --color-accent: #FF6B35;
+  --color-success: #10B981;
+  --color-danger: #EF4444;
   
-  /* ✅ Container widths from Figma */
-  --container-xl: 1280px;           /* Figma max-width */
+  /* ✅ Or use color scales from Figma variables */
+  --color-primary-50: #f0faf6;
+  --color-primary-100: #e4f7ef;
+  --color-primary-500: #28a745;       /* Main */
+  --color-primary-600: #21963b;       /* Hover */
+  --color-primary-950: #03300a;
+  
+  /* ✅ Container max-widths from Figma */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+  
+  /* ✅ Spacing from Figma (if custom) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
 }
 ```
 
-### 3. Create Components from Figma (`app/components/sections/`)
+**Usage in components:**
+```tsx
+<div className="font-sans text-primary">      {/* NOT font-family-sans */}
+<h1 className="font-heading">                 {/* NOT font-family-heading */}
+<Button className="bg-primary hover:bg-primary-hover">
+```
+
+---
+
+### Phase 3: Component Creation
+
+#### Step 3.1: Plan Layout with HeroUI Components
+**🚨 ALWAYS check HeroUI first:**
+
+**Available HeroUI components:**
+```tsx
+import { 
+  Button, Card, Input, Modal, Navbar,
+  Divider, Chip, Avatar, Dropdown, Tabs,
+  Accordion, Badge, Checkbox, Radio, Switch
+} from "@heroui/react";
+```
+
+**Mapping Figma → HeroUI:**
+- Buttons → `<Button>`
+- Cards/Containers → `<Card>`
+- Form inputs → `<Input>`, `<Checkbox>`, `<Radio>`
+- Navigation → `<Navbar>`, `<Tabs>`
+- Modals/Dialogs → `<Modal>`
+
+**Extend with Tailwind for exact match:**
+```tsx
+<Button 
+  className="bg-primary hover:bg-primary-hover px-6 py-3"
+  radius="lg"
+  size="lg"
+>
+  Click Me
+</Button>
+
+<Card className="p-8 shadow-lg rounded-2xl">
+  <Card.Header>
+    <h3 className="text-2xl font-heading font-bold text-primary">Title</h3>
+  </Card.Header>
+  <Card.Body>
+    <p className="text-base text-secondary leading-relaxed">Content</p>
+  </Card.Body>
+</Card>
+```
+
+#### Step 3.2: Create Component in `app/components/sections/`
 **Component structure:**
 
 ```tsx
 // app/components/sections/HeroSection.tsx
-import { Button, Card } from "@heroui/react";
+import { Button } from "@heroui/react";
 
 export function HeroSection() {
   return (
     <section className="container py-16">
       <div className="flex flex-col items-center gap-8">
+        {/* ✅ Extract text from Figma - DON'T use hardcoded values */}
         <h1 className="text-5xl font-heading font-bold text-primary">
+          {/* Text from Figma design */}
           Welcome to Z9 Studio
         </h1>
         <Button className="bg-primary hover:bg-primary-hover">
@@ -163,28 +331,46 @@ export function HeroSection() {
 }
 ```
 
-**File naming convention:**
-- Use `PascalCase.tsx` for component files
-- Place in `app/components/sections/` folder
-- Export named components (not default)
+**File naming & location:**
+- ✅ Use `PascalCase.tsx` for component files
+- ✅ Place in `app/components/sections/` folder
+- ✅ Export named components (NOT default export)
+- ✅ Use semantic section names: `HeroSection`, `FeaturesSection`, `TestimonialsSection`
 
-### 4. Export Components (`app/components/index.ts`)
-**Make components reusable by exporting:**
+**Asset references:**
+```tsx
+// ✅ Assets from Figma are in public/assets/
+<img src="/assets/hero-image.png" alt="Hero" width="800" height="600" />
+
+// ✅ Use picture for responsive
+<picture>
+  <source srcset="/assets/hero-mobile.webp" media="(max-width: 768px)" />
+  <img src="/assets/hero-desktop.webp" alt="Hero" width="1920" height="1080" />
+</picture>
+```
+
+#### Step 3.3: Export Components (`app/components/index.ts`)
+**Create central export point:**
 
 ```tsx
 // app/components/index.ts
 export { HeroSection } from './sections/HeroSection';
 export { WhatYouWillGet } from './sections/WhatYouWillGet';
 export { LatestBooks } from './sections/LatestBooks';
+export { Footer } from './sections/Footer';
 ```
 
-### 5. Import and Display in `_index.tsx`
-**Finally, compose sections in the home page:**
+---
+
+### Phase 4: Integration
+
+#### Step 4.1: Import and Display in `_index.tsx`
+**Compose sections in home page:**
 
 ```tsx
 // app/routes/_index.tsx
 import type { Route } from './+types/_index';
-import { HeroSection, WhatYouWillGet, LatestBooks } from '~/components';
+import { HeroSection, WhatYouWillGet, LatestBooks, Footer } from '~/components';
 
 export const meta = ({}: Route.MetaArgs) => [
   { title: 'Z9 Studio' },
@@ -197,165 +383,109 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <HeroSection />
       <WhatYouWillGet />
       <LatestBooks />
+      <Footer />
     </>
   );
 }
 ```
 
-**✅ Complete workflow checklist:**
-- [ ] Get fonts from Figma design
-- [ ] Add Google Fonts links to `app/root.tsx`
-- [ ] Configure font families in `app/app.css` @theme
-- [ ] Extract colors, spacing from Figma to @theme
-- [ ] Create section components in `app/components/sections/`
-- [ ] Export components in `app/components/index.ts`
-- [ ] Import and display in `app/routes/_index.tsx`
-- [ ] Verify fonts load correctly in browser
-- [ ] Verify layout matches Figma 100%
+**✅ Import path:** Use `~/components` (alias) instead of relative paths
 
-### 6. Use Custom Tokens in Components
-```tsx
-// ✅ Use configured tokens
-<div className="font-sans text-primary bg-white">
-  <div className="container mx-auto max-w-xl">
-    <Button className="bg-primary hover:bg-primary-hover">
-      Action
-    </Button>
-  </div>
-</div>
-```
+---
 
-## TECH STACK
-- React 19 + React Router v7 (file-based routing)
-- TypeScript 5.8+ (NO `any` types)
-- Tailwind CSS v4 + HeroUI v2.8+
-- Framer Motion v12+ (animations)
-- Valtio v2+ (state)
-- xior v0.7+ (HTTP)
-- Cloudflare Pages (SSR)
+### Phase 5: Verification & Testing
 
-## WORKFLOW
-
-### Step 1: Fetch Figma
-```bash
-get_figma_data(fileKey, nodeId)
-# If fails → STOP and inform user
-```
-
-### Step 2: Setup Tailwind Config (MANDATORY)
-**After getting Figma data, setup in `app/app.css`:**
-
-```css
-@theme {
-  /* Fonts from Figma */
-  --font-family-sans: "Inter", system-ui, sans-serif;
-  --font-family-heading: "Poppins", system-ui, sans-serif;
-  
-  /* Colors from Figma - exact hex values */
-  --color-primary: #0066FF;
-  --color-primary-hover: #0052CC;
-  --color-secondary: #6B7280;
-  --color-accent: #FF6B35;
-  --color-success: #10B981;
-  --color-danger: #EF4444;
-  
-  /* Container max-widths from Figma */
-  --container-sm: 640px;
-  --container-md: 768px;
-  --container-lg: 1024px;
-  --container-xl: 1280px;
-  --container-2xl: 1536px;
-}
-```
-
-### Step 3: Extract Design Tokens
-- ✅ Colors → Add to `@theme`
-- ✅ Typography → Add fonts to `@theme`, use in classes
-- ✅ Spacing → Note for consistent use
-- ✅ Container widths → Add to `@theme`
-- ✅ Border radius, shadows → Note for components
-
-### Step 4: Plan Layout with HeroUI
-**🚨 ALWAYS USE HEROUI COMPONENTS FIRST:**
-
-```tsx
-import { 
-  Button, Card, Input, Modal, Navbar,
-  Divider, Chip, Avatar, Dropdown, Tabs
-} from "@heroui/react";
-
-// ✅ Use HeroUI for structure
-<Navbar>...</Navbar>           // Navigation
-<Card>...</Card>                // Content blocks
-<Button>...</Button>            // Actions
-<Input>...</Input>              // Forms
-<Modal>...</Modal>              // Overlays
-
-// ✅ Extend with Tailwind for exact Figma match
-<Button 
-  className="bg-primary hover:bg-primary-hover px-6 py-3"
-  radius="lg"
-  size="lg"
->
-  Click Me
-</Button>
-
-<Card className="p-8 shadow-lg rounded-2xl">
-  <h2 className="text-2xl font-heading font-bold">Title</h2>
-  <p className="text-base text-secondary">Content</p>
-</Card>
-```
-
-### Step 5: Build Layout Structure
-- ✅ Use HeroUI components for UI elements
-- ✅ Use Flexbox/Grid for positioning (NO absolute)
-- ✅ Mobile-first responsive classes
-- ✅ Apply custom Tailwind tokens from `@theme`
-
-### Step 6: Implement & Style
-- ✅ Start with HeroUI component
-- ✅ Add exact spacing from Figma with Tailwind
-- ✅ Use custom color/font tokens: `bg-primary`, `font-heading`
-- ✅ Add Framer Motion ONLY if in Figma
-
-### Step 7: Verify Checklist
-**Before Coding:**
+#### Step 5.1: Pre-flight Checklist
+**Before coding:**
 - [ ] Figma data fetched successfully
-- [ ] Tailwind `@theme` configured with Figma tokens
-- [ ] Fonts loaded and added to theme
-- [ ] Colors added to theme (custom tokens)
+- [ ] Google Fonts added to `app/root.tsx`
+- [ ] `@theme` configured in `app/app.css` with correct variable names
+- [ ] Font names match between root.tsx and @theme
+- [ ] Colors extracted from Figma (exact hex values)
 - [ ] Container widths configured
-- [ ] HeroUI components identified for layout
+- [ ] HeroUI components identified
+- [ ] Assets exported to `public/assets/`
 
-**After Coding:**
-- [ ] Visual match: code vs Figma 100%
-- [ ] Using HeroUI components where applicable
-- [ ] Colors from custom tokens (not hardcoded)
-- [ ] Typography matches Figma
-- [ ] Spacing matches exactly
-- [ ] NO absolute positioning
-- [ ] Responsive at all breakpoints
-- [ ] NO console errors
-- [ ] TypeScript complete (NO `any`)
-- [ ] Hover/focus states on interactive elements
-- [ ] Loading states implemented
-- [ ] Accessibility: ARIA labels, keyboard nav, contrast ≥4.5:1
+#### Step 5.2: Run Development Server
+```bash
+npm run dev
+# or
+pnpm dev
+```
 
-## RESPONSIVE DESIGN
+**Check:**
+- [ ] Fonts load correctly (inspect in DevTools)
+- [ ] Layout matches Figma visually
+- [ ] No console errors
+
+#### Step 5.3: TypeScript Validation
+```bash
+npx tsc --noEmit
+```
+
+- [ ] No TypeScript errors
+- [ ] No `any` types used
+- [ ] All props typed correctly
+
+#### Step 5.4: Accessibility Audit
+**Tools:**
+- Browser DevTools → Lighthouse
+- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
+- axe DevTools extension
+
+**Checklist:**
+- [ ] Color contrast ≥4.5:1 for text
+- [ ] All interactive elements have focus states
+- [ ] Semantic HTML used (`nav`, `main`, `article`, `section`)
+- [ ] ARIA labels on icons/buttons
+- [ ] Keyboard navigation works (Tab, Enter, Escape)
+
+#### Step 5.5: Responsive Testing
+**Viewports to test:**
+- [ ] Mobile: 320px, 375px, 414px
+- [ ] Tablet: 768px, 834px
+- [ ] Desktop: 1024px, 1280px, 1920px
+
+**Commands:**
 ```tsx
-// ✅ Mobile-first Tailwind
-<div className="flex flex-col md:flex-row lg:gap-8">
-  <h1 className="text-2xl md:text-4xl lg:text-5xl">Title</h1>
-</div>
-
-// ✅ JS logic with @mantine/hooks
+// Use media query hook for conditional rendering
 import { useMediaQuery } from '@mantine/hooks';
 const isMobile = useMediaQuery('(max-width: 768px)');
 ```
 
-## ANIMATIONS (Framer Motion)
+#### Step 5.6: Visual Comparison
+**Use browser tool to compare:**
+1. Take screenshot from Figma
+2. Open dev server in browser
+3. Use overlay comparison or side-by-side
+4. Check pixel-perfect alignment
+
+---
+
+## RESPONSIVE DESIGN
+
 ```tsx
-// ✅ ONLY if specified in Figma
+// ✅ Mobile-first Tailwind classes
+<div className="flex flex-col md:flex-row lg:gap-8">
+  <h1 className="text-2xl md:text-4xl lg:text-5xl">Title</h1>
+</div>
+
+// ✅ Responsive spacing
+<section className="py-8 md:py-12 lg:py-16">
+  <div className="px-4 md:px-6 lg:px-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+```
+
+---
+
+## ANIMATIONS (Framer Motion)
+
+**🚨 ONLY add animations if shown in Figma**
+
+```tsx
+import { motion } from 'framer-motion';
+
+// ✅ Button hover/tap
 <motion.button
   whileHover={{ scale: 1.05 }}
   whileTap={{ scale: 0.95 }}
@@ -375,80 +505,27 @@ const isMobile = useMediaQuery('(max-width: 768px)');
 </motion.div>
 ```
 
-## ACCESSIBILITY (A11Y)
-```tsx
-// ✅ Semantic HTML
-<nav aria-label="Main navigation">
-<main>
-<article>
-<button aria-label="Close menu" aria-expanded={isOpen}>
+---
 
-// ✅ Keyboard navigation
-<button 
-  onClick={handleClick}
-  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-  tabIndex={0}
->
+## STATE MANAGEMENT (Valtio)
 
-// ✅ Color contrast ≥4.5:1 for text
-// ✅ Focus visible: focus:ring-2 focus:ring-primary
-// ✅ Skip to content link for screen readers
-<a href="#main-content" className="sr-only focus:not-sr-only">
-  Skip to content
-</a>
-```
-
-## STATE (Valtio)
 ```tsx
 import { proxy, useSnapshot } from 'valtio';
 
+// ✅ Create store
 export const store = proxy({
   isMenuOpen: false,
   toggle() { this.isMenuOpen = !this.isMenuOpen; }
 });
 
-// In component
-const snap = useSnapshot(store);
+// ✅ Use in component
+function Component() {
+  const snap = useSnapshot(store);
+  return <div>{snap.isMenuOpen && <Menu />}</div>;
+}
 ```
 
-## HEROUI COMPONENT EXAMPLES
-
-```tsx
-import { Button, Card, Input, Navbar, Modal } from "@heroui/react";
-
-// ✅ Navbar with HeroUI
-<Navbar className="bg-white shadow-sm">
-  <Navbar.Brand>Logo</Navbar.Brand>
-  <Navbar.Content>
-    <Navbar.Link href="/">Home</Navbar.Link>
-    <Navbar.Link href="/about">About</Navbar.Link>
-  </Navbar.Content>
-</Navbar>
-
-// ✅ Card with custom styling
-<Card className="p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-  <Card.Header>
-    <h3 className="text-2xl font-heading font-bold text-primary">Title</h3>
-  </Card.Header>
-  <Card.Body>
-    <p className="text-base text-secondary leading-relaxed">Content here</p>
-  </Card.Body>
-  <Card.Footer>
-    <Button className="bg-primary hover:bg-primary-hover">Action</Button>
-  </Card.Footer>
-</Card>
-
-// ✅ Form with HeroUI Input
-<form className="flex flex-col gap-4">
-  <Input 
-    label="Email"
-    type="email"
-    placeholder="Enter your email"
-    className="w-full"
-  />
-  <Button type="submit" className="bg-primary">Submit</Button>
-</form>
-```
+---
 
 ## NAMING CONVENTIONS
 
@@ -457,124 +534,138 @@ import { Button, Card, Input, Navbar, Modal } from "@heroui/react";
 | ---- | ---------- | ------- |
 | Route files | `kebab-case.tsx` | `login.tsx`, `user-profile.tsx` |
 | Component files | `PascalCase.tsx` | `UserCard.tsx`, `LoginForm.tsx` |
+| Section components | `PascalCase.tsx` | `HeroSection.tsx`, `FeaturesSection.tsx` |
 | Utility files | `kebab-case.ts` | `format-date.ts`, `api-client.ts` |
-| Store files | `kebab-case.ts` + `Store` | `auth-store.ts`, `user-store.ts` |
-| Hook files | `camelCase.ts` + `use` prefix | `useAuth.ts`, `useDebounce.ts` |
-| Type files | `kebab-case.ts` | `user-types.ts`, `api-types.ts` |
-| Folders | `kebab-case` | `user-profile/`, `shared-components/` |
+| Hook files | `camelCase.ts` | `useAuth.ts`, `useDebounce.ts` |
+| Store files | `kebab-case.ts` | `auth-store.ts`, `user-store.ts` |
+| Folders | `kebab-case` | `user-profile/`, `sections/` |
 
 ### Code Naming
 | Type | Convention | Example |
 | ---- | ---------- | ------- |
-| Components | `PascalCase` | `UserProfile`, `LoginForm` |
-| Props interface | `{Component}Props` | `UserProfileProps`, `LoginFormProps` |
+| Components | `PascalCase` | `UserProfile`, `HeroSection` |
+| Props interface | `{Component}Props` | `UserProfileProps` |
 | Variables | `camelCase` | `userName`, `fetchData` |
-| Boolean vars | `is/has/should/can` prefix | `isLoading`, `hasPermission` |
+| Boolean vars | `is/has/should/can` | `isLoading`, `hasPermission` |
 | Functions | `camelCase` + verb | `getUserData`, `formatDate` |
 | Event handlers | `handle{Event}` | `handleClick`, `handleSubmit` |
-| Interfaces/Types | `PascalCase` | `User`, `AuthResponse`, `UserId` |
-| Enums | `PascalCase` + `UPPER_SNAKE_CASE` values | `UserRole.ADMIN` |
 | Constants | `UPPER_SNAKE_CASE` | `API_BASE_URL`, `MAX_RETRY` |
-| Config objects | `camelCase` | `apiConfig`, `routeConfig` |
 | Custom hooks | `use{Name}` | `useAuth`, `useLocalStorage` |
-| Stores (Valtio) | `camelCase` + `Store` | `authStore`, `userStore` |
-| Store actions | `camelCase` verbs | `login`, `logout`, `updateUser` |
-| API clients | `camelCase` + `Api` | `authApi`, `userApi` |
-| API methods | HTTP verb prefix | `getUser`, `postLogin`, `deleteAccount` |
-| Route loaders | `{route}Loader` | `userProfileLoader` |
-| Route actions | `{route}Action` | `loginAction` |
+| Stores | `camelCase` + `Store` | `authStore`, `userStore` |
 
-### Examples
-```typescript
-// ✅ Component with Props
-interface UserProfileProps {
-  userId: string;
-  onEdit?: () => void;
-}
+---
 
-export function UserProfile({ userId, onEdit }: UserProfileProps) {
-  const isLoading = false;
-  const hasPermission = true;
-  
-  function handleEditClick() {
-    onEdit?.();
-  }
-  
-  return <div>...</div>;
-}
+## TROUBLESHOOTING
 
-// ✅ Store (auth-store.ts)
-export const authStore = proxy({
-  user: null as User | null,
-  isAuthenticated: false,
-  login(user: User) {
-    this.user = user;
-    this.isAuthenticated = true;
-  },
-  logout() {
-    this.user = null;
-    this.isAuthenticated = false;
-  },
-});
+### Issue: Fonts not loading
+**Symptoms:** Text shows default system font instead of custom fonts
 
-// ✅ API client (auth-api.ts)
-export const authApi = {
-  postLogin: (credentials: LoginCredentials) => 
-    api.post('/auth/login', credentials),
-  getProfile: () => api.get('/auth/profile'),
-  deleteAccount: (id: string) => api.delete(`/auth/${id}`),
-};
+**Solutions:**
+1. ✅ Verify Google Fonts links in `app/root.tsx` 
+2. ✅ Check `@theme` has correct font names: `--font-sans` (NOT `--font-family-sans`)
+3. ✅ Ensure font names match exactly between root.tsx and @theme
+4. ✅ Clear browser cache and hard reload (Cmd+Shift+R / Ctrl+Shift+R)
+5. ✅ Check Network tab in DevTools - fonts should load from googleapis.com
 
-// ✅ Custom hook (useAuth.ts)
-export function useAuth() {
-  const { isAuthenticated, user } = useSnapshot(authStore);
-  
-  const handleLogin = async (credentials: LoginCredentials) => {
-    const response = await authApi.postLogin(credentials);
-    authStore.login(response.user);
-  };
-  
-  return { isAuthenticated, user, handleLogin };
-}
+### Issue: Colors don't match Figma
+**Symptoms:** Wrong colors, different shades
 
-// ✅ Constants
-const API_BASE_URL = 'https://api.example.com';
-const MAX_LOGIN_ATTEMPTS = 3;
+**Solutions:**
+1. ✅ Use Figma's built-in color picker (NOT browser eyedropper)
+2. ✅ Verify `@theme` variables match exactly (case-sensitive)
+3. ✅ Check using custom tokens: `bg-primary` (NOT `bg-[#0066FF]`)
+4. ✅ Verify no inline styles or hardcoded colors
+5. ✅ Check if Figma uses opacity/blend modes
 
-const apiConfig = {
-  timeout: 5000,
-  retries: 3,
-};
+### Issue: Layout broken on mobile
+**Symptoms:** Content overflow, misaligned elements
 
-// ✅ Enum
-enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-  GUEST = 'GUEST',
-}
-```
+**Solutions:**
+1. ✅ Verify using `flex` or `grid` (NOT absolute positioning)
+2. ✅ Add responsive breakpoints: `md:`, `lg:`
+3. ✅ Test with container: `<div className="container">`
+4. ✅ Check padding: `px-4 md:px-6 lg:px-8`
+5. ✅ Test at actual viewports: 320px, 768px, 1024px
 
-## REMEMBER
-1. **Setup First**: Configure `@theme` with Figma tokens before coding
-2. **HeroUI First**: Always check if HeroUI has the component
-3. **Custom Tokens**: Use `bg-primary`, `font-heading` (not hardcoded values)
-4. **Match 100%**: Code must match Figma exactly
-5. **No Assumptions**: All values from Figma only
-6. **Mobile-First**: Responsive classes on everything
-7. **TypeScript Strict**: NO `any` types allowed
-8. **Naming**: Follow conventions table (kebab-case files, PascalCase components, camelCase variables)
-9. **Micro-interactions**: Hover, focus, active states on ALL interactive elements
-10. **Accessibility**: Semantic HTML, ARIA labels, keyboard nav, contrast ≥4.5:1
+### Issue: Assets/images not showing
+**Symptoms:** Broken image icons, 404 errors
+
+**Solutions:**
+1. ✅ Verify `dirForAssetWrites` path was set correctly in Figma MCP call
+2. ✅ Check assets exist in `public/assets/` folder
+3. ✅ Use correct path: `/assets/image.png` (NOT `./assets/` or `../public/`)
+4. ✅ Verify image file extensions match (case-sensitive)
+
+### Issue: HeroUI components not working
+**Symptoms:** Component doesn't render, props not working
+
+**Solutions:**
+1. ✅ Check HeroUI version: `npm ls @heroui/react`
+2. ✅ Verify import: `import { Button } from "@heroui/react"`
+3. ✅ Check [HeroUI Docs](https://heroui.com/docs) for correct API
+4. ✅ Ensure `<HeroUIProvider>` wraps app in `root.tsx`
+
+### Issue: TypeScript errors
+**Symptoms:** Red squiggles, type errors
+
+**Solutions:**
+1. ✅ Run `npx tsc --noEmit` to see all errors
+2. ✅ Add proper type annotations (NO `any`)
+3. ✅ Import types: `import type { Route } from './+types/_index'`
+4. ✅ Check props interface naming: `{Component}Props`
+
+---
 
 ## QUALITY CHECKLIST (BEFORE DELIVERY)
-- [ ] ✅ Pixel-perfect match with Figma (use color picker to verify)
+
+### Visual & Layout
+- [ ] ✅ Pixel-perfect match with Figma (use overlay comparison)
+- [ ] ✅ Fonts load and display correctly
+- [ ] ✅ Colors match exactly (verified with color picker)
+- [ ] ✅ Spacing matches Figma measurements
+- [ ] ✅ Responsive on all breakpoints (320px, 768px, 1024px+)
+
+### Interactivity
 - [ ] ✅ All interactive elements have hover/focus/active states
+- [ ] ✅ Transitions smooth (duration-200)
 - [ ] ✅ Loading states for async operations
 - [ ] ✅ Error states with retry functionality
 - [ ] ✅ Empty states with helpful messages
-- [ ] ✅ Images optimized (WebP, lazy, dimensions set)
-- [ ] ✅ Responsive on mobile (320px), tablet (768px), desktop (1024px+)
+
+### Performance
+- [ ] ✅ Images optimized (WebP format, lazy loading)
+- [ ] ✅ Images have width/height attributes
+- [ ] ✅ No layout shift (CLS score)
+- [ ] ✅ Assets < 100KB for hero, < 50KB for thumbnails
+
+### Accessibility
 - [ ] ✅ Keyboard navigation works (Tab, Enter, Escape)
 - [ ] ✅ Screen reader friendly (ARIA labels, semantic HTML)
 - [ ] ✅ Color contrast ≥4.5:1 for text
-- [ ] ✅ TypeScript no errors/warnings
+- [ ] ✅ Focus visible on all interactive elements
+- [ ] ✅ Skip to content link for screen readers
+
+### Code Quality
+- [ ] ✅ TypeScript no errors/warnings (`npx tsc --noEmit`)
+- [ ] ✅ NO `any` types used
+- [ ] ✅ NO absolute positioning
+- [ ] ✅ NO inline styles
+- [ ] ✅ Using HeroUI components where applicable
+- [ ] ✅ Using custom tokens (NOT hardcoded values)
+- [ ] ✅ NO console errors in browser
+- [ ] ✅ Naming conventions followed
+
+---
+
+## REMEMBER
+
+1. **Figma First**: Never code without Figma data
+2. **Setup First**: Configure fonts & theme before components
+3. **HeroUI First**: Always check if component exists
+4. **Custom Tokens**: Use `bg-primary`, `font-heading` (NOT hardcoded)
+5. **Variable Names**: Use `--font-sans` (NOT `--font-family-sans`)
+6. **Asset Paths**: Use `/assets/` from `public/assets/` folder
+7. **Match 100%**: Code must match Figma exactly
+8. **No Assumptions**: All values from Figma only
+9. **Mobile-First**: Responsive classes on everything
+10. **TypeScript Strict**: NO `any` types allowed
