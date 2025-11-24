@@ -91,20 +91,129 @@
 
 ## SETUP PROCESS (AFTER FIGMA DATA)
 
-### 1. Configure Tailwind Theme (`app/app.css`)
-```css
-@theme {
-  /* Extract from Figma and add here */
-  --font-family-sans: "Inter", system-ui;
-  --color-primary: #0066FF;        /* Figma brand color */
-  --color-secondary: #6B7280;      /* Figma secondary */
-  --container-xl: 1280px;           /* Figma max-width */
-}
+### 1. Configure Google Fonts in Root (`app/root.tsx`)
+**🚨 IMPORTANT: Configure fonts BEFORE creating components**
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+```tsx
+// app/root.tsx
+export const links: Route.LinksFunction = () => [
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  {
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
+  },
+  // ✅ Add your Google Fonts here (from Figma design)
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+  },
+  // ✅ Add additional fonts if needed
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
+  },
+];
 ```
 
-### 2. Use Custom Tokens in Components
+**How to get Google Font URLs:**
+1. Go to [Google Fonts](https://fonts.google.com)
+2. Select font families found in Figma design
+3. Copy the `<link>` href URL
+4. Add to `links` function in `app/root.tsx`
+
+### 2. Configure Tailwind Theme (`app/app.css`)
+**After adding fonts to root.tsx, configure them in theme:**
+
+```css
+@theme {
+  /* ✅ Add fonts from Figma (match with root.tsx) */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  
+  /* ✅ Extract colors from Figma */
+  --color-primary: #0066FF;        /* Figma brand color */
+  --color-secondary: #6B7280;      /* Figma secondary */
+  
+  /* ✅ Container widths from Figma */
+  --container-xl: 1280px;           /* Figma max-width */
+}
+```
+
+### 3. Create Components from Figma (`app/components/sections/`)
+**Component structure:**
+
+```tsx
+// app/components/sections/HeroSection.tsx
+import { Button, Card } from "@heroui/react";
+
+export function HeroSection() {
+  return (
+    <section className="container py-16">
+      <div className="flex flex-col items-center gap-8">
+        <h1 className="text-5xl font-heading font-bold text-primary">
+          Welcome to Z9 Studio
+        </h1>
+        <Button className="bg-primary hover:bg-primary-hover">
+          Get Started
+        </Button>
+      </div>
+    </section>
+  );
+}
+```
+
+**File naming convention:**
+- Use `PascalCase.tsx` for component files
+- Place in `app/components/sections/` folder
+- Export named components (not default)
+
+### 4. Export Components (`app/components/index.ts`)
+**Make components reusable by exporting:**
+
+```tsx
+// app/components/index.ts
+export { HeroSection } from './sections/HeroSection';
+export { WhatYouWillGet } from './sections/WhatYouWillGet';
+export { LatestBooks } from './sections/LatestBooks';
+```
+
+### 5. Import and Display in `_index.tsx`
+**Finally, compose sections in the home page:**
+
+```tsx
+// app/routes/_index.tsx
+import type { Route } from './+types/_index';
+import { HeroSection, WhatYouWillGet, LatestBooks } from '~/components';
+
+export const meta = ({}: Route.MetaArgs) => [
+  { title: 'Z9 Studio' },
+  { name: 'description', content: 'Welcome to Z9 Studio!' }
+];
+
+export default function Home({ loaderData }: Route.ComponentProps) {
+  return (
+    <>
+      <HeroSection />
+      <WhatYouWillGet />
+      <LatestBooks />
+    </>
+  );
+}
+```
+
+**✅ Complete workflow checklist:**
+- [ ] Get fonts from Figma design
+- [ ] Add Google Fonts links to `app/root.tsx`
+- [ ] Configure font families in `app/app.css` @theme
+- [ ] Extract colors, spacing from Figma to @theme
+- [ ] Create section components in `app/components/sections/`
+- [ ] Export components in `app/components/index.ts`
+- [ ] Import and display in `app/routes/_index.tsx`
+- [ ] Verify fonts load correctly in browser
+- [ ] Verify layout matches Figma 100%
+
+### 6. Use Custom Tokens in Components
 ```tsx
 // ✅ Use configured tokens
 <div className="font-sans text-primary bg-white">
@@ -157,9 +266,6 @@ get_figma_data(fileKey, nodeId)
   --container-xl: 1280px;
   --container-2xl: 1536px;
 }
-
-/* Load fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
 ```
 
 ### Step 3: Extract Design Tokens
