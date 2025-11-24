@@ -34,25 +34,6 @@
 - xior v0.7+ (HTTP)
 - Cloudflare Pages (SSR)
 
-## WORKFLOW (FOLLOW IN ORDER)
-
-```mermaid
-flowchart TD
-    A[Receive Figma URL/Node-ID] --> B{Can fetch Figma?}
-    B -->|No| C[STOP - Request screenshot]
-    B -->|Yes| D[Extract design context + assets]
-    D --> E{Has custom fonts?}
-    E -->|Yes| F[Add to root.tsx + @theme]
-    E -->|No| G[Use default Inter]
-    F --> H[Extract Figma variables]
-    G --> H
-    H --> I[Plan layout with HeroUI]
-    I --> J[Create component]
-    J --> K[Export in index.ts]
-    K --> L[Import in _index.tsx]
-    L --> M[Verify & Test]
-```
-
 ### Phase 1: Fetch Figma Data
 
 #### Step 1.1: Extract Node ID from URL
@@ -221,43 +202,36 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
 ### Phase 5: Verification
 
-#### Step 5.1: Pre-flight Checklist
-- [ ] Figma data fetched successfully
-- [ ] Google Fonts added to `app/root.tsx`
-- [ ] `@theme` configured in `app/app.css` with correct variable names
-- [ ] Font names match between root.tsx and @theme
-- [ ] Colors extracted from Figma (exact hex values)
-- [ ] HeroUI components identified
-- [ ] Assets exported to `public/assets/`
-
-#### Step 5.2: Run Dev Server & Validate
-**Commands:**
+#### Step 5.1: Run Validation Commands
 ```bash
 npm run dev          # Start dev server
 npx tsc --noEmit     # TypeScript validation
 ```
 
-**Check:**
-- [ ] Fonts load correctly (inspect in DevTools)
-- [ ] Layout matches Figma visually
-- [ ] No console errors
-- [ ] No TypeScript errors
-- [ ] No `any` types used
-- [ ] Responsive on mobile (320px), tablet (768px), desktop (1024px+)
+#### Step 5.2: Verification Checklist
 
+**Visual & Layout**
+- [ ] Pixel-perfect match with Figma (Use overlay/side-by-side)
+- [ ] Responsive on all breakpoints (320px, 768px, 1024px+)
+- [ ] Fonts & Colors match exactly
+- [ ] No absolute positioning used for layout
 
+**Interactivity & Accessibility**
+- [ ] Interactive elements have hover/focus states
+- [ ] Keyboard navigation works (Tab, Enter, Esc)
+- [ ] Color contrast ≥4.5:1
+- [ ] Semantic HTML (nav, main, section)
 
-#### Step 5.3: Accessibility Audit
-**Tools:** Browser DevTools → Lighthouse, [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-
-**Checklist:**
-- [ ] Color contrast ≥4.5:1 for text
-- [ ] All interactive elements have focus states
-- [ ] Semantic HTML used (`nav`, `main`, `article`, `section`)
-- [ ] ARIA labels on icons/buttons
-- [ ] Keyboard navigation works (Tab, Enter, Escape)
+**Code Quality**
+- [ ] No Console or TypeScript errors
+- [ ] No `any` types
+- [ ] No inline styles
+- [ ] Used HeroUI components where possible
+- [ ] Used custom tokens (no hardcoded values)
 
 ---
+
+
 
 ## TROUBLESHOOTING
 
@@ -307,46 +281,6 @@ npx tsc --noEmit     # TypeScript validation
 4. Check props interface naming: `{Component}Props`
 
 ---
-
-## QUALITY CHECKLIST
-
-### Visual & Layout
-- [ ] Pixel-perfect match with Figma
-- [ ] Fonts load and display correctly
-- [ ] Colors match exactly
-- [ ] Spacing matches Figma measurements
-- [ ] Responsive on all breakpoints
-
-### Interactivity
-- [ ] All interactive elements have hover/focus/active states
-- [ ] Transitions smooth (duration-200)
-- [ ] Loading states for async operations
-- [ ] Error states with retry functionality
-
-### Performance
-- [ ] Images optimized (WebP format, lazy loading)
-- [ ] Images have width/height attributes
-- [ ] No layout shift (CLS score)
-- [ ] Assets < 100KB for hero, < 50KB for thumbnails
-
-### Accessibility
-- [ ] Keyboard navigation works
-- [ ] Screen reader friendly (ARIA labels, semantic HTML)
-- [ ] Color contrast ≥4.5:1 for text
-- [ ] Focus visible on all interactive elements
-
-### Code Quality
-- [ ] TypeScript no errors/warnings
-- [ ] NO `any` types used
-- [ ] NO absolute positioning
-- [ ] NO inline styles
-- [ ] Using HeroUI components where applicable
-- [ ] Using custom tokens (NOT hardcoded values)
-- [ ] NO console errors in browser
-
----
-
-
 
 ## REFERENCE - CODE STANDARDS
 
