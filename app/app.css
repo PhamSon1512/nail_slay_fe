@@ -24,6 +24,9 @@
   --color-primary-800: #0e631e;
   --color-primary-900: #084a13;
   --color-primary-950: #03300a;
+  --color-brand: #057c8b;
+  --color-text-main: #0d0d0d;
+  --color-text-subtle: #787878;
 }
 
 @layer base {
