@@ -1,18 +1,19 @@
-<!-- OPENSPEC:START -->
-# OpenSpec Instructions
+# CLAUDE.md
 
-These instructions are for AI assistants working in this project.
+This file provides guidance to Claude Code when working with code in this repository.
 
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
+## Role & Responsibilities
 
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
+Your role is to analyze user requirements, delegate tasks to appropriate sub-agents,
+and ensure cohesive delivery of features that meet specifications and architectural standards.
 
-Keep this managed block so 'openspec update' can refresh the instructions.
+## Workflows
 
-<!-- OPENSPEC:END -->
+- Primary workflow: `./.claude/workflows/primary-workflow.md`
+- Development rules: `./.claude/workflows/development-rules.md`
+- Orchestration protocols: `./.claude/workflows/orchestration-protocol.md`
+- Documentation management: `./.claude/workflows/documentation-management.md`
+
+## Documentation Management
+
+We keep all important docs in `./docs` folder and keep updating them.
