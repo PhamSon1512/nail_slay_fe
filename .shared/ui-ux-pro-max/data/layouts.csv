@@ -44,3 +44,13 @@ STT,Layout,Type,Keywords,Structure,Tailwind Grid/Flex,Responsive,Best For,Notes
 43,Hero Gradient,Hero,"hero, gradient, animated","animated gradient background","min-h-screen bg-gradient-to-br animate-gradient","Same pattern",Modern landing,CSS animation
 44,Card Hover Expand,Pattern,"card, hover, expand","card expands on hover","aspect-square hover:scale-105 transition-transform","Reduce effect touch",Galleries,Touch: on tap
 45,Mega Menu,Pattern,"mega, menu, dropdown","full-width dropdown menu","absolute left-0 right-0 top-full bg-white shadow-xl","Hide on mobile",Enterprise nav,Grid inside
+46,Sticky Scroll Sections,Section,"sticky, scroll, comparison","Sections stick until scrolled past (A vs B)","sticky top-0 h-screen z-10","Stacked view",Feature comparison,Framer Classic
+47,Horizontal Scroll Gallery,Section,"scroll, horizontal, gallery","Full width container with horizontal scroll trigger","flex w-[300%] overflow-x-hidden","Standard scroll",Portfolio showcase,JS transform x
+48,Bento Grid Dashboard,Grid,"bento, dashboard, grid","Complex grid with varying spans and heights","grid grid-cols-4 grid-rows-4 gap-4","Stack mobile",Pro Dashboard,Apple/Linear style
+49,Split Screen Scroll,Page,"split, scroll, snap","Half fixed, half scroll or alternating","grid grid-cols-2, one side sticky","Stack mobile",Portfolios,Case Studies
+50,Hero Video Full Bleed,Hero,"video, full, cinematic","Full screen video with subtle overlay","w-full h-screen object-cover","Contain mobile",Creative Agency,Immersive
+51,Footer Reveal,Footer,"footer, reveal, parallax","Footer fixed at bottom, z-index -1","sticky bottom-0 -z-10 h-[400px]","Static mobile",Modern SaaS,Smooth reveal
+52,Grid Masonry True,Grid,"masonry, pinterest, flow","Vertical masonry layout","columns-2 md:columns-3 gap-6 space-y-6","1 col mobile",Image heavy,Break-inside avoid
+53,Sidebar Navigation Collapsible,Navigation,"sidebar, collapse","Sidebar that shrinks to icons","transition-all duration-300 w-64 data-[collapsed=true]:w-16","Drawer mobile",Admin Panel,Space saving
+54,Overlay Menu Fullscreen,Navigation,"menu, overlay, fullscreen","Full screen menu on toggle","fixed inset-0 bg-black/90 z-50 backdrop-blur-xl","Same",Creative Agency,Big typography
+55,Mega Footer Columns,Footer,"footer, mega, links","Multi-column footer with newsletter","grid grid-cols-2 md:grid-cols-6 gap-8","Stack mobile",SaaS,Resource heavy

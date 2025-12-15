@@ -3,20 +3,76 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs.protractor.protractor_package": "",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "pnpm",
-    "npm.dev.executor": "Run",
-    "settings.editor.selected.configurable": "settings.nodejs",
+  <component name="ChangeListManager">
+    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/animations.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/animations.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/effects.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/effects.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/layouts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/layouts.csv" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;vunamhung&quot;
   }
-}]]></component>
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:vunamhung/react-router-vite-cfp-heroui.git&quot;,
+    &quot;accountId&quot;: &quot;2322d771-98e4-48cd-8093-7840034838bb&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="36sNey92XaA5ZLgoemzVZAxDW5n" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="showExcludedFiles" value="false" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.protractor.protractor_package&quot;: &quot;&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.nodejs&quot;,
+  }
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="false" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="" />
+      <created>1765791417836</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765791417836</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
+    <MESSAGE value="chore(agent): update UI/UX pro max search workflow&#10;&#10;- Updated the search order and available stacks for better usability and clarity." />
+    <MESSAGE value="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience." />
+  </component>
 </project>

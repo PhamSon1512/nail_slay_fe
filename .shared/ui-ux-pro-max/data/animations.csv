@@ -44,3 +44,13 @@ STT,Animation,Type,Keywords,CSS Keyframes,Tailwind Config,Duration,Easing,Best F
 43,Stagger,Special,"stagger, sequence","animation-delay: calc(var(--i) * 100ms);","","varies","ease-out",Lists grids,CSS variable index
 44,Path Draw,Special,"path, svg, draw","@keyframes pathDraw { to { stroke-dashoffset: 0; } }","animate-draw","1-3s","ease-out",Icons logos,SVG stroke
 45,Confetti,Special,"confetti, celebration","Complex keyframes with random transforms","","1-2s","ease-out",Success,Use library
+46,Sticky Parallax,Scroll,"sticky, parallax","position: sticky; top: 0;","sticky top-0 h-screen",Scroll-driven,Framer classic pattern
+47,Marquee Scroll,Scroll,"marquee, ticker","animation: marquee 20s linear infinite;","animate-marquee",Continuous flow,Logo walls
+48,Text Reveal Split,Text,"reveal, split","overflow: hidden; span { transform: translateY(100%); transition: transform 0.5s; }","group-hover:translate-y-0",Headlines,Letter by letter reveal
+49,Image Reveal Mask,Image,"reveal, mask","clip-path: inset(0 100% 0 0); transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);","transition-[clip-path] duration-1000 ease-in-out",Gallery,Scroll trigger
+50,Magnetic Button,Hover,"magnetic, attract","transform: translate(var(--mx), var(--my));","transition-transform duration-100 ease-linear",Buttons,Sticky cursor effect
+51,Cursor Follower,Special,"cursor, follower","position: fixed; pointer-events: none; transform: translate(-50%, -50%);","fixed w-8 h-8 rounded-full border border-black",Interactive,Custom cursor
+52,Scroll Progress Line,Scroll,"progress, reading","width: var(--scroll-percent);","fixed top-0 left-0 h-1 bg-primary z-50",Blog posts,Reading indicator
+53,Card 3D Tilt,Hover,"tilt, 3d","transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry));","transition-transform duration-300 ease-out",Feature Cards,Mouse tracking
+54,Stack Cards,Scroll,"stack, cards","position: sticky; top: var(--top);","sticky top-[10vh]",Portfolio,Framer stack effect
+55,Video Reveal,Scroll,"video, expand","width: var(--width); border-radius: var(--radius);","w-full transition-all duration-700",Hero Section,Scroll to expand
