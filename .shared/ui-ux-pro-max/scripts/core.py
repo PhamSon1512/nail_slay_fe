@@ -54,6 +54,31 @@ CSV_CONFIG = {
         "file": "typography.csv",
         "search_cols": ["Font Pairing Name", "Category", "Mood/Style Keywords", "Best For", "Heading Font", "Body Font"],
         "output_cols": ["Font Pairing Name", "Category", "Heading Font", "Body Font", "Mood/Style Keywords", "Best For", "Google Fonts URL", "CSS Import", "Tailwind Config", "Notes"]
+    },
+    "components": {
+        "file": "components.csv",
+        "search_cols": ["Name", "Keywords", "Best For"],
+        "output_cols": ["Name", "Keywords", "HTML Structure", "Tailwind Classes", "Best For", "Notes"]
+    },
+    "effects": {
+        "file": "effects.csv",
+        "search_cols": ["Name", "Keywords", "Effect Type"],
+        "output_cols": ["Name", "Effect Type", "Keywords", "CSS Code", "Tailwind Code", "Best For", "Notes"]
+    },
+    "animations": {
+        "file": "animations.csv",
+        "search_cols": ["Animation", "Keywords", "Type"],
+        "output_cols": ["Animation", "Type", "Keywords", "CSS Keyframes", "Tailwind Config", "Duration", "Best For"]
+    },
+    "layouts": {
+        "file": "layouts.csv",
+        "search_cols": ["Layout", "Keywords", "Type"],
+        "output_cols": ["Layout", "Type", "Keywords", "Structure", "Tailwind Grid/Flex", "Responsive", "Best For", "Notes"]
+    },
+    "examples": {
+        "file": "examples.csv",
+        "search_cols": ["Name", "Category", "Style", "Description"],
+        "output_cols": ["Name", "URL", "Category", "Style", "Description", "Best Features", "Tech Stack"]
     }
 }
 
@@ -184,7 +209,12 @@ def detect_domain(query):
         "prompt": ["prompt", "css", "implementation", "variable", "checklist", "tailwind"],
         "style": ["style", "design", "ui", "minimalism", "glassmorphism", "neumorphism", "brutalism", "dark mode", "flat", "aurora"],
         "ux": ["ux", "usability", "accessibility", "wcag", "touch", "scroll", "animation", "keyboard", "navigation", "mobile"],
-        "typography": ["font", "typography", "heading", "serif", "sans"]
+        "typography": ["font", "typography", "heading", "serif", "sans"],
+        "components": ["component", "navbar", "footer", "card", "hero", "button", "input", "form", "modal"],
+        "effects": ["effect", "shadow", "glow", "glass", "blur", "gradient"],
+        "animations": ["animation", "animate", "fade", "slide", "bounce", "motion", "transition"],
+        "layouts": ["layout", "grid", "column", "sidebar", "dashboard", "structure"],
+        "examples": ["example", "website", "site", "inspiration", "reference", "stripe", "apple", "linear"]
     }
 
     scores = {domain: sum(1 for kw in keywords if kw in query_lower) for domain, keywords in domain_keywords.items()}
