@@ -105,17 +105,17 @@ Legend: ⚠️ = Cần thêm/cập nhật, ✅ = Đã có/tương thích
 @theme {
   /* === Existing theme === */
   /* ... giữ nguyên ... */
-  
+
   /* === [PROJECT_NAME] Theme (NEW) === */
   --color-[prefix]-50: #[hex];
   --color-[prefix]-100: #[hex];
   /* ... scale 200-900 ... */
   --color-[prefix]-950: #[hex];
-  
+
   /* [PROJECT_NAME] Background */
   --color-[prefix]-bg-light: #[hex];
   --color-[prefix]-bg-dark: #[hex];
-  
+
   /* [PROJECT_NAME] Text */
   --color-[prefix]-text-main: #[hex];
   --color-[prefix]-text-muted: #[hex];
@@ -138,7 +138,7 @@ Legend: ⚠️ = Cần thêm/cập nhật, ✅ = Đã có/tương thích
 // Thêm vào app/root.tsx - links function
 {
   rel: 'stylesheet',
-  href: 'https://fonts.googleapis.com/css2?family=[FontName]:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=[FontName]:wght@400;500;600;700&display=swap',
 }
 ```
 
@@ -273,10 +273,10 @@ Nếu codebase đã định nghĩa `container` utility:
 // HTML
 <div style="color: red; font-size: 16px;">
 
-// JSX
-<div style={{ color: 'red', fontSize: '16px' }}>
-// hoặc
-<div style={{ color: 'red', fontSize: 16 }}>  // số cho px values
+  // JSX
+  <div style={{ color: 'red', fontSize: '16px' }}>
+    // hoặc
+    <div style={{ color: 'red', fontSize: 16 }}>  // số cho px values
 ```
 
 ---
@@ -430,7 +430,7 @@ import { Card, CardHeader, CardBody, CardFooter } from '@heroui/react';
 ### 4.4 Navbar Component
 
 ```tsx
-import { 
+import {
   Navbar, NavbarBrand, NavbarContent, NavbarItem,
   NavbarMenuToggle, NavbarMenu, NavbarMenuItem
 } from '@heroui/react';
@@ -439,20 +439,20 @@ import {
   <NavbarBrand>
     {/* Logo */}
   </NavbarBrand>
-  
+
   <NavbarContent className="hidden md:flex" justify="center">
     <NavbarItem>
       <Link href="#">Link</Link>
     </NavbarItem>
   </NavbarContent>
-  
+
   <NavbarContent justify="end">
     <NavbarItem>
       <Button>CTA</Button>
     </NavbarItem>
     <NavbarMenuToggle className="md:hidden" />
   </NavbarContent>
-  
+
   <NavbarMenu>
     {/* Mobile menu items */}
   </NavbarMenu>
@@ -545,11 +545,11 @@ export { [Project]Features } from './[Project]Features';
 ```tsx
 // app/routes/[project-name]/_index.tsx
 import type { Route } from './+types/_index';
-import { 
-  [Project]Header, 
-  [Project]Hero, 
+import {
+[Project]Header,
+  [Project]Hero,
   [Project]Features,
-  [Project]Footer 
+  [Project]Footer
 } from '~/components/[project-name]';
 
 export function meta({}: Route.MetaArgs) {
