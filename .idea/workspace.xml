@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat(data): add motion.csv with API, Type, Keywords, Code Example, Props/Options, Best For, Notes, and Docs URL columns">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates">
       <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/examples.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/examples.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" afterDir="false" />
     </list>
@@ -79,6 +78,8 @@
     <MESSAGE value="feat(data): add new animations and effects&#10;&#10;Added new animations like Sticky Parallax, Marquee Scroll, Text Reveal Split,&#10;Image Reveal Mask, Magnetic Button, Cursor Follower, Scroll Progress Line, Card&#10;3D Tilt, Stack Cards, Video Reveal and effects like Grain Texture, Mesh Gradient&#10;2.0, Text Gradient Flow, Blurred Orb, Inner Shadow Glow, Masked Text Reveal,&#10;Chromatic Aberration, Spotlight Hover, Scroll Progress, Reflection to the&#10;existing list." />
     <MESSAGE value="feat(data): add motion.csv with API, Type, Keywords, Code Example,&#10;Props/Options, Best For, Notes, and Docs URL columns" />
     <MESSAGE value="feat(data): add motion.csv with API, Type, Keywords, Code Example, Props/Options, Best For, Notes, and Docs URL columns" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(data): add motion.csv with API, Type, Keywords, Code Example, Props/Options, Best For, Notes, and Docs URL columns" />
+    <MESSAGE value="feat(data): update landing.csv with new entries and adjustments" />
+    <MESSAGE value="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates" />
   </component>
 </project>
