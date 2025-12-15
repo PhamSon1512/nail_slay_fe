@@ -61,9 +61,15 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <domain> [-
 3. **Typography** - Get font pairings with Google Fonts imports
 4. **Color** - Get color palette (Primary, Secondary, CTA, Background, Text, Border)
 5. **Landing** - Get page structure (if landing page)
-6. **Chart** - Get chart recommendations (if dashboard/analytics)
-7. **UX** - Get best practices and anti-patterns
-8. **Stack** - Get stack-specific guidelines (default: html-tailwind)
+6. **Components** - Get HTML structure and Tailwind classes for UI components
+7. **Layouts** - Get grid/flex structures and responsive patterns
+8. **Effects** - Get CSS effects (shadow, glow, glass, gradient)
+9. **Animations** - Get CSS keyframes and Tailwind animation configs
+10. **Motion** - Get Motion.dev/Framer Motion APIs (if using React)
+11. **Examples** - Get website inspiration and references
+12. **Chart** - Get chart recommendations (if dashboard/analytics)
+13. **UX** - Get best practices and anti-patterns
+14. **Stack** - Get stack-specific guidelines (default: html-tailwind)
 
 ### Step 3: Stack Guidelines (Default: html-tailwind)
 
@@ -88,6 +94,12 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 | `typography` | Font pairings, Google Fonts | elegant, playful, professional, modern |
 | `color` | Color palettes by product type | saas, ecommerce, healthcare, beauty, fintech, service |
 | `landing` | Page structure, CTA strategies | hero, hero-centric, testimonial, pricing, social-proof |
+| `components` | UI components, HTML structure | navbar, footer, card, hero, button, modal, form |
+| `layouts` | Grid/Flex structures, responsive | grid, column, sidebar, dashboard, structure |
+| `effects` | CSS effects, visual styles | shadow, glow, glass, blur, gradient |
+| `animations` | CSS keyframes, transitions | fade, slide, bounce, pulse, spin |
+| `motion` | Motion.dev/Framer Motion APIs | useAnimate, useScroll, whileHover, variants, spring |
+| `examples` | Website inspiration, references | stripe, apple, linear, vercel, notion |
 | `chart` | Chart types, library recommendations | trend, comparison, timeline, funnel, pie |
 | `ux` | Best practices, anti-patterns | animation, accessibility, z-index, loading |
 | `prompt` | AI prompts, CSS keywords | (style name) |
@@ -129,11 +141,29 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness" --domain c
 # 5. Search landing page structure
 python3 .shared/ui-ux-pro-max/scripts/search.py "hero-centric social-proof" --domain landing
 
-# 6. Search UX guidelines
+# 6. Search components (navbar, hero, cards, etc.)
+python3 .shared/ui-ux-pro-max/scripts/search.py "hero card testimonial" --domain components
+
+# 7. Search layouts
+python3 .shared/ui-ux-pro-max/scripts/search.py "responsive grid" --domain layouts
+
+# 8. Search visual effects
+python3 .shared/ui-ux-pro-max/scripts/search.py "glass blur gradient" --domain effects
+
+# 9. Search animations
+python3 .shared/ui-ux-pro-max/scripts/search.py "fade slide smooth" --domain animations
+
+# 10. Search Motion.dev APIs (if using React)
+python3 .shared/ui-ux-pro-max/scripts/search.py "whileInView scroll" --domain motion
+
+# 11. Search website examples for inspiration
+python3 .shared/ui-ux-pro-max/scripts/search.py "beauty luxury spa" --domain examples
+
+# 12. Search UX guidelines
 python3 .shared/ui-ux-pro-max/scripts/search.py "animation" --domain ux
 python3 .shared/ui-ux-pro-max/scripts/search.py "accessibility" --domain ux
 
-# 7. Search stack guidelines (default: html-tailwind)
+# 13. Search stack guidelines (default: html-tailwind)
 python3 .shared/ui-ux-pro-max/scripts/search.py "layout responsive" --stack html-tailwind
 ```
 
