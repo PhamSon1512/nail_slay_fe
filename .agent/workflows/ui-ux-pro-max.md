@@ -1,196 +1,21 @@
 ---
-description: Plan and implement UI with searchable design intelligence database
+description: Plan and implement UI
 auto_execution_mode: 3
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     CRITICAL: This workflow uses BM25 search engine with AUTO-DOMAIN DETECTION
-     You can omit --domain flag and let the script detect the best domain.
-     ═══════════════════════════════════════════════════════════════════════════ -->
-
-## Quick Start
-
-```bash
-# Auto-detect domain from query (RECOMMENDED)
-python3 .shared/ui-ux-pro-max/scripts/search.py "<query>"
-
-# Or specify domain explicitly
-python3 .shared/ui-ux-pro-max/scripts/search.py "<query>" --domain <domain>
-
-# Stack-specific guidelines
-python3 .shared/ui-ux-pro-max/scripts/search.py "<query>" --stack <stack>
-```
-
----
-
-## Workflow Steps
-
-### Step 1: Extract Requirements
-
-From user request, identify:
-- **Product**: SaaS, e-commerce, portfolio, dashboard, landing, etc.
-- **Style**: minimal, elegant, playful, dark mode, glassmorphism, etc.
-- **Industry**: healthcare, fintech, gaming, education, beauty, etc.
-- **Stack**: React, Vue, Next.js, or default `html-tailwind`
-
-### Step 2: Search Knowledge Base
-
-Search multiple domains to gather comprehensive design context. **Search until you have enough information.**
-
-**Recommended search order:**
-
-| Priority | Domain | Purpose | Example Query |
-|----------|--------|---------|---------------|
-| 1 | `product` | Style recommendations for product type | "SaaS dashboard" |
-| 2 | `style` | Visual theme details (colors, effects) | "glassmorphism dark" |
-| 3 | `layouts` | Page structure patterns | "dashboard sidebar" |
-| 4 | `components` | Code structure for UI parts | "navbar hero card" |
-| 5 | `effects` | CSS visual effects | "gradient glass glow" |
-| 6 | `motion` | Motion.dev animations (React) | "useAnimate whileHover" |
-| 7 | `animations` | CSS keyframe animations | "fade slide bounce" |
-| 8 | `typography` | Font pairings | "elegant modern mono" |
-| 9 | `color` | Color palettes | "fintech dark mode" |
-| 10 | `examples` | Real-world references | "stripe linear apple" |
-| 11 | `ux` | Best practices & pitfalls | "accessibility forms" |
-
-### Step 3: Synthesize & Build
-
-Combine search results into cohesive design, then implement code.
-
----
-
-## Domain Reference
-
-| Domain | Description | Keywords |
-|--------|-------------|----------|
-| `style` | UI visual themes | minimalism, glassmorphism, brutalism, aurora, dark mode |
-| `prompt` | AI prompt templates & CSS keywords | prompt, implementation, variables |
-| `color` | Color palettes by product type | hex, palette, primary, accent |
-| `chart` | Data visualization guidance | bar, pie, trend, heatmap, funnel |
-| `landing` | Landing page patterns | hero, CTA, testimonial, pricing |
-| `product` | Product-specific recommendations | SaaS, fintech, healthcare, gaming |
-| `ux` | UX guidelines & pitfalls | accessibility, touch, keyboard, scroll |
-| `typography` | Font pairings with imports | serif, sans, display, mono |
-| `components` | HTML/Tailwind component structures | navbar, card, hero, footer, modal |
-| `effects` | CSS visual effects | shadow, glow, glass, blur, gradient |
-| `animations` | CSS keyframe animations | fade, slide, bounce, entrance |
-| `layouts` | Page layout patterns | grid, sidebar, dashboard, split |
-| `examples` | Real website references | stripe, linear, apple, vercel |
-| `motion` | Motion.dev React animations | useAnimate, useScroll, variants |
-
-## Stack Reference
-
-| Stack | Use For |
-|-------|---------|
-| `html-tailwind` | Static HTML with Tailwind CSS (default) |
-| `react` | React components with hooks |
-| `nextjs` | Next.js App Router |
-| `vue` | Vue 3 Composition API |
-| `svelte` | Svelte components |
-| `swiftui` | iOS/macOS native |
-| `react-native` | React Native mobile |
-| `flutter` | Flutter/Dart mobile |
-
----
-
-## Professional UI Checklist
-
-Before delivering any UI code, verify these items:
-
-### Icons & Visual Elements
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 as UI icons |
-| Use color/opacity transitions on hover | Use scale transforms that shift layout |
-| Research official logos from Simple Icons | Guess or use incorrect logo paths |
-| Use fixed viewBox (24x24) with consistent sizing | Mix different icon sizes randomly |
-
-### Interaction & Cursor
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Add `cursor-pointer` to all clickable elements | Leave default cursor on interactive items |
-| Provide hover feedback (color, shadow, border) | No visual indication of interactivity |
-| Use `transition-colors duration-200` | Instant changes or too slow (>500ms) |
-| Visible focus states for keyboard navigation | Skip focus styles |
-
-### Light/Dark Mode Contrast
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Glass cards: `bg-white/80` in light mode | `bg-white/10` (too transparent) |
-| Text: `slate-900` for body text in light | `slate-400` for body text |
-| Muted text: minimum `slate-600` | `gray-400` or lighter |
-| Borders: `border-gray-200` in light mode | `border-white/10` (invisible) |
-
-### Layout & Spacing
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Floating navbar: `top-4 left-4 right-4` | Stick to `top-0 left-0 right-0` |
-| Account for fixed navbar height in content | Let content hide behind fixed elements |
-| Consistent max-width: `max-w-6xl` or `max-w-7xl` | Mix different container widths |
-| Responsive: test 320px, 768px, 1024px, 1440px | Skip mobile testing |
-
-### Accessibility
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| All images have meaningful alt text | Empty or missing alt attributes |
-| Form inputs have associated labels | Placeholders as the only label |
-| Color is not the only indicator | Rely solely on color for meaning |
-| Respect `prefers-reduced-motion` | Ignore motion preferences |
-
----
-
-## Example Session
-
-**User:** "Làm landing page cho dịch vụ chăm sóc da chuyên nghiệp"
-
-**AI executes:**
-
-```bash
-# 1. Product & Style (auto-detect works well here)
-python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa skincare"
-python3 .shared/ui-ux-pro-max/scripts/search.py "elegant minimal luxury"
-
-# 2. Structure
-python3 .shared/ui-ux-pro-max/scripts/search.py "landing hero testimonial" --domain layouts
-python3 .shared/ui-ux-pro-max/scripts/search.py "hero navbar footer" --domain components
-
-# 3. Visuals
-python3 .shared/ui-ux-pro-max/scripts/search.py "elegant luxury" --domain typography
-python3 .shared/ui-ux-pro-max/scripts/search.py "beauty wellness" --domain color
-python3 .shared/ui-ux-pro-max/scripts/search.py "glass gradient soft" --domain effects
-
-# 4. Motion (if React)
-python3 .shared/ui-ux-pro-max/scripts/search.py "fade whileInView" --domain motion
-
-# 5. UX & Stack
-python3 .shared/ui-ux-pro-max/scripts/search.py "accessibility forms" --domain ux
-python3 .shared/ui-ux-pro-max/scripts/search.py "layout" --stack html-tailwind
-```
-
----
-
-## Tips
-
-1. **Auto-detection is smart** - Omit `--domain` for most queries
-2. **Search iteratively** - Different keywords reveal different insights
-3. **Combine domains** - Style + Typography + Color = Complete design system
-4. **Always check UX** - Search "accessibility", "animation", "z-index"
-5. **Split into files** - Keep components under 200-300 lines each
-6. **Use `--json` flag** - For programmatic processing of results
-
----
+Searchable database of UI styles, color palettes, font pairings, chart types, product recommendations, UX guidelines, and stack-specific best practices.
 
 ## Prerequisites
 
-<details>
-<summary>Click to expand Python installation instructions</summary>
-
 Check if Python is installed:
+
 ```bash
 python3 --version || python --version
 ```
+
+If Python is not installed, install it based on user's OS:
 
 **macOS:**
 ```bash
@@ -207,12 +32,189 @@ sudo apt update && sudo apt install python3
 winget install Python.Python.3.12
 ```
 
-</details>
+---
+
+## How to Use This Workflow
+
+When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
+
+### Step 1: Analyze User Requirements
+
+Extract key information from user request:
+- **Product type**: SaaS, e-commerce, portfolio, dashboard, landing page, etc.
+- **Style keywords**: minimal, playful, professional, elegant, dark mode, etc.
+- **Industry**: healthcare, fintech, gaming, education, etc.
+- **Stack**: React, Vue, Next.js, or default to `html-tailwind`
+
+### Step 2: Search Relevant Domains
+
+Use `search.py` multiple times to gather comprehensive information. Search until you have enough context.
+
+```bash
+python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <domain> [-n <max_results>]
+```
+
+**Recommended search order:**
+
+1. **Product** - Get style recommendations for product type
+2. **Style** - Get detailed style guide (colors, frameworks)
+3. **Layout** - Get layout structure patterns (e.g., "dashboard", "landing")
+4. **Components** - Get code structure for key parts (Navbar, Hero, Cards)
+5. **Effects** - Get CSS visual effects (gradients, shadows, glass)
+6. **Animations** - Get animation patterns (fade, slide, hover)
+7. **Examples** - Get real-world references for inspiration
+8. **Typography** - Get font pairings
+9. **Color** - Get palette
+10. **UX** - Get best practices
+
+### Step 3: Stack Guidelines (Default: html-tailwind)
+
+If user doesn't specify a stack, **default to `html-tailwind`**.
+
+```bash
+python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
+```
 
 ---
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     REMINDER: Search multiple domains until you have comprehensive context.
-     Auto-domain detection is available - use it when unsure which domain.
-     Always verify UI against the Professional Checklist before delivery.
-     ═══════════════════════════════════════════════════════════════════════════ -->
+## Search Reference
+
+### Available Domains
+
+| Domain | Use For | Example Keywords |
+|--------|---------|------------------|
+| `product` | Product recommendations | SaaS, e-commerce, portfolio, healthcare |
+| `style` | UI styles, visual themes | glassmorphism, minimalism, dark mode |
+| `layout` | Page structures, grids | dashboard, landing, sidebar, grid |
+| `components` | UI parts code structure | navbar, hero, card, footer, button |
+| `effects` | CSS effects, visuals | gradient, glass, shadow, glow |
+| `animations` | Animation keyframes | fade, slide, hover, entrance |
+| `examples` | Real-world sites | stripe, linear, apple, saas |
+| `typography` | Font pairings | elegant, modern, mono |
+| `color` | Color palettes | saas, fintech, dark |
+| `ux` | Best practices | accessibility, forms, loading |
+| `chart` | Data visualization | trend, pie, comparison |
+
+### Available Stacks (unchanged)
+...
+
+## Example Workflow
+
+**User request:** "Làm landing page cho dịch vụ chăm sóc da chuyên nghiệp"
+
+**AI should:**
+
+```bash
+# 1. Search product type & style
+python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa" --domain product
+python3 .shared/ui-ux-pro-max/scripts/search.py "elegant minimal" --domain style
+
+# 2. Get Layout & Components
+python3 .shared/ui-ux-pro-max/scripts/search.py "landing hero" --domain layout
+python3 .shared/ui-ux-pro-max/scripts/search.py "hero navbar testimonial" --domain components
+
+# 3. Get Visuals (Fonts, Colors, Effects)
+python3 .shared/ui-ux-pro-max/scripts/search.py "elegant luxury" --domain typography
+python3 .shared/ui-ux-pro-max/scripts/search.py "beauty wellness" --domain color
+python3 .shared/ui-ux-pro-max/scripts/search.py "glass gradient" --domain effects
+
+# 4. Get Animations
+python3 .shared/ui-ux-pro-max/scripts/search.py "fade soft slide" --domain animations
+
+# 5. Check UX & Stack
+python3 .shared/ui-ux-pro-max/scripts/search.py "accessibility" --domain ux
+python3 .shared/ui-ux-pro-max/scripts/search.py "layout" --stack html-tailwind
+```
+
+**Then:** Synthesize into a complete, beautiful design.
+
+---
+
+## Tips for Better Results
+
+1. **Be specific with keywords** - "healthcare SaaS dashboard" > "app"
+2. **Search multiple times** - Different keywords reveal different insights
+3. **Combine domains** - Style + Typography + Color = Complete design system
+4. **Always check UX** - Search "animation", "z-index", "accessibility" for common issues
+5. **Use stack flag** - Get implementation-specific best practices
+6. **Iterate** - If first search doesn't match, try different keywords
+7. **Split Into Multiple Files** - For better maintainability:
+   - Separate components into individual files (e.g., `Header.tsx`, `Footer.tsx`)
+   - Extract reusable styles into dedicated files
+   - Keep each file focused and under 200-300 lines
+
+---
+
+## Common Rules for Professional UI
+
+These are frequently overlooked issues that make UI look unprofessional:
+
+### Icons & Visual Elements
+
+| Rule | Do | Don't |
+|------|----|----- |
+| **No emoji icons** | Use SVG icons (Heroicons, Lucide, Simple Icons) | Use emojis like 🎨 🚀 ⚙️ as UI icons |
+| **Stable hover states** | Use color/opacity transitions on hover | Use scale transforms that shift layout |
+| **Correct brand logos** | Research official SVG from Simple Icons | Guess or use incorrect logo paths |
+| **Consistent icon sizing** | Use fixed viewBox (24x24) with w-6 h-6 | Mix different icon sizes randomly |
+
+### Interaction & Cursor
+
+| Rule | Do | Don't |
+|------|----|----- |
+| **Cursor pointer** | Add `cursor-pointer` to all clickable/hoverable cards | Leave default cursor on interactive elements |
+| **Hover feedback** | Provide visual feedback (color, shadow, border) | No indication element is interactive |
+| **Smooth transitions** | Use `transition-colors duration-200` | Instant state changes or too slow (>500ms) |
+
+### Light/Dark Mode Contrast
+
+| Rule | Do | Don't |
+|------|----|----- |
+| **Glass card light mode** | Use `bg-white/80` or higher opacity | Use `bg-white/10` (too transparent) |
+| **Text contrast light** | Use `#0F172A` (slate-900) for text | Use `#94A3B8` (slate-400) for body text |
+| **Muted text light** | Use `#475569` (slate-600) minimum | Use gray-400 or lighter |
+| **Border visibility** | Use `border-gray-200` in light mode | Use `border-white/10` (invisible) |
+
+### Layout & Spacing
+
+| Rule | Do | Don't |
+|------|----|----- |
+| **Floating navbar** | Add `top-4 left-4 right-4` spacing | Stick navbar to `top-0 left-0 right-0` |
+| **Content padding** | Account for fixed navbar height | Let content hide behind fixed elements |
+| **Consistent max-width** | Use same `max-w-6xl` or `max-w-7xl` | Mix different container widths |
+
+---
+
+## Pre-Delivery Checklist
+
+Before delivering UI code, verify these items:
+
+### Visual Quality
+- [ ] No emojis used as icons (use SVG instead)
+- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] Brand logos are correct (verified from Simple Icons)
+- [ ] Hover states don't cause layout shift
+
+### Interaction
+- [ ] All clickable elements have `cursor-pointer`
+- [ ] Hover states provide clear visual feedback
+- [ ] Transitions are smooth (150-300ms)
+- [ ] Focus states visible for keyboard navigation
+
+### Light/Dark Mode
+- [ ] Light mode text has sufficient contrast (4.5:1 minimum)
+- [ ] Glass/transparent elements visible in light mode
+- [ ] Borders visible in both modes
+- [ ] Test both modes before delivery
+
+### Layout
+- [ ] Floating elements have proper spacing from edges
+- [ ] No content hidden behind fixed navbars
+- [ ] Responsive at 320px, 768px, 1024px, 1440px
+- [ ] No horizontal scroll on mobile
+
+### Accessibility
+- [ ] All images have alt text
+- [ ] Form inputs have labels
+- [ ] Color is not the only indicator
+- [ ] `prefers-reduced-motion` respected
