@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates">
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/examples.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/examples.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/landing.csv" afterDir="false" />
+    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat(data): Add Tech Conference Event Landing and Creative Agency Portfolio Landing&#10;&#10;- Add Tech Conference Event Landing with hero section, speakers grid with&#10;  photos and bios, stats counter, event journey/schedule, event at a glance,&#10;  pricing tiers, final CTA banner, contact form, and footer&#10;- Add Creative Agency Portfolio Landing with hero section, about/who we are,&#10;  services grid, portfolio/work showcase, 3-step process, testimonials&#10;  carousel, blog/articles preview">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +36,7 @@
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
+    <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showExcludedFiles" value="false" />
   </component>
   <component name="PropertiesComponent">{
@@ -53,6 +54,28 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.nodejs&quot;,
   }
 }</component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="npm run dev" />
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.dev" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="false" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -80,6 +103,9 @@
     <MESSAGE value="feat(data): add motion.csv with API, Type, Keywords, Code Example, Props/Options, Best For, Notes, and Docs URL columns" />
     <MESSAGE value="feat(data): update landing.csv with new entries and adjustments" />
     <MESSAGE value="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(workflows): add learn-framer-template.md for extracting design patterns from Framer marketplace templates" />
+    <MESSAGE value="feat(data): update landing.csv with new AI SaaS Marketing Landing entry&#10;&#10;feat(data): add new Outnex template for SaaS AI Marketing to examples.csv" />
+    <MESSAGE value="feat(workflows): add learn-webflow-template.md for extracting design patterns from Webflow marketplace templates" />
+    <MESSAGE value="feat(data): Add Tech Conference Event Landing and Creative Agency Portfolio Landing&#10;&#10;- Add Tech Conference Event Landing with hero section, speakers grid with&#10;  photos and bios, stats counter, event journey/schedule, event at a glance,&#10;  pricing tiers, final CTA banner, contact form, and footer&#10;- Add Creative Agency Portfolio Landing with hero section, about/who we are,&#10;  services grid, portfolio/work showcase, 3-step process, testimonials&#10;  carousel, blog/articles preview" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(data): Add Tech Conference Event Landing and Creative Agency Portfolio Landing&#10;&#10;- Add Tech Conference Event Landing with hero section, speakers grid with&#10;  photos and bios, stats counter, event journey/schedule, event at a glance,&#10;  pricing tiers, final CTA banner, contact form, and footer&#10;- Add Creative Agency Portfolio Landing with hero section, about/who we are,&#10;  services grid, portfolio/work showcase, 3-step process, testimonials&#10;  carousel, blog/articles preview" />
   </component>
 </project>
