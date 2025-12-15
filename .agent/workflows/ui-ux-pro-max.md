@@ -57,15 +57,13 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <domain> [-
 **Recommended search order:**
 
 1. **Product** - Get style recommendations for product type
-2. **Style** - Get detailed style guide (colors, frameworks)
-3. **Layout** - Get layout structure patterns (e.g., "dashboard", "landing")
-4. **Components** - Get code structure for key parts (Navbar, Hero, Cards)
-5. **Effects** - Get CSS visual effects (gradients, shadows, glass)
-6. **Animations** - Get animation patterns (fade, slide, hover)
-7. **Examples** - Get real-world references for inspiration
-8. **Typography** - Get font pairings
-9. **Color** - Get palette
-10. **UX** - Get best practices
+2. **Style** - Get detailed style guide (colors, effects, frameworks)
+3. **Typography** - Get font pairings with Google Fonts imports
+4. **Color** - Get color palette (Primary, Secondary, CTA, Background, Text, Border)
+5. **Landing** - Get page structure (if landing page)
+6. **Chart** - Get chart recommendations (if dashboard/analytics)
+7. **UX** - Get best practices and anti-patterns
+8. **Stack** - Get stack-specific guidelines (default: html-tailwind)
 
 ### Step 3: Stack Guidelines (Default: html-tailwind)
 
@@ -75,6 +73,8 @@ If user doesn't specify a stack, **default to `html-tailwind`**.
 python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
+Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`
+
 ---
 
 ## Search Reference
@@ -83,20 +83,29 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwin
 
 | Domain | Use For | Example Keywords |
 |--------|---------|------------------|
-| `product` | Product recommendations | SaaS, e-commerce, portfolio, healthcare |
-| `style` | UI styles, visual themes | glassmorphism, minimalism, dark mode |
-| `layout` | Page structures, grids | dashboard, landing, sidebar, grid |
-| `components` | UI parts code structure | navbar, hero, card, footer, button |
-| `effects` | CSS effects, visuals | gradient, glass, shadow, glow |
-| `animations` | Animation keyframes | fade, slide, hover, entrance |
-| `examples` | Real-world sites | stripe, linear, apple, saas |
-| `typography` | Font pairings | elegant, modern, mono |
-| `color` | Color palettes | saas, fintech, dark |
-| `ux` | Best practices | accessibility, forms, loading |
-| `chart` | Data visualization | trend, pie, comparison |
+| `product` | Product type recommendations | SaaS, e-commerce, portfolio, healthcare, beauty, service |
+| `style` | UI styles, colors, effects | glassmorphism, minimalism, dark mode, brutalism |
+| `typography` | Font pairings, Google Fonts | elegant, playful, professional, modern |
+| `color` | Color palettes by product type | saas, ecommerce, healthcare, beauty, fintech, service |
+| `landing` | Page structure, CTA strategies | hero, hero-centric, testimonial, pricing, social-proof |
+| `chart` | Chart types, library recommendations | trend, comparison, timeline, funnel, pie |
+| `ux` | Best practices, anti-patterns | animation, accessibility, z-index, loading |
+| `prompt` | AI prompts, CSS keywords | (style name) |
 
-### Available Stacks (unchanged)
-...
+### Available Stacks
+
+| Stack | Focus |
+|-------|-------|
+| `html-tailwind` | Tailwind utilities, responsive, a11y (DEFAULT) |
+| `react` | State, hooks, performance, patterns |
+| `nextjs` | SSR, routing, images, API routes |
+| `vue` | Composition API, Pinia, Vue Router |
+| `svelte` | Runes, stores, SvelteKit |
+| `swiftui` | Views, State, Navigation, Animation |
+| `react-native` | Components, Navigation, Lists |
+| `flutter` | Widgets, State, Layout, Theming |
+
+---
 
 ## Example Workflow
 
@@ -105,28 +114,30 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwin
 **AI should:**
 
 ```bash
-# 1. Search product type & style
-python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa" --domain product
-python3 .shared/ui-ux-pro-max/scripts/search.py "elegant minimal" --domain style
+# 1. Search product type
+python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness service" --domain product
 
-# 2. Get Layout & Components
-python3 .shared/ui-ux-pro-max/scripts/search.py "landing hero" --domain layout
-python3 .shared/ui-ux-pro-max/scripts/search.py "hero navbar testimonial" --domain components
+# 2. Search style (based on industry: beauty, elegant)
+python3 .shared/ui-ux-pro-max/scripts/search.py "elegant minimal soft" --domain style
 
-# 3. Get Visuals (Fonts, Colors, Effects)
+# 3. Search typography
 python3 .shared/ui-ux-pro-max/scripts/search.py "elegant luxury" --domain typography
-python3 .shared/ui-ux-pro-max/scripts/search.py "beauty wellness" --domain color
-python3 .shared/ui-ux-pro-max/scripts/search.py "glass gradient" --domain effects
 
-# 4. Get Animations
-python3 .shared/ui-ux-pro-max/scripts/search.py "fade soft slide" --domain animations
+# 4. Search color palette
+python3 .shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness" --domain color
 
-# 5. Check UX & Stack
+# 5. Search landing page structure
+python3 .shared/ui-ux-pro-max/scripts/search.py "hero-centric social-proof" --domain landing
+
+# 6. Search UX guidelines
+python3 .shared/ui-ux-pro-max/scripts/search.py "animation" --domain ux
 python3 .shared/ui-ux-pro-max/scripts/search.py "accessibility" --domain ux
-python3 .shared/ui-ux-pro-max/scripts/search.py "layout" --stack html-tailwind
+
+# 7. Search stack guidelines (default: html-tailwind)
+python3 .shared/ui-ux-pro-max/scripts/search.py "layout responsive" --stack html-tailwind
 ```
 
-**Then:** Synthesize into a complete, beautiful design.
+**Then:** Synthesize all search results and implement the design.
 
 ---
 
@@ -139,9 +150,9 @@ python3 .shared/ui-ux-pro-max/scripts/search.py "layout" --stack html-tailwind
 5. **Use stack flag** - Get implementation-specific best practices
 6. **Iterate** - If first search doesn't match, try different keywords
 7. **Split Into Multiple Files** - For better maintainability:
-   - Separate components into individual files (e.g., `Header.tsx`, `Footer.tsx`)
-   - Extract reusable styles into dedicated files
-   - Keep each file focused and under 200-300 lines
+  - Separate components into individual files (e.g., `Header.tsx`, `Footer.tsx`)
+  - Extract reusable styles into dedicated files
+  - Keep each file focused and under 200-300 lines
 
 ---
 
