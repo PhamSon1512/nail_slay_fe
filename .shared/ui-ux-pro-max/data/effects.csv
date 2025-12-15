@@ -1,0 +1,46 @@
+STT,Effect,Category,Keywords,CSS Code,Tailwind,Usage,Notes
+1,Gradient Text,Text,"gradient, text, colorful","background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;","bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent",Hero titles,Dark bg works best
+2,Glow Text,Text,"glow, neon","text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;","drop-shadow-[0_0_10px_rgba(0,255,0,0.8)]",Neon themes,Use sparingly
+3,Stroke Text,Text,"outline, stroke","color: transparent; -webkit-text-stroke: 2px #000;","text-transparent [-webkit-text-stroke:2px_black]",Large display,Brutalist designs
+4,Animated Gradient,Background,"animated, gradient","background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradient 15s ease infinite;","animate-gradient-xy",Hero sections,Add @keyframes
+5,Mesh Gradient,Background,"mesh, aurora","background-color: #ff99cc; background-image: radial-gradient(at 40% 20%, #ff99cc 0px, transparent 50%), radial-gradient(at 80% 0%, #7dd3fc 0px, transparent 50%);","",Full backgrounds,Layer radials
+6,Noise Texture,Background,"noise, grain","background-image: url(data:image/svg+xml,...); opacity: 0.05;","",Overlay gradients,Low opacity key
+7,Glass Card,Card,"glass, blur","backdrop-filter: blur(16px); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);","backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl",Cards modals,Needs colorful bg
+8,Multi-Layer Shadow,Shadow,"shadow, depth","box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 10px 15px -3px rgba(0,0,0,0.1), 0 20px 25px -5px rgba(0,0,0,0.05);","shadow-xl",Cards,Realistic depth
+9,Color Shadow,Shadow,"shadow, glow","box-shadow: 0 20px 40px -12px rgba(124, 58, 237, 0.35);","shadow-2xl shadow-purple-500/30",CTA buttons,Match brand color
+10,Inner Shadow,Shadow,"inner, pressed","box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.1);","shadow-inner",Input fields,Recessed look
+11,Neumorphic Shadow,Shadow,"neumorphic, soft","box-shadow: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff;","",Soft UI cards,Match bg color
+12,Hard Shadow,Shadow,"hard, brutal","box-shadow: 4px 4px 0 #000;","shadow-[4px_4px_0px_#000]",Brutalist,Neubrutalism
+13,Gradient Border,Border,"gradient, colorful","background: linear-gradient(135deg, #667eea, #764ba2); padding: 2px;","",Featured cards,Use wrapper
+14,Animated Border,Border,"animated","border-image: linear-gradient(90deg, #ff0000, #00ff00, #0000ff) 1; animation: hue 3s infinite;","",Highlights,hue-rotate animation
+15,Glow Border,Border,"glow, neon","box-shadow: 0 0 0 1px #8b5cf6, 0 0 15px rgba(139,92,246,0.3);","ring-1 ring-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]",Focus states,Dark mode
+16,Scale Bounce,Hover,"scale, bounce","transform: scale(1); transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); &:hover { transform: scale(1.05); }","hover:scale-105 transition-transform",Cards buttons,Bounce easing
+17,Lift Shadow,Hover,"lift, shadow","transform: translateY(0); &:hover { transform: translateY(-4px); box-shadow: 0 20px 25px rgba(0,0,0,0.15); }","hover:-translate-y-1 hover:shadow-2xl transition-all",Cards,E-commerce
+18,Reveal Border,Hover,"border, reveal","border: 2px solid transparent; &:hover { border-color: #8b5cf6; }","border-2 border-transparent hover:border-purple-500 transition-colors",Cards links,Minimal
+19,Background Fill,Hover,"fill","background-size: 200% 100%; background-position: right; &:hover { background-position: left; }","",Links buttons,Sliding fill
+20,Underline Grow,Hover,"underline","::after { width: 0; } &:hover::after { width: 100%; }","",Nav links,From center
+21,Shine Effect,Hover,"shine, sweep","::before { left: -100%; } &:hover::before { left: 100%; }","",Premium buttons,Single sweep
+22,Tilt 3D,Hover,"tilt, perspective","perspective: 1000px; &:hover { transform: rotateY(10deg) rotateX(5deg); }","",Cards images,Use JS for cursor
+23,Blur Reveal,Hover,"blur, reveal","filter: blur(4px); &:hover { filter: blur(0); }","",Galleries,Image teasers
+24,Fade In Up,Animation,"fade, entrance","@keyframes fadeInUp { from { opacity: 0; translateY(20px); } to { opacity: 1; translateY(0); } }","animate-fade-in-up",Section entrances,Intersection Observer
+25,Slide In Left,Animation,"slide, entrance","@keyframes slideInLeft { from { translateX(-50px); } to { translateX(0); } }","",Sidebars,Panels modals
+26,Scale In,Animation,"scale, pop","@keyframes scaleIn { from { scale(0.9); } to { scale(1); } }","",Modals tooltips,Quick 0.3s
+27,Bounce In,Animation,"bounce, playful","@keyframes bounceIn { 0% { scale(0); } 50% { scale(1.1); } 100% { scale(1); } }","",Notifications,Sparingly
+28,Stagger Children,Animation,"stagger, sequence","animation-delay: calc(var(--index) * 100ms);","",Lists grids,CSS variable
+29,Pulse Glow,Animation,"pulse, attention","@keyframes pulseGlow { 50% { box-shadow: 0 0 0 10px transparent; } }","animate-pulse",Live status,Notifications
+30,Typing Effect,Animation,"typing, cursor","animation: typing 3s steps(30), blink 0.7s infinite;","",Hero text,Terminal
+31,Count Up,Animation,"count, numbers","Use countUp.js or requestAnimationFrame","",Statistics,JS required
+32,Rotate Spin,Animation,"rotate, loading","@keyframes spin { to { rotate(360deg); } }","animate-spin",Loaders,Loading states
+33,Float,Animation,"float, ambient","@keyframes float { 50% { translateY(-10px); } }","",Hero images,Subtle 5-15px
+34,Shimmer Loading,Animation,"shimmer, skeleton","background-size: 200% 100%; animation: shimmer 1.5s infinite;","",Skeletons,Loading states
+35,Parallax Scroll,Scroll,"parallax, depth","transform: translateY(calc(var(--scroll) * 0.5));","",Hero backgrounds,Minimal JS
+36,Scroll Fade,Scroll,"scroll, reveal","Intersection Observer + opacity transition","",Sections,Progressive reveal
+37,Gradient Blur,Decorative,"gradient, blur","filter: blur(60px); background: radial-gradient(circle, rgba(139,92,246,0.3), transparent);","",Background deco,Abstract bg
+38,Spotlight,Decorative,"spotlight, cursor","radial-gradient at mouse position","",Hero sections,JS mouse tracking
+39,Morphing Blob,Decorative,"blob, organic","border-radius animation with varying values","",Background art,8s animation
+40,Glitch Effect,Decorative,"glitch, cyberpunk","clip-path + transform offset animation","",Gaming sci-fi,Multiple layers
+41,Scanlines,Decorative,"scanlines, retro","repeating-linear-gradient(0deg, transparent 1px, rgba(0,0,0,0.1) 2px);","",Retro CRT,Low opacity
+42,Vignette,Decorative,"vignette, photo","radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4));","",Image overlays,Cinematic
+43,Duotone,Decorative,"duotone, filter","grayscale + gradient overlay with mix-blend-mode: multiply;","",Brand images,Consistent color
+44,Frosted Glass,Decorative,"frost, glass","backdrop-filter: blur(10px) saturate(180%);","backdrop-blur-md backdrop-saturate-150",iOS style,Cards navbars
+45,Rainbow Border,Decorative,"rainbow, animated","gradient border + hue-rotate animation","",Featured items,Celebrations
