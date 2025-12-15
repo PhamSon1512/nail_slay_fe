@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/animations.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/animations.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/effects.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/effects.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/layouts.csv" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/data/layouts.csv" afterDir="false" />
+    <list default="true" id="dd3300c5-4b85-4c1d-a066-cf5423f5da62" name="Changes" comment="feat(data): add new animations and effects&#10;&#10;Added new animations like Sticky Parallax, Marquee Scroll, Text Reveal Split,&#10;Image Reveal Mask, Magnetic Button, Cursor Follower, Scroll Progress Line, Card&#10;3D Tilt, Stack Cards, Video Reveal and effects like Grain Texture, Mesh Gradient&#10;2.0, Text Gradient Flow, Blurred Orb, Inner Shadow Glow, Masked Text Reveal,&#10;Chromatic Aberration, Spotlight Hover, Scroll Progress, Reflection to the&#10;existing list.">
+      <change beforePath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/.shared/ui-ux-pro-max/scripts/core.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +70,7 @@
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
     <MESSAGE value="chore(agent): update UI/UX pro max search workflow&#10;&#10;- Updated the search order and available stacks for better usability and clarity." />
     <MESSAGE value="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: Add new domains, components, effects, animations, layouts, and examples&#10;&#10;Added new domains: components, effects, animations, layouts, and examples to&#10;the search functionality to improve search results and user experience." />
+    <MESSAGE value="feat(data): add new animations and effects&#10;&#10;Added new animations like Sticky Parallax, Marquee Scroll, Text Reveal Split,&#10;Image Reveal Mask, Magnetic Button, Cursor Follower, Scroll Progress Line, Card&#10;3D Tilt, Stack Cards, Video Reveal and effects like Grain Texture, Mesh Gradient&#10;2.0, Text Gradient Flow, Blurred Orb, Inner Shadow Glow, Masked Text Reveal,&#10;Chromatic Aberration, Spotlight Hover, Scroll Progress, Reflection to the&#10;existing list." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(data): add new animations and effects&#10;&#10;Added new animations like Sticky Parallax, Marquee Scroll, Text Reveal Split,&#10;Image Reveal Mask, Magnetic Button, Cursor Follower, Scroll Progress Line, Card&#10;3D Tilt, Stack Cards, Video Reveal and effects like Grain Texture, Mesh Gradient&#10;2.0, Text Gradient Flow, Blurred Orb, Inner Shadow Glow, Masked Text Reveal,&#10;Chromatic Aberration, Spotlight Hover, Scroll Progress, Reflection to the&#10;existing list." />
   </component>
 </project>

@@ -79,6 +79,11 @@ CSV_CONFIG = {
         "file": "examples.csv",
         "search_cols": ["Name", "Category", "Style", "Description"],
         "output_cols": ["Name", "URL", "Category", "Style", "Description", "Best Features", "Tech Stack"]
+    },
+    "motion": {
+        "file": "motion.csv",
+        "search_cols": ["API", "Type", "Keywords", "Best For"],
+        "output_cols": ["API", "Type", "Keywords", "Code Example", "Props/Options", "Best For", "Notes", "Docs URL"]
     }
 }
 
@@ -212,9 +217,10 @@ def detect_domain(query):
         "typography": ["font", "typography", "heading", "serif", "sans"],
         "components": ["component", "navbar", "footer", "card", "hero", "button", "input", "form", "modal"],
         "effects": ["effect", "shadow", "glow", "glass", "blur", "gradient"],
-        "animations": ["animation", "animate", "fade", "slide", "bounce", "motion", "transition"],
+        "animations": ["animation", "animate", "fade", "slide", "bounce", "transition"],
         "layouts": ["layout", "grid", "column", "sidebar", "dashboard", "structure"],
-        "examples": ["example", "website", "site", "inspiration", "reference", "stripe", "apple", "linear"]
+        "examples": ["example", "website", "site", "inspiration", "reference", "stripe", "apple", "linear"],
+        "motion": ["motion", "framer", "useanimate", "usescroll", "usetransform", "animatepresence", "whilehover", "whiletap", "whileinview", "variants", "spring", "gesture", "layoutid"]
     }
 
     scores = {domain: sum(1 for kw in keywords if kw in query_lower) for domain, keywords in domain_keywords.items()}
