@@ -1,0 +1,163 @@
+name: backend-development
+description: 'Production-ready backend development with modern technologies, security best practices, and proven patterns. Covers API design, authentication, performance, testing, DevOps, and scalable architecture.'
+author: 'BMad'
+version: '1.0.0'
+
+# Critical variables from config
+config_source: '{project-root}/{bmad_folder}/bmm/config.yaml'
+output_folder: '{config_source}:output_folder'
+date: system-generated
+
+# Workflow components
+installed_path: '{project-root}/{bmad_folder}/bmm/workflows/backend-development'
+instructions: '{installed_path}/instructions.md'
+validation: '{installed_path}/checklist.md'
+
+# References
+references_path: '{installed_path}/references'
+references:
+  technologies:
+    - id: backend-technologies
+      file: '{references_path}/backend-technologies.md'
+      description: 'Languages (Node.js, Python, Go, Rust), frameworks, databases, message queues, ORMs'
+
+  api_design:
+    - id: backend-api-design
+      file: '{references_path}/backend-api-design.md'
+      description: 'REST, GraphQL, gRPC patterns and best practices'
+
+  security:
+    - id: backend-security
+      file: '{references_path}/backend-security.md'
+      description: 'OWASP Top 10 2025, security best practices, input validation'
+    - id: backend-authentication
+      file: '{references_path}/backend-authentication.md'
+      description: 'OAuth 2.1, JWT, RBAC, MFA, session management'
+
+  performance:
+    - id: backend-performance
+      file: '{references_path}/backend-performance.md'
+      description: 'Caching, query optimization, load balancing, scaling'
+    - id: backend-architecture
+      file: '{references_path}/backend-architecture.md'
+      description: 'Microservices, event-driven, CQRS, saga patterns'
+
+  quality:
+    - id: backend-testing
+      file: '{references_path}/backend-testing.md'
+      description: 'Testing strategies, frameworks, tools, CI/CD testing'
+    - id: backend-code-quality
+      file: '{references_path}/backend-code-quality.md'
+      description: 'SOLID principles, design patterns, clean code'
+    - id: backend-debugging
+      file: '{references_path}/backend-debugging.md'
+      description: 'Debugging strategies, profiling, logging, production debugging'
+
+  operations:
+    - id: backend-devops
+      file: '{references_path}/backend-devops.md'
+      description: 'Docker, Kubernetes, deployment strategies, monitoring'
+    - id: backend-mindset
+      file: '{references_path}/backend-mindset.md'
+      description: 'Problem-solving, architectural thinking, collaboration'
+
+# Technology Selection Guide
+technology_selection:
+  choose_nodejs:
+    when:
+      - 'Full-stack JavaScript/TypeScript team'
+      - 'Real-time applications (WebSocket, SSE)'
+      - 'Rapid development and prototyping'
+      - 'NPM ecosystem advantage'
+    frameworks: ['NestJS', 'Express', 'Fastify', 'Hono']
+
+  choose_python:
+    when:
+      - 'Data science/ML integration'
+      - 'Scripting and automation'
+      - 'Scientific computing'
+      - 'Rapid API development'
+    frameworks: ['FastAPI', 'Django', 'Flask']
+
+  choose_go:
+    when:
+      - 'High concurrency requirements'
+      - 'Microservices architecture'
+      - 'DevOps/infrastructure tooling'
+      - 'Performance-critical systems'
+    frameworks: ['Gin', 'Echo', 'Fiber']
+
+  choose_rust:
+    when:
+      - 'Maximum performance required'
+      - 'Memory safety critical'
+      - 'Systems programming'
+      - 'WebAssembly targets'
+    frameworks: ['Axum', 'Actix', 'Rocket']
+
+# Quick Decision Matrix
+decision_matrix:
+  - need: 'Fast development'
+    choose: 'Node.js + NestJS/Hono'
+  - need: 'Data/ML integration'
+    choose: 'Python + FastAPI'
+  - need: 'High concurrency'
+    choose: 'Go + Gin'
+  - need: 'Max performance'
+    choose: 'Rust + Axum'
+  - need: 'ACID transactions'
+    choose: 'PostgreSQL'
+  - need: 'Flexible schema'
+    choose: 'MongoDB'
+  - need: 'Caching'
+    choose: 'Redis'
+  - need: 'Internal services'
+    choose: 'gRPC'
+  - need: 'Public APIs'
+    choose: 'GraphQL/REST'
+  - need: 'Real-time events'
+    choose: 'Kafka/Redis Pub-Sub'
+
+# Use cases
+use_cases:
+  - 'Designing RESTful, GraphQL, or gRPC APIs'
+  - 'Building authentication/authorization systems'
+  - 'Optimizing database queries and schemas'
+  - 'Implementing caching and performance optimization'
+  - 'OWASP Top 10 security mitigation'
+  - 'Designing scalable microservices'
+  - 'Testing strategies (unit, integration, E2E)'
+  - 'CI/CD pipelines and deployment'
+  - 'Monitoring and debugging production systems'
+  - 'Error handling and logging best practices'
+
+# Key Best Practices (2025)
+best_practices:
+  security:
+    - 'Argon2id passwords'
+    - 'Parameterized queries (98% SQL injection reduction)'
+    - 'OAuth 2.1 + PKCE'
+    - 'Rate limiting'
+    - 'Security headers'
+
+  performance:
+    - 'Redis caching (90% DB load reduction)'
+    - 'Database indexing (30% I/O reduction)'
+    - 'CDN (50%+ latency cut)'
+    - 'Connection pooling'
+
+  testing:
+    - '70-20-10 pyramid (unit-integration-E2E)'
+    - 'Vitest 50% faster than Jest'
+    - 'Contract testing for microservices'
+    - '83% migrations fail without tests'
+
+  devops:
+    - 'Blue-green/canary deployments'
+    - 'Feature flags (90% fewer failures)'
+    - 'Kubernetes 84% adoption'
+    - 'Prometheus/Grafana monitoring'
+    - 'OpenTelemetry tracing'
+
+standalone: true
+web_bundle: false

@@ -1,0 +1,307 @@
+# Hono Deploy Workflow
+# Deploy Hono app to various platforms
+
+workflow:
+  metadata:
+    name: Deploy Hono App
+    description: 'Deploy Hono application to Cloudflare Workers, Bun, Deno, or other platforms'
+    icon: 🚀
+    agent: hono-expert
+
+  inputs:
+    - name: platform
+      description: 'Target deployment platform'
+      required: true
+      options:
+        - cloudflare-workers
+        - cloudflare-pages
+        - deno-deploy
+        - bun
+        - nodejs
+        - aws-lambda
+        - vercel
+        - netlify
+
+    - name: environment
+      description: 'Deployment environment (staging, production)'
+      required: false
+      default: 'production'
+
+  phases:
+    - name: 1. Pre-deployment Checks
+      description: 'Verify app is ready for deployment'
+      checklist:
+        - id: type-check
+          description: 'Run TypeScript type checking (tsc --noEmit)'
+
+        - id: lint
+          description: 'Run linting (eslint)'
+
+        - id: test
+          description: 'Run test suite and verify all tests pass'
+
+        - id: build
+          description: 'Run build command if applicable'
+
+        - id: env-vars
+          description: 'Verify all required environment variables are set'
+
+    - name: 2. Platform Configuration
+      description: 'Configure platform-specific settings'
+      checklist:
+        - id: config-file
+          description: 'Verify platform configuration file exists and is correct'
+
+        - id: entry-point
+          description: 'Verify entry point is correct for the platform'
+
+        - id: bindings
+          description: 'Configure platform bindings (KV, D1, R2, etc.)'
+
+        - id: routes
+          description: 'Configure routing rules if applicable'
+
+    - name: 3. Deployment
+      description: 'Deploy to the platform'
+      checklist:
+        - id: deploy-command
+          description: 'Run platform deployment command'
+
+        - id: verify-deployment
+          description: 'Verify deployment succeeded'
+
+        - id: smoke-test
+          description: 'Run smoke test on deployed URL'
+
+    - name: 4. Post-deployment
+      description: 'Post-deployment tasks'
+      checklist:
+        - id: verify-health
+          description: 'Check health endpoint returns 200'
+
+        - id: verify-routes
+          description: 'Test critical routes are working'
+
+        - id: monitoring
+          description: 'Verify monitoring and logging is active'
+
+        - id: documentation
+          description: 'Update deployment documentation if needed'
+
+  platform_guides:
+    cloudflare-workers:
+      config_file: 'wrangler.toml'
+      config_example: |
+        name = "my-hono-app"
+        main = "src/index.ts"
+        compatibility_date = "2024-01-01"
+        compatibility_flags = ["nodejs_compat"]
+
+        [vars]
+        ENVIRONMENT = "production"
+
+        [[kv_namespaces]]
+        binding = "MY_KV"
+        id = "your-kv-namespace-id"
+
+        [[d1_databases]]
+        binding = "DB"
+        database_name = "my-database"
+        database_id = "your-database-id"
+
+        [[r2_buckets]]
+        binding = "MY_BUCKET"
+        bucket_name = "my-bucket"
+      commands:
+        dev: 'wrangler dev'
+        deploy_staging: 'wrangler deploy --env staging'
+        deploy_production: 'wrangler deploy'
+        tail_logs: 'wrangler tail'
+      entry_point: |
+        import { Hono } from 'hono'
+
+        const app = new Hono()
+        // ... your routes
+
+        export default app
+
+    cloudflare-pages:
+      config_file: 'wrangler.toml'
+      config_example: |
+        name = "my-hono-pages"
+        compatibility_date = "2024-01-01"
+        pages_build_output_dir = "./dist"
+      commands:
+        dev: 'vite'
+        build: 'vite build'
+        preview: 'wrangler pages dev ./dist'
+        deploy: 'wrangler pages deploy ./dist'
+      entry_point: |
+        import { Hono } from 'hono'
+        import { handle } from 'hono/cloudflare-pages'
+
+        const app = new Hono()
+        // ... your routes
+
+        export default handle(app)
+
+    bun:
+      config_file: 'package.json'
+      config_example: |
+        {
+          "scripts": {
+            "dev": "bun run --hot src/index.ts",
+            "start": "bun src/index.ts",
+            "build": "bun build ./src/index.ts --target bun --outdir ./dist"
+          }
+        }
+      commands:
+        dev: 'bun run dev'
+        start: 'bun run start'
+        build: 'bun run build'
+      entry_point: |
+        import { Hono } from 'hono'
+
+        const app = new Hono()
+        // ... your routes
+
+        export default {
+          port: process.env.PORT || 3000,
+          fetch: app.fetch
+        }
+      deployment_options:
+        - 'Docker container with Bun runtime'
+        - 'Railway, Render, or Fly.io'
+        - 'Self-hosted server'
+
+    deno-deploy:
+      config_file: 'deno.json'
+      config_example: |
+        {
+          "tasks": {
+            "dev": "deno run --allow-net --watch main.ts",
+            "start": "deno run --allow-net main.ts"
+          },
+          "imports": {
+            "hono": "npm:hono@latest"
+          }
+        }
+      commands:
+        dev: 'deno task dev'
+        start: 'deno task start'
+        deploy: 'deployctl deploy --project=my-project main.ts'
+      entry_point: |
+        import { Hono } from 'hono'
+
+        const app = new Hono()
+        // ... your routes
+
+        Deno.serve({ port: 8000 }, app.fetch)
+
+    nodejs:
+      config_file: 'package.json'
+      config_example: |
+        {
+          "scripts": {
+            "dev": "tsx watch src/index.ts",
+            "build": "tsc",
+            "start": "node dist/index.js"
+          },
+          "dependencies": {
+            "@hono/node-server": "^1.x",
+            "hono": "^4.x"
+          }
+        }
+      commands:
+        dev: 'npm run dev'
+        build: 'npm run build'
+        start: 'npm start'
+      entry_point: |
+        import { serve } from '@hono/node-server'
+        import { Hono } from 'hono'
+
+        const app = new Hono()
+        // ... your routes
+
+        serve({
+          fetch: app.fetch,
+          port: Number(process.env.PORT) || 3000
+        })
+
+        console.log('Server running on port 3000')
+
+    aws-lambda:
+      config_file: 'template.yaml (SAM) or serverless.yml'
+      config_example: |
+        # SAM template.yaml
+        AWSTemplateFormatVersion: '2010-09-09'
+        Transform: AWS::Serverless-2016-10-31
+
+        Resources:
+          HonoFunction:
+            Type: AWS::Serverless::Function
+            Properties:
+              Handler: dist/index.handler
+              Runtime: nodejs20.x
+              Events:
+                Api:
+                  Type: HttpApi
+                  Properties:
+                    Path: /{proxy+}
+                    Method: ANY
+      commands:
+        build: 'sam build'
+        deploy: 'sam deploy --guided'
+        local: 'sam local start-api'
+      entry_point: |
+        import { Hono } from 'hono'
+        import { handle } from 'hono/aws-lambda'
+
+        const app = new Hono()
+        // ... your routes
+
+        export const handler = handle(app)
+
+    vercel:
+      config_file: 'vercel.json'
+      config_example: |
+        {
+          "rewrites": [
+            { "source": "/(.*)", "destination": "/api" }
+          ]
+        }
+      commands:
+        dev: 'vercel dev'
+        deploy_preview: 'vercel'
+        deploy_production: 'vercel --prod'
+      entry_point: |
+        // api/index.ts
+        import { Hono } from 'hono'
+        import { handle } from 'hono/vercel'
+
+        const app = new Hono().basePath('/api')
+        // ... your routes
+
+        export const GET = handle(app)
+        export const POST = handle(app)
+        // ... other methods
+
+  environment_variables:
+    best_practices:
+      - 'Never commit secrets to version control'
+      - 'Use platform-specific secret management'
+      - 'Define different values for staging vs production'
+      - 'Document all required environment variables'
+    platform_specific:
+      cloudflare: 'wrangler secret put SECRET_NAME / or in dashboard'
+      vercel: 'vercel env add SECRET_NAME'
+      deno_deploy: 'In project settings or deployctl'
+      aws: 'AWS Secrets Manager or Parameter Store'
+
+  output:
+    description: 'Successfully deployed Hono application'
+    verification:
+      - 'Health endpoint returns 200 OK'
+      - 'API routes are accessible'
+      - 'Logs are being captured'
+      - 'Monitoring is active'

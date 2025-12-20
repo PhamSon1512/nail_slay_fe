@@ -1,0 +1,180 @@
+# Hono Quickstart Workflow
+# Create a new Hono project with best practices
+
+workflow:
+  metadata:
+    name: Hono Quickstart
+    description: 'Create a new Hono project with best practices setup'
+    icon: 🚀
+    agent: hono-expert
+
+  inputs:
+    - name: project_name
+      description: 'Name of your Hono project'
+      required: true
+
+    - name: runtime
+      description: 'Target runtime (cloudflare-workers, cloudflare-pages, bun, deno, nodejs, aws-lambda)'
+      required: true
+      default: 'cloudflare-workers'
+
+    - name: features
+      description: 'Features to include (cors, logger, zod-validation, jwt-auth, openapi)'
+      required: false
+      default: 'cors,logger'
+
+  phases:
+    - name: 1. Project Setup
+      description: 'Create project structure based on selected runtime'
+      checklist:
+        - id: create-project
+          description: 'Create project using create-hono CLI or manual setup'
+
+        - id: install-deps
+          description: 'Install Hono and required dependencies'
+
+        - id: configure-typescript
+          description: 'Configure TypeScript with strict mode'
+
+        - id: setup-env-types
+          description: 'Define Env types for Bindings and Variables'
+
+    - name: 2. Core Configuration
+      description: 'Set up middleware and base configuration'
+      checklist:
+        - id: configure-middleware
+          description: 'Add selected middleware (cors, logger, etc.)'
+
+        - id: setup-error-handling
+          description: 'Configure global error handler with app.onError()'
+
+        - id: setup-not-found
+          description: 'Configure custom 404 handler with app.notFound()'
+
+        - id: setup-validation
+          description: 'Set up validation library if selected (Zod/Valibot)'
+
+    - name: 3. Project Structure
+      description: 'Create modular file structure'
+      checklist:
+        - id: create-routes-folder
+          description: 'Create routes/ folder for modular routing'
+
+        - id: create-middleware-folder
+          description: 'Create middleware/ folder for custom middleware'
+
+        - id: create-schemas-folder
+          description: 'Create schemas/ folder for validation schemas'
+
+        - id: create-types-folder
+          description: 'Create types/ folder for shared TypeScript types'
+
+    - name: 4. Development Setup
+      description: 'Configure development environment'
+      checklist:
+        - id: setup-dev-script
+          description: 'Configure npm run dev script for hot reload'
+
+        - id: setup-testing
+          description: 'Set up testing with Vitest or runtime-native testing'
+
+        - id: create-readme
+          description: 'Create README with getting started instructions'
+
+  runtime_templates:
+    cloudflare-workers:
+      create_command: 'npm create hono@latest {project_name} -- --template cloudflare-workers'
+      entry_point: 'src/index.ts'
+      export: 'export default app'
+      dev_command: 'wrangler dev'
+      deploy_command: 'wrangler deploy'
+
+    cloudflare-pages:
+      create_command: 'npm create hono@latest {project_name} -- --template cloudflare-pages'
+      entry_point: 'src/index.tsx'
+      export: 'export default app'
+      dev_command: 'vite'
+      deploy_command: 'wrangler pages deploy ./dist'
+
+    bun:
+      create_command: 'bun create hono@latest {project_name}'
+      entry_point: 'src/index.ts'
+      export: 'export default { port: 3000, fetch: app.fetch }'
+      dev_command: 'bun run --hot src/index.ts'
+      deploy_command: 'bun build --target bun ./src/index.ts'
+
+    deno:
+      create_command: 'deno init --npm hono@latest {project_name}'
+      entry_point: 'main.ts'
+      export: 'Deno.serve(app.fetch)'
+      dev_command: 'deno run --allow-net main.ts'
+      deploy_command: 'deployctl deploy'
+
+    nodejs:
+      create_command: 'npm create hono@latest {project_name} -- --template nodejs'
+      entry_point: 'src/index.ts'
+      export: 'serve({ fetch: app.fetch, port: 3000 })'
+      dev_command: 'npm run dev'
+      deploy_command: 'npm run build && npm start'
+
+    aws-lambda:
+      create_command: 'npm create hono@latest {project_name} -- --template aws-lambda'
+      entry_point: 'src/index.ts'
+      export: 'export const handler = handle(app)'
+      dev_command: 'npm run dev'
+      deploy_command: 'sam deploy'
+
+  starter_code:
+    basic_app: |
+      import { Hono } from 'hono'
+      import { cors } from 'hono/cors'
+      import { logger } from 'hono/logger'
+
+      // Define environment types
+      type Env = {
+        Bindings: {
+          // Add your bindings here (KV, D1, R2, etc.)
+        }
+        Variables: {
+          // Add your context variables here
+        }
+      }
+
+      const app = new Hono<Env>()
+
+      // Global middleware
+      app.use('*', logger())
+      app.use('/api/*', cors())
+
+      // Health check
+      app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }))
+
+      // API routes
+      app.get('/api/hello', (c) => {
+        return c.json({ message: 'Hello Hono! 🔥' })
+      })
+
+      // Error handling
+      app.onError((err, c) => {
+        console.error(`${err}`)
+        return c.json({ error: 'Internal Server Error' }, 500)
+      })
+
+      // 404 handler
+      app.notFound((c) => {
+        return c.json({ error: 'Not Found' }, 404)
+      })
+
+      export default app
+
+  output:
+    description: 'Ready-to-develop Hono project'
+    files:
+      - 'src/index.ts - Main app entry point'
+      - 'src/routes/ - Modular route handlers'
+      - 'src/middleware/ - Custom middleware'
+      - 'src/schemas/ - Validation schemas'
+      - 'src/types/env.ts - Environment type definitions'
+      - 'package.json - Dependencies and scripts'
+      - 'tsconfig.json - TypeScript configuration'
+      - 'README.md - Getting started guide'
