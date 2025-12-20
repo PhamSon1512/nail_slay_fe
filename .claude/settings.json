@@ -1,35 +1,28 @@
 {
   "includeCoAuthoredBy": false,
-  "enabledPlugins": {
-    "frontend@mag-claude-plugins": true,
-    "code-analysis@mag-claude-plugins": true,
-    "bun@mag-claude-plugins": true,
-    "orchestration@mag-claude-plugins": true
-  },
   "statusLine": {
     "type": "command",
-    "command": "node .claude/statusline.js",
+    "command": "node .claude/statusline.cjs",
     "padding": 0
   },
   "hooks": {
-    "PreToolUse": [
+    "UserPromptSubmit": [
       {
-        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scout-block.js"
+            "command": "node .claude/hooks/dev-rules-reminder.cjs"
           }
         ]
       }
     ],
-    "PostToolUse": [
+    "PreToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Bash|Glob|Grep|Read|Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/modularization-hook.js"
+            "command": "node .claude/hooks/scout-block.cjs"
           }
         ]
       }
