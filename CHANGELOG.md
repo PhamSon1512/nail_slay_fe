@@ -1,0 +1,67 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## 1.1.0 (2026-01-22)
+
+
+### Features
+
+* Add .editorconfig file for unifying coding style ([7dd9530](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/7dd953057f919dc93a0523437e4db6ff639b6802))
+* Add .env.sample file with VITE_RESEND_API_KEY and VITE_HOST variables ([8d0aa29](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/8d0aa29bef715c830d129af51c467f7691b6d30e))
+* Add @tailwindcss/typography to package.json ([41b79ae](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/41b79ae2dfe1db364e7e985df894da2510ebd27b))
+* Add critical Figma rules and error handling ([f088d26](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/f088d26c9e1d6317b62ea9bfcb2ca27ee0d4217a))
+* Add Figma to Code rules and implementation guidelines ([5774a95](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/5774a95167e270394962dbb717951655c82b194a))
+* Add GEMINI.md for MCP Proxy ([0f1a8ee](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/0f1a8ee9906633ff0a763f3d50d12b2d9c12909c))
+* Add new domains, components, effects, animations, layouts, and examples ([4b69da2](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/4b69da29db2a75945e0a0184783c35f7d7b61066))
+* Add OpenSpec instructions and guidelines ([277b4fc](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/277b4fc090a1df75683f3140656ea7dbcc52927c))
+* Add react-router-devtools to improve debugging ([0e931b7](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/0e931b70c11cb866e88f6c77b15f401839620a1e))
+* Add SampleHero component ([3746c35](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/3746c3557de3c8db88a11f2ab35138b34fc869d2))
+* Add useProgress hook ([14a9743](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/14a9743479ff1752139f734a7e2aa5f52be6f0d1))
+* Add WARP.md with Figma to Code rules ([eddd9b0](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/eddd9b0ddeaef7b7c205640e8f2ef0b58ca2b3fb))
+* **app:** add align-left.svg icon ([c9f8e7a](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/c9f8e7a784aa2760e6c07801e709a53027408438))
+* **app:** add Autocomplete and Accordion components ([8837bd4](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/8837bd4a7c44008a53580bbb25d1901fa8ece554))
+* **app:** Add default export for App component ([7ef3d44](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/7ef3d441d6199557b4bcce5e78e3be878237ce6a))
+* **app:** Add light and dark mode icons ([635a132](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/635a132c227d42cc53e9414d692afc22264572f3))
+* **app:** add MantineProvider and ColorSchemeScript components ([dfa84c0](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/dfa84c0d30b8ed1f249288e8580b5b9bd56385fb))
+* **app:** Add utils module for common utility functions ([cf49930](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/cf49930290a77758c1c5ea020cbccfbddff8b344))
+* **app:** remove MantineProvider from App component ([cef57df](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/cef57dfc0ea009480306eea4be4638aa4811078c))
+* **app:** update app.css imports ([fdbaf94](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/fdbaf949c2f7b5a8a6fe241e9228b24fa39e482d))
+* **CLAUDE.md:** Add comprehensive guidance for Claude Code ([18dcf03](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/18dcf0346987efb37832ecca1241def3e537714e))
+* **claude:** enable additional plugins for frontend, code analysis, bun, and orchestration ([dc99774](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/dc99774f9db148b0e39ae279e03081b3d6227721))
+* Convert HTML file to React Components with HeroUI ([5ca776a](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/5ca776a4c97fce04b15e2212e07a99e7870135fa))
+* **data:** add motion.csv with API, Type, Keywords, Code Example, ([ed10a1d](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/ed10a1dca9583c2df1f5c5a512517b46b991a121))
+* **data:** add motion.csv with API, Type, Keywords, Code Example, Props/Options, Best For, Notes, and Docs URL columns ([36d4e8b](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/36d4e8bd866e348943d8f31c45fdfff2e4f8bce1))
+* **data:** add new animations and effects ([8e8f706](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/8e8f706c664cacb308f5621a957b7240407581bf))
+* **data:** Add Tech Conference Event Landing and Creative Agency Portfolio Landing ([e13e373](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/e13e373a08b352943a8da3bda005b42c3caa1367))
+* **data:** Add Tech Conference Event Landing and Creative Agency Portfolio Landing ([c1a66c3](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/c1a66c3828a4e103b329d774c992d96af64dab07))
+* **data:** update landing.csv with new AI SaaS Marketing Landing entry ([77ede71](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/77ede718d9935e314607cb3d4ddd98232c48a995))
+* **data:** update landing.csv with new entries and adjustments ([b840d5a](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/b840d5a649f2ac7e7e4829f0552579d22b278a9d))
+* **deps:** add @react-router/cloudflare dependency ([1748db2](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/1748db2eb414147e3bd9cf93a19900f498d9e7a7))
+* **load-context:** add Cloudflare type to AppLoadContext ([5d4ea84](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/5d4ea84f1a81e6ca195321954e48dbde4fae712a))
+* **nvmrc:** add Node Version Manager version 20.19.0 ([88ca89f](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/88ca89fff3d15b84fcb298301f26bf1b97cb9729))
+* **package.json:** add @react-router/fs-routes dependency ([2eb505d](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/2eb505da0e128036cdc04ca382a094dc6b784cae))
+* **postcss:** add postcss configuration with custom breakpoints ([d4284ba](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/d4284ba336a023c57438c21c60ffb0c8725cc328))
+* **prettier:** add prettier configuration file ([3935602](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/393560289e7a93a2acd42fbf21522429dbd2a5f6))
+* **prettier:** add react-router and react-dom to ignore list ([1586bc9](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/1586bc9682bcb648aa8204cd3a34b6cf989b2b42))
+* Remove Figma guide and update project overview ([7753394](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/7753394d548d501929b2ab9a7b4182d41cb1ecc4))
+* **root.tsx:** Configure Google Fonts in Root ([055565d](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/055565dc8bdc6e2a61b2c451b12a4f13bc236410))
+* **routes:** add about route and component ([a281540](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/a28154073f0f1865bb545437ad9ca1e69d27dbbb))
+* **styles:** update app.css with new imports and custom variants ([b49abff](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/b49abff970b5136f03c0dc358c5443dda2362334))
+* **tsconfig:** add tsconfig.node.json and tsconfig.cloudflare.json ([10eae7f](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/10eae7fe58f9701981dc016a0462fdc0611a3501))
+* **ui-ux-pro-max:** Add components, layouts, effects, animations, motion, ([db30c06](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/db30c06ffdf07ab400df5772b861138c4a656cac))
+* **ui-ux-pro-max:** Add components, layouts, effects, animations, motion, ([47b3e46](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/47b3e463d193ae3e3a20e6162315b83493b81933))
+* update button link in welcome page ([209742c](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/209742cbce0fc75340cfba12ed843283641d6f6d))
+* Update Core Rules in WARP.md ([542d9ee](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/542d9ee35e8131eb1d3b7f61743db6130151107c))
+* **vite.config.ts:** add svgr plugin for handling SVG files ([3e079c6](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/3e079c64a3c086c14892b16ec332b792e1230f05))
+* **WARP.md:** Add naming conventions for files, folders, and code ([505b75e](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/505b75ef8c2de332839c26bacdaf967a7f618809))
+* **WARP.md:** Update dirForAssetWrites path with actual absolute path ([0bf2db9](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/0bf2db97007078310b9dc87dc00dc5096d6a9f28))
+* **workflows:** add learn-framer-template.md for extracting design patterns from Framer marketplace templates ([3b888f1](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/3b888f1c1ea3e48a42124dc50ec67e5ef894479a))
+* **workflows:** add learn-webflow-template.md for extracting design patterns from Webflow marketplace templates ([381d91f](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/381d91fd24cc64083ef8d5a04788f1baac5e85ce))
+* **workflows:** update html-to-heroui.md with new theme variables and font link ([5c1f3a0](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/5c1f3a07be91ac9b0263807de381493bc44cbeba))
+* **workspace:** add workspace.xml configuration file ([54cd6f4](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/54cd6f48738fc6e0a51098809f352d086ab61697))
+
+
+### Bug Fixes
+
+* Update route import in routes.ts for flatRoutes ([28e03ae](https://github.com/vunamhung/react-router-vite-cfp-heroui/commit/28e03aed6afc2dcf053ba6b252e6b0847dc7d9f1))
