@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie';
 import { http } from './http';
+import { clearStoredToken, readStoredToken, writeStoredToken } from './tokenStorage';
 
 export type AuthUser = {
   id: string;
@@ -32,18 +32,15 @@ function mapAuthUser(data: AuthResponse['user']): AuthUser {
   };
 }
 
+export { readStoredToken } from './tokenStorage';
+
 export function persistAuth(token: string, user: AuthUser) {
-  Cookies.set('token', token, { sameSite: 'Lax', path: '/' });
-  localStorage.setItem('nailslay_token', token);
-  localStorage.setItem(
-    'nailslay_user',
-    JSON.stringify(user),
-  );
+  writeStoredToken(token);
+  localStorage.setItem('nailslay_user', JSON.stringify(user));
 }
 
 export function clearAuth() {
-  Cookies.remove('token', { path: '/' });
-  localStorage.removeItem('nailslay_token');
+  clearStoredToken();
   localStorage.removeItem('nailslay_user');
 }
 

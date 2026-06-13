@@ -1,5 +1,5 @@
 import type { Route } from './+types/admin.banners';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -14,9 +14,16 @@ import {
   useDisclosure,
 } from '@heroui/react';
 import toast from 'react-hot-toast';
-import { RiAddLine, RiArrowDownLine, RiArrowUpLine, RiDeleteBinLine } from 'react-icons/ri';
-import { AdminPageHeader } from '~/components';
+import {
+  RiAddLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiDeleteBinLine,
+  RiEditLine,
+} from 'react-icons/ri';
+import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
 import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
+import { RequiredLabel } from '~/components/admin/RequiredLabel';
 import type { BannerItem } from '~/data/homepage';
 import {
   createBanner,
@@ -29,25 +36,54 @@ import { adminCardClass, adminInputClassNames } from '~/utils/adminForm';
 export const handle = { pageTitle: 'Quản lý Banner' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Banner - Admin Nailslay' }];
 
+const MAX_BANNERS = 6;
+const BANNER_SIZE_HINT =
+  'Khuyến nghị: 1920×640 px (tỷ lệ 3:1), JPG/PNG/WebP, dung lượng ≤ 2MB. Ảnh hiển thị nguyên vẹn, không bị cắt.';
+
 type DraftBanner = BannerItem & { imageFile?: File | null };
 
-const emptyDraft = (): DraftBanner => ({
+const emptyDraft = (sortOrder = 0): DraftBanner => ({
   id: '',
   imageUrl: '',
   title: '',
   subtitle: '',
   link: '/products',
   isActive: true,
-  sortOrder: 0,
+  sortOrder,
   imageFile: null,
 });
+
+function buildForm(item: DraftBanner, includeImage = false) {
+  const form = new FormData();
+  if (includeImage && item.imageFile) form.append('image', item.imageFile);
+  if (item.link) form.append('link', item.link);
+  form.append('isActive', String(item.isActive));
+  form.append('sortOrder', String(item.sortOrder));
+  return form;
+}
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<DraftBanner>(emptyDraft());
+  const [saving, setSaving] = useState(false);
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [createDraft, setCreateDraft] = useState<DraftBanner>(() => emptyDraft());
+  const [editDraft, setEditDraft] = useState<DraftBanner | null>(null);
   const createModal = useDisclosure();
+  const editModal = useDisclosure();
+  const deleteModal = useDisclosure();
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const sortedBanners = useMemo(
+    () => [...banners].sort((a, b) => a.sortOrder - b.sortOrder),
+    [banners],
+  );
+  const activeSlides = useMemo(
+    () => sortedBanners.filter((b) => b.isActive),
+    [sortedBanners],
+  );
+  const activeCount = activeSlides.length;
 
   const refreshBanners = useCallback(async () => {
     const list = await fetchBanners();
@@ -69,245 +105,409 @@ export default function AdminBannersPage() {
     void load();
   }, [load]);
 
-  const buildForm = (item: DraftBanner, includeImage = false) => {
-    const form = new FormData();
-    if (includeImage && item.imageFile) form.append('image', item.imageFile);
-    if (item.link) form.append('link', item.link);
-    form.append('isActive', String(item.isActive));
-    form.append('sortOrder', String(item.sortOrder));
-    return form;
-  };
+  useEffect(() => {
+    setSlideIdx(0);
+  }, [activeSlides.length]);
+
+  useEffect(() => {
+    if (activeSlides.length <= 1) return;
+    const timer = window.setInterval(() => {
+      setSlideIdx((i) => (i + 1) % activeSlides.length);
+    }, 4500);
+    return () => window.clearInterval(timer);
+  }, [activeSlides.length]);
 
   const openCreate = () => {
-    setDraft(emptyDraft());
+    setCreateDraft(emptyDraft(banners.length));
     createModal.onOpen();
   };
 
+  const openEdit = (banner: BannerItem) => {
+    setEditDraft({ ...banner, imageFile: null });
+    editModal.onOpen();
+  };
+
   const handleCreate = async () => {
-    if (!draft.imageFile) {
+    if (!createDraft.imageFile) {
       toast.error('Vui lòng chọn ảnh banner');
       return;
     }
-    if (banners.length >= 6) {
-      toast.error('Tối đa 6 banner');
+    if (banners.length >= MAX_BANNERS) {
+      toast.error(`Tối đa ${MAX_BANNERS} banner`);
       return;
     }
-    setSavingId('new');
+    if (createDraft.isActive && activeCount >= MAX_BANNERS) {
+      toast.error(`Đã đủ ${MAX_BANNERS} banner đang bật. Hãy tắt một banner khác trước.`);
+      return;
+    }
+    setSaving(true);
     try {
-      await createBanner(buildForm({ ...draft, sortOrder: banners.length }, true));
-      toast.success('Đã tạo banner');
+      await createBanner(buildForm(createDraft, true));
+      toast.success('Đã thêm banner');
       createModal.onClose();
-      setDraft(emptyDraft());
       await refreshBanners();
     } catch {
       // interceptor
     } finally {
-      setSavingId(null);
+      setSaving(false);
     }
   };
 
-  const handleUpdate = async (item: DraftBanner) => {
-    setSavingId(item.id);
+  const handleEditSave = async () => {
+    if (!editDraft) return;
+    if (editDraft.isActive && !banners.find((b) => b.id === editDraft.id)?.isActive && activeCount >= MAX_BANNERS) {
+      toast.error(`Đã đủ ${MAX_BANNERS} banner đang bật. Hãy tắt một banner khác trước.`);
+      return;
+    }
+    setSaving(true);
     try {
-      await updateBanner(item.id, buildForm(item, !!item.imageFile));
+      await updateBanner(editDraft.id, buildForm(editDraft, !!editDraft.imageFile));
       toast.success('Đã cập nhật banner');
+      editModal.onClose();
+      setEditDraft(null);
       await refreshBanners();
     } catch {
       // interceptor
     } finally {
-      setSavingId(null);
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Xóa banner này?')) return;
+  const requestDelete = (id: string) => {
+    setDeleteTargetId(id);
+    deleteModal.onOpen();
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    setDeleting(true);
     try {
-      await deleteBanner(id);
+      await deleteBanner(deleteTargetId);
       toast.success('Đã xóa banner');
+      setDeleteTargetId(null);
       await refreshBanners();
     } catch {
       // interceptor
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const moveBanner = async (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= banners.length) return;
-    const current = banners[index];
-    const swap = banners[target];
-    setSavingId(current.id);
-    try {
-      await Promise.all([
-        updateBanner(current.id, buildForm({ ...current, sortOrder: target, imageFile: null })),
-        updateBanner(swap.id, buildForm({ ...swap, sortOrder: index, imageFile: null })),
-      ]);
-      await refreshBanners();
-    } catch {
-      toast.error('Không thể đổi thứ tự');
-    } finally {
-      setSavingId(null);
-    }
-  };
+  const curSlide = activeSlides[slideIdx];
 
   return (
-    <div className="space-y-6 admin-surface max-w-4xl">
+    <div className="space-y-6 admin-surface">
       <AdminPageHeader
         title="Quản lý Banner"
-        description="Upload ảnh banner (tối đa 6). Chỉ cần ảnh, liên kết và thứ tự hiển thị."
+        description={`Tối đa ${MAX_BANNERS} banner. Ảnh hiển thị đúng tỷ lệ gốc trên trang chủ.`}
         actions={
           <Button
             color="primary"
             className="text-[#1D1D1D] font-semibold"
             startContent={<RiAddLine />}
             onPress={openCreate}
-            isDisabled={banners.length >= 6}
+            isDisabled={banners.length >= MAX_BANNERS}
           >
             Thêm banner
           </Button>
         }
       />
 
-      {loading ? (
-        <p className="text-sm text-[#8E8A8A]">Đang tải...</p>
-      ) : banners.length === 0 ? (
-        <Card shadow="none" className="border border-dashed border-primary-200 bg-white">
-          <CardBody className="text-center text-sm text-[#8E8A8A] py-10">
-            Chưa có banner. Nhấn &quot;Thêm banner&quot; để upload ảnh đầu tiên.
-          </CardBody>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {banners.map((banner, index) => (
-            <BannerEditor
-              key={banner.id}
-              banner={banner}
-              index={index}
-              total={banners.length}
-              saving={savingId === banner.id}
-              onSave={handleUpdate}
-              onDelete={() => handleDelete(banner.id)}
-              onMoveUp={() => moveBanner(index, -1)}
-              onMoveDown={() => moveBanner(index, 1)}
-            />
-          ))}
-        </div>
-      )}
-
-      <Modal isOpen={createModal.isOpen} onOpenChange={createModal.onOpenChange} size="lg">
-        <ModalContent className="bg-white dark:bg-[#2a2226]">
-          {(onClose) => (
-            <>
-              <ModalHeader className="text-[#1D1D1D] dark:text-[#FFF3F5]">Banner mới</ModalHeader>
-              <ModalBody className="gap-4">
-                <div className="pt-2 pb-2">
-                  <AdminImageUpload
-                    label="Ảnh banner"
-                    required
-                    previewUrl={draft.imageFile ? URL.createObjectURL(draft.imageFile) : undefined}
-                    onChange={(file) => setDraft({ ...draft, imageFile: file })}
-                  />
-                </div>
-                <Input
-                  label="Liên kết (tuỳ chọn)"
-                  placeholder="/products"
-                  value={draft.link ?? ''}
-                  onValueChange={(v) => setDraft({ ...draft, link: v })}
-                  classNames={adminInputClassNames}
+      <Card shadow="none" className={`${adminCardClass} bg-gradient-to-br from-primary-50/40 to-white dark:from-[#2a2226] dark:to-[#201a1d]`}>
+        <CardBody className="gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-heading text-lg font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">
+              Xem trước slide (đang bật)
+            </h2>
+            <span className="text-sm font-medium text-[#8E8A8A]">
+              {activeCount}/{MAX_BANNERS} banner hoạt động
+            </span>
+          </div>
+          <p className="text-sm text-[#8E8A8A] dark:text-[#FFDDE5]">
+            Chỉ banner bật &quot;Đang hoạt động&quot;, sắp theo thứ tự hiển thị.
+          </p>
+          {loading ? (
+            <p className="text-sm text-[#8E8A8A] py-8 text-center">Đang tải...</p>
+          ) : activeSlides.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-primary-200 dark:border-[#4a3b42] py-16 text-center text-sm text-[#8E8A8A]">
+              Chưa có banner nào đang bật.
+            </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-2xl border border-primary-200 dark:border-[#4a3b42] bg-[#1d1d1d]/5 dark:bg-black/40">
+              {curSlide ? (
+                <img
+                  src={curSlide.imageUrl}
+                  alt=""
+                  className="w-full h-auto max-h-64 object-contain mx-auto block"
                 />
-                <div className="flex items-center gap-3">
-                  <Switch
-                    isSelected={draft.isActive}
-                    onValueChange={(v) => setDraft({ ...draft, isActive: v })}
-                    aria-label="Đang hoạt động"
-                  />
-                  <span className="text-sm text-[#1D1D1D]">Đang hoạt động</span>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" onPress={onClose}>Hủy</Button>
-                <Button color="primary" className="text-[#1D1D1D]" isLoading={savingId === 'new'} onPress={handleCreate}>
-                  Lưu banner
-                </Button>
-              </ModalFooter>
-            </>
+              ) : null}
+              {activeSlides.length > 1 ? (
+                <>
+                  <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                    {activeSlides.map((s, i) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        aria-label={`Slide ${i + 1}`}
+                        onClick={() => setSlideIdx(i)}
+                        className={`h-2 rounded-full transition-all ${i === slideIdx ? 'w-8 bg-primary-500' : 'w-2 bg-primary-300/70'}`}
+                      />
+                    ))}
+                  </div>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    aria-label="Slide trước"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white"
+                    onPress={() => setSlideIdx((i) => (i - 1 + activeSlides.length) % activeSlides.length)}
+                  >
+                    <RiArrowLeftSLine size={20} />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    aria-label="Slide sau"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white"
+                    onPress={() => setSlideIdx((i) => (i + 1) % activeSlides.length)}
+                  >
+                    <RiArrowRightSLine size={20} />
+                  </Button>
+                </>
+              ) : null}
+            </div>
           )}
-        </ModalContent>
-      </Modal>
+        </CardBody>
+      </Card>
+
+      <section className="space-y-3">
+        <h2 className="font-heading text-xl font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Danh sách banner</h2>
+        {loading ? (
+          <p className="text-sm text-[#8E8A8A]">Đang tải...</p>
+        ) : sortedBanners.length === 0 ? (
+          <Card shadow="none" className="border border-dashed border-primary-200 bg-white dark:bg-[#2a2226]">
+            <CardBody className="text-center text-sm text-[#8E8A8A] py-10">
+              Chưa có banner. Nhấn &quot;Thêm banner&quot; để upload ảnh đầu tiên.
+            </CardBody>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {sortedBanners.map((banner) => (
+              <Card key={banner.id} shadow="none" className={`${adminCardClass} overflow-hidden p-0`}>
+                <div className="bg-[#1d1d1d]/5 dark:bg-black/30 flex items-center justify-center min-h-[140px]">
+                  <img
+                    src={banner.imageUrl}
+                    alt="Banner"
+                    className="w-full h-auto max-h-40 object-contain"
+                  />
+                </div>
+                <CardBody className="gap-3 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">
+                      Thứ tự: {banner.sortOrder}
+                    </p>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        banner.isActive
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                          : 'bg-[#8E8A8A]/15 text-[#8E8A8A]'
+                      }`}
+                    >
+                      {banner.isActive ? 'Hiển thị' : 'Tắt'}
+                    </span>
+                  </div>
+                  {banner.link ? (
+                    <p className="text-xs text-[#8E8A8A] truncate" title={banner.link}>
+                      Link: {banner.link}
+                    </p>
+                  ) : null}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="primary"
+                      className="text-[#1D1D1D] flex-1"
+                      startContent={<RiEditLine />}
+                      onPress={() => openEdit(banner)}
+                      isDisabled={saving}
+                    >
+                      Sửa
+                    </Button>
+                    <Button
+                      size="sm"
+                      isIconOnly
+                      color="danger"
+                      variant="light"
+                      onPress={() => requestDelete(banner.id)}
+                      isDisabled={saving || deleting}
+                      aria-label="Xóa banner"
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <CreateEditBannerModal
+        title="Banner mới"
+        isOpen={createModal.isOpen}
+        onOpenChange={createModal.onOpenChange}
+        draft={createDraft}
+        setDraft={setCreateDraft}
+        saving={saving}
+        onSave={handleCreate}
+        saveLabel="Thêm banner"
+        imageRequired
+        showSizeHint
+        activeCount={activeCount}
+      />
+
+      {editDraft ? (
+        <CreateEditBannerModal
+          title="Sửa banner"
+          isOpen={editModal.isOpen}
+          onOpenChange={(open) => {
+            editModal.onOpenChange(open);
+            if (!open) setEditDraft(null);
+          }}
+          draft={editDraft}
+          setDraft={(next) => {
+            setEditDraft((prev) => {
+              if (!prev) return prev;
+              return typeof next === 'function' ? next(prev) : next;
+            });
+          }}
+          saving={saving}
+          onSave={handleEditSave}
+          saveLabel="Lưu thay đổi"
+          imageRequired={false}
+          showSizeHint
+          activeCount={activeCount}
+          existingActive={banners.find((b) => b.id === editDraft.id)?.isActive}
+        />
+      ) : null}
+
+      <ConfirmDeleteModal
+        isOpen={deleteModal.isOpen}
+        onOpenChange={(open) => {
+          deleteModal.onOpenChange(open);
+          if (!open) setDeleteTargetId(null);
+        }}
+        message="Bạn có chắc muốn xóa banner này? Hành động này không thể hoàn tác."
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
 
-function BannerEditor({
-  banner,
-  index,
-  total,
+function CreateEditBannerModal({
+  title,
+  isOpen,
+  onOpenChange,
+  draft,
+  setDraft,
   saving,
   onSave,
-  onDelete,
-  onMoveUp,
-  onMoveDown,
+  saveLabel,
+  imageRequired,
+  showSizeHint,
+  activeCount,
+  existingActive,
 }: {
-  banner: BannerItem;
-  index: number;
-  total: number;
+  title: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  draft: DraftBanner;
+  setDraft: (next: DraftBanner | ((prev: DraftBanner) => DraftBanner)) => void;
   saving: boolean;
-  onSave: (item: DraftBanner) => void;
-  onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  onSave: () => void;
+  saveLabel: string;
+  imageRequired: boolean;
+  showSizeHint?: boolean;
+  activeCount: number;
+  existingActive?: boolean;
 }) {
-  const [item, setItem] = useState<DraftBanner>({ ...banner, imageFile: null });
-
-  useEffect(() => {
-    setItem({ ...banner, imageFile: null });
-  }, [banner]);
+  const previewUrl = draft.imageFile ? URL.createObjectURL(draft.imageFile) : draft.imageUrl || undefined;
+  const wouldExceedActive =
+    draft.isActive && !existingActive && activeCount >= MAX_BANNERS;
 
   return (
-    <Card shadow="none" className={adminCardClass}>
-      <CardBody className="gap-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-[#8E8A8A]">#{index + 1}</span>
-            <div className="flex items-center gap-2">
-              <Switch
-                isSelected={item.isActive}
-                onValueChange={(v) => setItem({ ...item, isActive: v })}
-                color="primary"
-                aria-label="Đang hoạt động"
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" scrollBehavior="inside">
+      <ModalContent className="bg-white dark:bg-[#2a2226]">
+        {(onClose) => (
+          <>
+            <ModalHeader className="text-[#1D1D1D] dark:text-[#FFF3F5]">{title}</ModalHeader>
+            <ModalBody className="gap-4">
+              {showSizeHint ? (
+                <p className="text-xs text-[#8E8A8A] dark:text-[#FFDDE5] rounded-xl bg-primary-50/60 dark:bg-[#1d1d1d] px-3 py-2 border border-primary-100 dark:border-[#4a3b42]">
+                  {BANNER_SIZE_HINT}
+                </p>
+              ) : null}
+              <AdminImageUpload
+                label="Ảnh banner"
+                required={imageRequired}
+                previewUrl={previewUrl}
+                previewClassName="w-full max-w-xs h-auto max-h-32 object-contain rounded border border-primary-200"
+                onChange={(file) => setDraft((prev) => ({ ...prev, imageFile: file }))}
               />
-              <span className="text-sm text-[#1D1D1D]">Đang hoạt động</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button isIconOnly size="sm" variant="flat" isDisabled={index === 0} onPress={onMoveUp} aria-label="Lên trên">
-              <RiArrowUpLine />
-            </Button>
-            <Button isIconOnly size="sm" variant="flat" isDisabled={index === total - 1} onPress={onMoveDown} aria-label="Xuống dưới">
-              <RiArrowDownLine />
-            </Button>
-            <Button isIconOnly size="sm" color="danger" variant="light" onPress={onDelete}>
-              <RiDeleteBinLine />
-            </Button>
-          </div>
-        </div>
-        <div className="pt-2">
-          <AdminImageUpload
-            label="Ảnh banner"
-            previewUrl={item.imageFile ? URL.createObjectURL(item.imageFile) : item.imageUrl}
-            onChange={(file) => setItem({ ...item, imageFile: file })}
-          />
-        </div>
-        <Input
-          label="Liên kết"
-          placeholder="/products"
-          value={item.link ?? ''}
-          onValueChange={(v) => setItem({ ...item, link: v })}
-          classNames={adminInputClassNames}
-        />
-        <Button color="primary" className="text-[#1D1D1D] w-fit" isLoading={saving} onPress={() => onSave(item)}>
-          Cập nhật
-        </Button>
-      </CardBody>
-    </Card>
+              <Input
+                type="number"
+                label={<RequiredLabel required>Thứ tự hiển thị</RequiredLabel>}
+                description="Số nhỏ hơn hiển thị trước (bắt đầu từ 0)"
+                min={0}
+                value={String(draft.sortOrder)}
+                onValueChange={(v) => {
+                  const n = Number.parseInt(v, 10);
+                  setDraft((prev) => ({ ...prev, sortOrder: Number.isNaN(n) ? 0 : Math.max(0, n) }));
+                }}
+                classNames={adminInputClassNames}
+                isDisabled={saving}
+              />
+              <Input
+                label="Liên kết (tuỳ chọn)"
+                placeholder="/products"
+                value={draft.link ?? ''}
+                onValueChange={(v) => setDraft((prev) => ({ ...prev, link: v }))}
+                classNames={adminInputClassNames}
+                isDisabled={saving}
+              />
+              <div className="flex items-center gap-3">
+                <Switch
+                  isSelected={draft.isActive}
+                  onValueChange={(v) => setDraft((prev) => ({ ...prev, isActive: v }))}
+                  aria-label="Đang hoạt động"
+                  isDisabled={saving}
+                />
+                <span className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">Đang hoạt động</span>
+              </div>
+              {wouldExceedActive ? (
+                <p className="text-sm text-amber-700 dark:text-amber-400">
+                  Đã đủ {MAX_BANNERS} banner đang bật — tắt một banner khác trước khi bật banner này.
+                </p>
+              ) : null}
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="light" onPress={onClose} isDisabled={saving}>
+                Hủy
+              </Button>
+              <Button
+                color="primary"
+                className="text-[#1D1D1D]"
+                isDisabled={saving || wouldExceedActive || (imageRequired && !draft.imageFile)}
+                onPress={onSave}
+              >
+                {saving ? 'Đang lưu...' : saveLabel}
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 }

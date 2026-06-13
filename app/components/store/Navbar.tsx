@@ -15,26 +15,33 @@ import {
   NavbarMenuToggle,
   Navbar as HeroNavbar,
 } from '@heroui/react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { RiMoonLine, RiShoppingBag3Line, RiSunLine, RiUserLine } from 'react-icons/ri';
 import { useAuthReady } from '~/components/AuthBootstrap';
+import { useServerCart } from '~/hooks';
 import { BRAND } from '~/data';
 import { clearAuth, isAdminRole, logoutApi } from '~/utils/auth';
-import { authUserAtom, cartCountAtom, darkModeAtom } from '~/utils/atoms';
+import { authUserAtom, cartCountAtom, darkModeAtom, serverCartCountAtom } from '~/utils/atoms';
 
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Sản phẩm', href: '/products' },
   { label: 'Danh mục', href: '/categories' },
+  { label: 'Về NailSlay', href: '/about' },
+  { label: 'Chính sách Đổi trả', href: '/policy' },
+  { label: 'Hướng dẫn đặt hàng', href: '/guide' },
 ];
 
 export function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const authReady = useAuthReady();
-  const [cartCount] = useAtom(cartCountAtom);
+  const localCartCount = useAtomValue(cartCountAtom);
+  const serverCartCount = useAtomValue(serverCartCountAtom);
+  useServerCart();
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const [authUser, setAuthUser] = useAtom(authUserAtom);
+  const cartCount = authUser ? serverCartCount : localCartCount;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -71,6 +78,9 @@ export function Navbar() {
       case 'profile':
         navigate('/profile');
         break;
+      case 'orders':
+        navigate('/orders');
+        break;
       case 'password':
         navigate('/change-password');
         break;
@@ -105,13 +115,16 @@ export function Navbar() {
       </NavbarContent>
 
       <NavbarBrand className="gap-3">
-        <Link to="/" className="flex items-center gap-3 group">
-          <img
-            src={BRAND.assets.logo}
-            alt={BRAND.name}
-            className="brand-logo-ring transition-transform duration-300 group-hover:scale-105"
-          />
-          <span className="brand-name text-xl md:text-2xl lg:text-3xl hidden sm:block">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="relative w-9 h-9 md:w-10 md:h-10 shrink-0">
+            <div className="absolute inset-0 bg-primary-400 rounded-full blur opacity-10 group-hover:opacity-40 transition-opacity duration-500"></div>
+            <img
+              src={BRAND.assets.logo}
+              alt={BRAND.name}
+              className="brand-logo-ring relative z-10 w-full h-full object-contain bg-white"
+            />
+          </div>
+          <span className="brand-name text-xl md:text-2xl hidden sm:block">
             {BRAND.name}
           </span>
         </Link>
@@ -149,12 +162,18 @@ export function Navbar() {
         </NavbarItem>
 
         <NavbarItem>
-          <Link to="/cart">
+          <Link to="/cart" className="relative inline-flex">
             <Badge
-              content={cartCount > 0 ? cartCount : undefined}
-              color="primary"
+              content={cartCount > 0 ? cartCount : null}
+              isInvisible={cartCount <= 0}
               size="sm"
+              shape="circle"
+              placement="top-right"
               showOutline={false}
+              classNames={{
+                badge:
+                  'min-w-[18px] h-[18px] text-[10px] font-bold text-white bg-[#B2706E] border-2 border-white dark:border-[#2a2226]',
+              }}
             >
               <Button
                 variant="flat"
@@ -194,6 +213,7 @@ export function Navbar() {
               </DropdownTrigger>
               <DropdownMenu aria-label="Menu tài khoản" onAction={handleMenuAction}>
                 <DropdownItem key="profile">Thông tin tài khoản</DropdownItem>
+                <DropdownItem key="orders">Đơn hàng của tôi</DropdownItem>
                 <DropdownItem key="password">Đổi mật khẩu</DropdownItem>
                 {isAdminRole(authUser.role) ? (
                   <DropdownItem key="admin">Quản trị</DropdownItem>
@@ -235,6 +255,17 @@ export function Navbar() {
             </Link>
           </NavbarMenuItem>
         ))}
+        {authUser ? (
+          <NavbarMenuItem>
+            <Link
+              to="/orders"
+              className="block w-full px-4 py-2.5 rounded-xl text-sm font-medium text-[#1D1D1D] dark:text-[#FFDDE5]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Đơn hàng của tôi
+            </Link>
+          </NavbarMenuItem>
+        ) : null}
         {authUser && isAdminRole(authUser.role) ? (
           <NavbarMenuItem>
             <Link

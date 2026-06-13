@@ -1,11 +1,13 @@
 import type { Route } from './+types/admin.orders';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Button, Chip, Input, Select, SelectItem } from '@heroui/react';
 import toast from 'react-hot-toast';
 import { RiRefreshLine, RiSearchLine } from 'react-icons/ri';
-import { AdminPageHeader, OrderTable } from '~/components';
+import { AdminOrderDetailModal, AdminPageHeader, OrderTable, useAdminOrderDetailModal } from '~/components';
 import type { OrderRow } from '~/components/admin/OrderTable';
 import { fetchAdminOrders } from '~/utils/api/admin';
+import { DEMO_ORDER_ID, DEMO_ORDER_ROW } from '~/data/demoOrder';
 import { adminInputClassNames, adminSelectClassNames } from '~/utils/adminForm';
 
 export const handle = { pageTitle: 'Quản lý Đơn hàng' };
@@ -23,17 +25,6 @@ const STATUSES: { value: string; label: string }[] = [
   { value: 'RESOLVED', label: 'Đã giải quyết' },
 ];
 
-/** Một đơn mẫu để xem giao diện khi chưa có đơn thật */
-const DEMO_ORDER: OrderRow = {
-  id: 'demo-order-preview',
-  userId: 'demo-user',
-  userEmail: 'demo@nailslay.vn',
-  totalAmount: 450000,
-  status: 'PENDING_PAYMENT',
-  paymentMethod: 'BANK_TRANSFER',
-  createdAt: new Date().toISOString(),
-};
-
 function mapOrderRow(raw: Record<string, unknown>): OrderRow {
   return {
     id: String(raw.id),
@@ -47,11 +38,12 @@ function mapOrderRow(raw: Record<string, unknown>): OrderRow {
 }
 
 export default function AdminOrdersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [usingDemo, setUsingDemo] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const { selectedOrderId, isOpen, openOrderDetail, handleOpenChange } = useAdminOrderDetailModal();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,18 +52,10 @@ export default function AdminOrdersPage() {
         status: statusFilter || undefined,
         limit: 50,
       });
-      const mapped = data.items.map((item) => mapOrderRow(item));
-      if (mapped.length) {
-        setOrders(mapped);
-        setUsingDemo(false);
-      } else {
-        setOrders([DEMO_ORDER]);
-        setUsingDemo(true);
-      }
+      setOrders(data.items.map((item) => mapOrderRow(item)));
     } catch {
-      setOrders([DEMO_ORDER]);
-      setUsingDemo(true);
-      toast.error('Không tải được đơn hàng — hiển thị bản mẫu');
+      toast.error('Không tải được đơn hàng');
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -81,9 +65,17 @@ export default function AdminOrdersPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const orderId = searchParams.get('orderId');
+    if (!orderId) return;
+    openOrderDetail(orderId);
+    const next = new URLSearchParams(searchParams);
+    next.delete('orderId');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, openOrderDetail]);
+
   const filtered = useMemo(() => {
-    if (usingDemo) return orders;
-    return orders.filter((o) => {
+    const base = orders.filter((o) => {
       const matchSearch =
         !search ||
         o.userEmail?.toLowerCase().includes(search.toLowerCase()) ||
@@ -91,7 +83,19 @@ export default function AdminOrdersPage() {
       const matchStatus = !statusFilter || o.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [orders, search, statusFilter, usingDemo]);
+    const demoMatches =
+      (!search ||
+        DEMO_ORDER_ROW.userEmail.toLowerCase().includes(search.toLowerCase()) ||
+        DEMO_ORDER_ID.includes(search.toLowerCase()) ||
+        search.toLowerCase().includes('mẫu') ||
+        search.toLowerCase().includes('mau') ||
+        search.toLowerCase().includes('demo')) &&
+      (!statusFilter || DEMO_ORDER_ROW.status === statusFilter);
+    if (demoMatches && !base.some((o) => o.id === DEMO_ORDER_ID)) {
+      return [DEMO_ORDER_ROW, ...base];
+    }
+    return base;
+  }, [orders, search, statusFilter]);
 
   const statusCounts = useMemo(() => {
     return filtered.reduce(
@@ -104,7 +108,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-5 admin-surface">
       <AdminPageHeader
         title="Quản lý Đơn hàng"
-        description={usingDemo ? 'Đang hiển thị 1 đơn mẫu — chưa có đơn hàng thật trong hệ thống.' : 'Danh sách đơn hàng từ hệ thống.'}
+        description="Danh sách đơn hàng từ hệ thống. Nhấn vào hàng hoặc biểu tượng mắt để xem popup chi tiết."
         actions={
           <Button variant="flat" startContent={<RiRefreshLine />} onPress={load}>
             Làm mới
@@ -136,7 +140,7 @@ export default function AdminOrdersPage() {
         />
         <Select
           placeholder="Lọc trạng thái"
-          selectedKeys={statusFilter ? new Set([statusFilter]) : new Set()}
+          selectedKeys={statusFilter ? new Set([statusFilter]) : new Set([''])}
           onSelectionChange={(keys) => setStatusFilter(String(Array.from(keys)[0] ?? ''))}
           className="max-w-[220px]"
           classNames={adminSelectClassNames}
@@ -155,8 +159,15 @@ export default function AdminOrdersPage() {
       </p>
 
       <div className="rounded-xl border border-primary-200/70 bg-white dark:bg-[#2a2226] p-4">
-        <OrderTable orders={filtered} isLoading={loading} />
+        <OrderTable orders={filtered} isLoading={loading} onViewOrder={openOrderDetail} />
       </div>
+
+      <AdminOrderDetailModal
+        orderId={selectedOrderId}
+        isOpen={isOpen}
+        onOpenChange={handleOpenChange}
+        onOrderUpdated={load}
+      />
     </div>
   );
 }

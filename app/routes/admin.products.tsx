@@ -20,8 +20,8 @@ import {
   useDisclosure,
 } from '@heroui/react';
 import toast from 'react-hot-toast';
-import { RiAddLine, RiDeleteBinLine, RiEyeLine, RiPencilLine, RiSearchLine } from 'react-icons/ri';
-import { AdminPageHeader } from '~/components';
+import { RiAddLine, RiDeleteBinLine, RiEyeLine, RiPencilLine, RiSearchLine, RiImageLine } from 'react-icons/ri';
+import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
 import { AdminMultipleImageUpload } from '~/components/admin/AdminMultipleImageUpload';
 import { CurrencyInput } from '~/components/admin/CurrencyInput';
@@ -33,6 +33,7 @@ import {
   updateProduct,
   type AdminCategory,
   type AdminProduct,
+  type AdminProductVariant,
 } from '~/utils/api/admin';
 import { adminInputClassNames, adminSelectClassNames, adminTableClassNames, adminTextareaClassNames } from '~/utils/adminForm';
 import { formatVND } from '~/utils/format';
@@ -66,11 +67,16 @@ const emptyForm = (): FormState => ({
   status: 'active',
   price: '',
   originalPrice: '',
-  stock: '0',
+  stock: '1',
   imageFiles: [],
   existingImages: [],
   variants: [],
 });
+
+const variantInputClassNames = {
+  ...adminInputClassNames,
+  inputWrapper: `${adminInputClassNames.inputWrapper} w-full min-w-[140px]`,
+};
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'name-asc', label: 'Tên A → Z' },
@@ -117,6 +123,9 @@ export default function AdminProductsPage() {
   const [detailProduct, setDetailProduct] = useState<AdminProduct | null>(null);
   const formModal = useDisclosure();
   const detailModal = useDisclosure();
+  const deleteModal = useDisclosure();
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -158,7 +167,7 @@ export default function AdminProductsPage() {
     if (data.description) fd.append('description', data.description);
     fd.append('status', data.status);
     fd.append('price', data.price);
-    if (data.originalPrice) fd.append('originalPrice', data.originalPrice);
+    fd.append('originalPrice', data.originalPrice);
     fd.append('stock', data.stock);
     fd.append('variants', JSON.stringify(data.variants));
     fd.append('existingImages', JSON.stringify(data.existingImages));
@@ -201,6 +210,26 @@ export default function AdminProductsPage() {
       toast.error('Vui lòng điền đủ các trường bắt buộc');
       return;
     }
+    if (!form.originalPrice.trim()) {
+      toast.error('Vui lòng nhập giá gốc');
+      return;
+    }
+    if (!form.status) {
+      toast.error('Vui lòng chọn trạng thái');
+      return;
+    }
+    const stockNum = Number(form.stock);
+    if (!form.stock.trim() || Number.isNaN(stockNum) || stockNum <= 0) {
+      toast.error('Tồn kho tổng phải lớn hơn 0');
+      return;
+    }
+    for (let i = 0; i < form.variants.length; i++) {
+      const variantStock = Number(form.variants[i].stock ?? 0);
+      if (Number.isNaN(variantStock) || variantStock <= 0) {
+        toast.error(`Tồn kho biến thể #${i + 1} phải lớn hơn 0`);
+        return;
+      }
+    }
     setSaving(true);
     try {
       if (editingId) {
@@ -219,15 +248,28 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Xóa sản phẩm này?')) return;
+  const requestDelete = (p: AdminProduct) => {
+    setDeleteTarget({ id: p.id, name: p.name });
+    deleteModal.onOpen();
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteProduct(id);
+      await deleteProduct(deleteTarget.id);
       toast.success('Đã xóa');
+      setDeleteTarget(null);
       await load();
     } catch {
       // interceptor
+    } finally {
+      setDeleting(false);
     }
+  };
+
+  const handleDelete = (p: AdminProduct) => {
+    requestDelete(p);
   };
 
   return (
@@ -322,7 +364,7 @@ export default function AdminProductsPage() {
                       <Button isIconOnly size="sm" variant="flat" aria-label="Sửa" onPress={() => openEdit(p)}>
                         <RiPencilLine size={16} />
                       </Button>
-                      <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => handleDelete(p.id)}>
+                      <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => handleDelete(p)}>
                         <RiDeleteBinLine size={16} />
                       </Button>
                     </div>
@@ -334,14 +376,24 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      <Modal isOpen={formModal.isOpen} onOpenChange={formModal.onOpenChange} size="3xl" scrollBehavior="inside">
+      <Modal isOpen={formModal.isOpen} onOpenChange={formModal.onOpenChange} size="5xl" scrollBehavior="inside">
         <ModalContent className="bg-white dark:bg-[#2a2226]">
           {(onClose) => (
             <>
               <ModalHeader className="text-[#1D1D1D] dark:text-[#FFF3F5]">
                 {editingId ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
               </ModalHeader>
-              <ModalBody className="gap-4 grid grid-cols-1 md:grid-cols-2">
+              <ModalBody className="gap-4">
+                <AdminMultipleImageUpload
+                  label="Ảnh sản phẩm (tối đa 5)"
+                  maxFiles={5}
+                  previewUrls={[...form.existingImages, ...form.imageFiles.map((f) => URL.createObjectURL(f))]}
+                  onChange={(files) =>
+                    setForm({ ...form, imageFiles: files, existingImages: files.length > 0 ? [] : form.existingImages })
+                  }
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select
                   label={<RequiredLabel required>Danh mục</RequiredLabel>}
                   selectedKeys={form.categoryId ? new Set([form.categoryId]) : new Set()}
@@ -357,8 +409,10 @@ export default function AdminProductsPage() {
                 <Input label={<RequiredLabel required>SKU</RequiredLabel>} value={form.sku} onValueChange={(v) => setForm({ ...form, sku: v })} classNames={adminInputClassNames} />
                 <Input label={<RequiredLabel required>Tên</RequiredLabel>} value={form.name} onValueChange={(v) => setForm({ ...form, name: v })} classNames={adminInputClassNames} />
                 <Input label={<RequiredLabel required>Slug</RequiredLabel>} value={form.slug} onValueChange={(v) => setForm({ ...form, slug: v })} classNames={adminInputClassNames} />
+                <CurrencyInput label={<RequiredLabel required>Giá gốc (VND)</RequiredLabel>} value={form.originalPrice} onValueChange={(v) => setForm({ ...form, originalPrice: v })} classNames={adminInputClassNames} />
+                <CurrencyInput label={<RequiredLabel required>Giá bán (VND)</RequiredLabel>} value={form.price} onValueChange={(v) => setForm({ ...form, price: v })} classNames={adminInputClassNames} />
                 <Select
-                  label="Trạng thái"
+                  label={<RequiredLabel required>Trạng thái</RequiredLabel>}
                   selectedKeys={form.status ? new Set([form.status]) : new Set(['active'])}
                   onSelectionChange={(keys) => setForm({ ...form, status: String(Array.from(keys)[0] ?? 'active') })}
                   classNames={adminSelectClassNames}
@@ -367,51 +421,87 @@ export default function AdminProductsPage() {
                   <SelectItem key="hidden">Đã ẩn</SelectItem>
                   <SelectItem key="draft">Nháp</SelectItem>
                 </Select>
-                <CurrencyInput label={<RequiredLabel required>Giá bán (VND)</RequiredLabel>} value={form.price} onValueChange={(v) => setForm({ ...form, price: v })} classNames={adminInputClassNames} />
-                <CurrencyInput label="Giá gốc (VND)" value={form.originalPrice} onValueChange={(v) => setForm({ ...form, originalPrice: v })} classNames={adminInputClassNames} />
-                <Input label="Tồn kho tổng" value={form.stock} onValueChange={(v) => setForm({ ...form, stock: v })} classNames={adminInputClassNames} />
+                <Input
+                  label="Tồn kho tổng"
+                  value={form.stock}
+                  onValueChange={(v) => setForm({ ...form, stock: v })}
+                  type="number"
+                  min={1}
+                  description="Phải lớn hơn 0"
+                  classNames={adminInputClassNames}
+                />
                 <Textarea label={<RequiredLabel required>Mô tả sản phẩm</RequiredLabel>} className="md:col-span-2" value={form.description} onValueChange={(v) => setForm({ ...form, description: v })} classNames={adminTextareaClassNames} />
+                </div>
                 
-                <div className="md:col-span-2 border border-primary-200 rounded-xl p-4 space-y-4">
+                <div className="border border-primary-200 rounded-xl p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Biến thể sản phẩm (Màu sắc, Size)</h4>
                     <Button
                       size="sm"
-                      variant="flat"
+                      color="primary"
+                      className="text-[#1D1D1D] font-medium shadow-sm"
                       startContent={<RiAddLine />}
-                      onPress={() => setForm({ ...form, variants: [...form.variants, { sku: '', name: '', color: '', size: '', price: Number(form.price) || 0, stock: 0 }] })}
+                      onPress={() => setForm({ ...form, variants: [...form.variants, { sku: form.sku ? `${form.sku}-${form.variants.length + 1}` : '', name: '', color: '', size: '', price: Number(form.price) || 0, stock: 1 }] })}
                     >
                       Thêm biến thể
                     </Button>
                   </div>
                   {form.variants.length === 0 ? (
-                    <p className="text-sm text-[#8E8A8A]">Chưa có biến thể nào. Sản phẩm sẽ sử dụng giá và tồn kho chung.</p>
+                    <div className="text-center py-6 bg-gray-50 dark:bg-[#1a1417] rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+                      <p className="text-sm text-[#8E8A8A]">Chưa có biến thể nào. Sản phẩm sẽ sử dụng giá và tồn kho chung.</p>
+                    </div>
                   ) : (
-                    <div className="space-y-3">
-                      {form.variants.map((v, i) => (
-                        <div key={i} className="flex flex-wrap items-center gap-2 p-3 bg-[#f9f9f9] dark:bg-[#1f1f1f] rounded-lg border border-gray-200 dark:border-gray-800">
-                          <Input size="sm" placeholder="SKU biến thể" value={v.sku ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].sku = val; setForm({ ...form, variants: arr }); }} className="w-24" />
-                          <Input size="sm" placeholder="Tên (VD: Màu đỏ)" value={v.name ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].name = val; setForm({ ...form, variants: arr }); }} className="w-32" />
-                          <Input size="sm" placeholder="Màu" value={v.color ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].color = val; setForm({ ...form, variants: arr }); }} className="w-20" />
-                          <Input size="sm" placeholder="Size" value={v.size ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].size = val; setForm({ ...form, variants: arr }); }} className="w-16" />
-                          <CurrencyInput size="sm" placeholder="Giá" value={String(v.price ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].price = Number(val); setForm({ ...form, variants: arr }); }} className="w-24" />
-                          <Input size="sm" placeholder="Tồn" value={String(v.stock ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].stock = Number(val); setForm({ ...form, variants: arr }); }} className="w-16" />
-                          <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => { const arr = [...form.variants]; arr.splice(i, 1); setForm({ ...form, variants: arr }); }}>
-                            <RiDeleteBinLine />
-                          </Button>
-                        </div>
-                      ))}
+                    <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+                      <table className="w-full min-w-[960px] text-sm text-left">
+                        <thead className="bg-gray-50 dark:bg-[#1f1f1f] text-gray-700 dark:text-gray-300 font-semibold border-b border-gray-200 dark:border-gray-800">
+                          <tr>
+                            <th className="px-3 py-3 whitespace-nowrap w-14">Ảnh</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[150px]">SKU</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[180px]">Tên Phân Loại</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[140px]">Màu sắc</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[120px]">Size</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[150px]">Giá bán</th>
+                            <th className="px-3 py-3 whitespace-nowrap min-w-[120px]">Tồn kho</th>
+                            <th className="px-3 py-3 whitespace-nowrap w-14 text-center">Xóa</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-[#2a2226]">
+                          {form.variants.map((v, i) => (
+                            <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-[#32282d] transition-colors">
+                              <td className="px-3 py-2">
+                                <div className="w-10 h-10 rounded bg-gray-100 dark:bg-[#1f1f1f] border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 hover:text-primary-500 cursor-pointer transition-colors" title="Chức năng upload ảnh phân loại đang cập nhật">
+                                  <RiImageLine size={18} />
+                                </div>
+                              </td>
+                              <td className="px-3 py-2">
+                                <Input size="sm" placeholder="SKU biến thể" value={v.sku ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].sku = val; setForm({ ...form, variants: arr }); }} className="w-full min-w-[140px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2">
+                                <Input size="sm" placeholder="VD: Màu đỏ cổ điển" value={v.name ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].name = val; setForm({ ...form, variants: arr }); }} className="w-full min-w-[160px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2">
+                                <Input size="sm" placeholder="VD: Đỏ" value={v.color ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].color = val; setForm({ ...form, variants: arr }); }} className="w-full min-w-[120px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2">
+                                <Input size="sm" placeholder="VD: S, M" value={v.size ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].size = val; setForm({ ...form, variants: arr }); }} className="w-full min-w-[100px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2">
+                                <CurrencyInput size="sm" placeholder="Giá bán" value={String(v.price ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].price = Number(val); setForm({ ...form, variants: arr }); }} className="w-full min-w-[130px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2">
+                                <Input size="sm" placeholder="Tồn kho" value={String(v.stock ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].stock = Number(val); setForm({ ...form, variants: arr }); }} type="number" min={1} className="w-full min-w-[100px]" classNames={variantInputClassNames} />
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => { const arr = [...form.variants]; arr.splice(i, 1); setForm({ ...form, variants: arr }); }}>
+                                  <RiDeleteBinLine size={16} />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
-                </div>
-
-                <div className="md:col-span-2 pt-2">
-                  <AdminMultipleImageUpload
-                    label="Ảnh sản phẩm (tối đa 5)"
-                    maxFiles={5}
-                    previewUrls={[...form.existingImages, ...form.imageFiles.map(f => URL.createObjectURL(f))]}
-                    onChange={(files) => setForm({ ...form, imageFiles: files, existingImages: files.length > 0 ? [] : form.existingImages })}
-                  />
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -456,6 +546,21 @@ export default function AdminProductsPage() {
           }
         </ModalContent>
       </Modal>
+
+      <ConfirmDeleteModal
+        isOpen={deleteModal.isOpen}
+        onOpenChange={(open) => {
+          deleteModal.onOpenChange(open);
+          if (!open) setDeleteTarget(null);
+        }}
+        message={
+          deleteTarget
+            ? `Bạn có chắc muốn xóa sản phẩm "${deleteTarget.name}"? Hành động này không thể hoàn tác.`
+            : 'Bạn có chắc muốn xóa sản phẩm này?'
+        }
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

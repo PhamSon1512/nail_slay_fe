@@ -7,3 +7,4 @@ export { useLazyLoad } from './useLazyLoad';
 export { useSettings } from './useSettings';
 export { useRequireAuth } from './useRequireAuth';
 export { useHomepage } from './useHomepage';
+export { useServerCart } from './useServerCart';

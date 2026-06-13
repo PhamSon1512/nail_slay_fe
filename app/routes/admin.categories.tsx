@@ -21,7 +21,7 @@ import {
   RiPencilLine,
   RiSearchLine,
 } from 'react-icons/ri';
-import { AdminPageHeader } from '~/components';
+import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
 import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
 import {
@@ -72,7 +72,10 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const formModal = useDisclosure();
+  const deleteModal = useDisclosure();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -142,9 +145,29 @@ export default function AdminCategoriesPage() {
       slug: cat.slug,
       parentId: cat.parentId ?? '',
       imageFile: null,
-      existingImageUrl: cat.imageUrl,
+      existingImageUrl: cat.imageUrl ?? undefined,
     });
     formModal.onOpen();
+  };
+
+  const requestDelete = (cat: AdminCategory) => {
+    setDeleteTarget({ id: cat.id, name: cat.name });
+    deleteModal.onOpen();
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteCategory(deleteTarget.id);
+      toast.success('Đã xóa');
+      setDeleteTarget(null);
+      await load();
+    } catch {
+      // interceptor
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -170,15 +193,8 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Xóa danh mục này?')) return;
-    try {
-      await deleteCategory(id);
-      toast.success('Đã xóa');
-      await load();
-    } catch {
-      // interceptor
-    }
+  const handleDelete = (cat: AdminCategory) => {
+    requestDelete(cat);
   };
 
   const renderRow = (cat: AdminCategory, index: number, isChild = false) => (
@@ -202,7 +218,7 @@ export default function AdminCategoriesPage() {
           <Button isIconOnly size="sm" variant="flat" aria-label="Sửa" onPress={() => openEdit(cat)}>
             <RiPencilLine size={16} />
           </Button>
-          <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => handleDelete(cat.id)}>
+          <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => handleDelete(cat)}>
             <RiDeleteBinLine size={16} />
           </Button>
         </div>
@@ -308,7 +324,7 @@ export default function AdminCategoriesPage() {
                             <Button isIconOnly size="sm" variant="flat" onPress={() => openEdit(cat)}>
                               <RiPencilLine size={16} />
                             </Button>
-                            <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => handleDelete(cat.id)}>
+                            <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => handleDelete(cat)}>
                               <RiDeleteBinLine size={16} />
                             </Button>
                           </div>
@@ -332,28 +348,52 @@ export default function AdminCategoriesPage() {
                 {editingId ? 'Sửa danh mục' : 'Thêm danh mục mới'}
               </ModalHeader>
               <ModalBody className="gap-4">
-                <Input label={<RequiredLabel required>Mã</RequiredLabel>} value={form.code} onValueChange={(v) => setForm({ ...form, code: v })} classNames={adminInputClassNames} />
-                <Input label={<RequiredLabel required>Tên</RequiredLabel>} value={form.name} onValueChange={(v) => setForm({ ...form, name: v })} classNames={adminInputClassNames} />
-                <Input label={<RequiredLabel required>Slug</RequiredLabel>} value={form.slug} onValueChange={(v) => setForm({ ...form, slug: v })} classNames={adminInputClassNames} />
+                <AdminImageUpload
+                  label="Ảnh danh mục"
+                  previewUrl={form.imageFile ? URL.createObjectURL(form.imageFile) : form.existingImageUrl}
+                  onChange={(file) => setForm({ ...form, imageFile: file })}
+                />
+                <Input
+                  label={<RequiredLabel required>Mã</RequiredLabel>}
+                  placeholder="VD: NB-01"
+                  value={form.code}
+                  onValueChange={(v) => setForm({ ...form, code: v })}
+                  classNames={adminInputClassNames}
+                />
+                <Input
+                  label={<RequiredLabel required>Tên</RequiredLabel>}
+                  placeholder="VD: Nail Box Thiết Kế"
+                  value={form.name}
+                  onValueChange={(v) => setForm({ ...form, name: v })}
+                  classNames={adminInputClassNames}
+                />
+                <Input
+                  label={<RequiredLabel required>Slug</RequiredLabel>}
+                  placeholder="VD: nail-box-thiet-ke"
+                  value={form.slug}
+                  onValueChange={(v) => setForm({ ...form, slug: v })}
+                  classNames={adminInputClassNames}
+                />
                 <Select
                   label="Danh mục cha"
-                  selectedKeys={form.parentId ? new Set([form.parentId]) : new Set()}
-                  onSelectionChange={(keys) => setForm({ ...form, parentId: String(Array.from(keys)[0] ?? '') })}
+                  placeholder="Không có (danh mục cha)"
+                  description="Để trống nếu đây là danh mục cha (cấp gốc). Chọn danh mục cha nếu tạo danh mục con."
+                  selectedKeys={form.parentId ? new Set([form.parentId]) : new Set(['none'])}
+                  onSelectionChange={(keys) => {
+                    const val = String(Array.from(keys)[0] ?? 'none');
+                    setForm({ ...form, parentId: val === 'none' ? '' : val });
+                  }}
                   classNames={adminSelectClassNames}
                 >
+                  <SelectItem key="none" textValue="Không có (danh mục cha)">
+                    Không có (danh mục cha)
+                  </SelectItem>
                   {parentOptions
                     .filter((p) => p.id !== editingId)
                     .map((p) => (
                       <SelectItem key={p.id}>{p.name}</SelectItem>
                     ))}
                 </Select>
-                <div className="pt-2">
-                  <AdminImageUpload
-                    label="Ảnh danh mục"
-                    previewUrl={form.imageFile ? URL.createObjectURL(form.imageFile) : form.existingImageUrl}
-                    onChange={(file) => setForm({ ...form, imageFile: file })}
-                  />
-                </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>Hủy</Button>
@@ -363,6 +403,21 @@ export default function AdminCategoriesPage() {
           )}
         </ModalContent>
       </Modal>
+
+      <ConfirmDeleteModal
+        isOpen={deleteModal.isOpen}
+        onOpenChange={(open) => {
+          deleteModal.onOpenChange(open);
+          if (!open) setDeleteTarget(null);
+        }}
+        message={
+          deleteTarget
+            ? `Bạn có chắc muốn xóa danh mục "${deleteTarget.name}"? Hành động này không thể hoàn tác.`
+            : 'Bạn có chắc muốn xóa danh mục này?'
+        }
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

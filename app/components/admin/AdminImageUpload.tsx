@@ -9,9 +9,17 @@ interface AdminImageUploadProps {
   onChange: (file: File | null) => void;
   previewUrl?: string;
   className?: string;
+  previewClassName?: string;
 }
 
-export function AdminImageUpload({ label, required, onChange, previewUrl, className }: AdminImageUploadProps) {
+export function AdminImageUpload({
+  label,
+  required,
+  onChange,
+  previewUrl,
+  className,
+  previewClassName,
+}: AdminImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,9 +52,10 @@ export function AdminImageUpload({ label, required, onChange, previewUrl, classN
         />
         {previewUrl ? (
           <img
+            key={previewUrl}
             src={previewUrl}
             alt="Preview"
-            className="w-12 h-12 object-cover rounded border border-primary-200"
+            className={previewClassName ?? 'w-12 h-12 object-cover rounded border border-primary-200'}
           />
         ) : (
           <span className="text-xs text-[#8E8A8A]">Chưa chọn file nào</span>

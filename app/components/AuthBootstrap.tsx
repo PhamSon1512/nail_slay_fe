@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import Cookies from 'js-cookie';
 import { useSetAtom } from 'jotai';
 import { useAtomValue } from 'jotai';
-import { clearAuth, getProfileApi } from '~/utils/auth';
+import { clearAuth, getProfileApi, readStoredToken } from '~/utils/auth';
 import { authBootstrapReadyAtom, authTokenAtom, authUserAtom } from '~/utils/atoms';
 
 /** Khôi phục phiên đăng nhập từ cookie/localStorage và xác thực với API. */
@@ -15,7 +14,7 @@ export function AuthBootstrap() {
     let cancelled = false;
 
     async function bootstrap() {
-      const token = Cookies.get('token') || localStorage.getItem('nailslay_token');
+      const token = readStoredToken();
 
       if (!token) {
         if (!cancelled) setBootstrapReady(true);

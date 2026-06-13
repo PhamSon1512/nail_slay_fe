@@ -23,8 +23,9 @@ export function StatsCard({
   const isPositive = change !== undefined && change >= 0;
 
   return (
-    <Card shadow="none" className="border border-primary-100/80 dark:border-[#4a3b42] bg-white/80 dark:bg-[#2a2226] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary-200">
-      <CardBody className="flex flex-row items-center gap-4 p-5">
+    <Card shadow="sm" className="border-none bg-white dark:bg-[#201a1d] transition-all duration-300 hover:shadow-xl hover:shadow-primary-100/40 dark:hover:shadow-black/50 hover:-translate-y-1 group relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 to-transparent dark:from-primary-900/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <CardBody className="flex flex-row items-center gap-4 p-5 relative z-10">
         {/* Icon */}
         <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center shrink-0', colorClass)}>
           <Icon size={22} />
@@ -32,10 +33,10 @@ export function StatsCard({
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-[#8E8A8A] dark:text-[#FFDDE5] font-medium uppercase tracking-wider mb-1">
+          <p className="text-[11px] md:text-xs text-[#8E8A8A] font-bold uppercase tracking-wider mb-1">
             {label}
           </p>
-          <p className="text-2xl font-bold font-heading text-[#1D1D1D] dark:text-[#FFF3F5] leading-none">
+          <p className="text-2xl md:text-3xl font-extrabold font-sans text-[#1D1D1D] dark:text-[#FFF3F5] leading-none tracking-tight">
             {value}
           </p>
           {change !== undefined && (

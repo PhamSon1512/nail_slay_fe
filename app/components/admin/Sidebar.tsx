@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import { Button, Tooltip } from '@heroui/react';
 import {
+  RiAlertLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiBarChart2Line,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: 'Sản phẩm', href: '/admin/products', icon: RiBox3Line },
   { label: 'Danh mục', href: '/admin/categories', icon: RiGridLine },
   { label: 'Đơn hàng', href: '/admin/orders', icon: RiOrderPlayLine },
+  { label: 'Khiếu nại', href: '/admin/complaints', icon: RiAlertLine },
   { label: 'Người dùng', href: '/admin/users', icon: RiUserLine },
   { label: 'Thanh toán QR', href: '/admin/payment', icon: RiQrCodeLine },
   { label: 'Cài đặt trang chủ', href: '/admin/settings', icon: RiSettingsLine },
@@ -55,16 +57,21 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             !isOpen && 'lg:justify-center lg:px-0',
           )}
         >
-          <img
-            src={BRAND.assets.logo}
-            alt={BRAND.name}
-            className="bg-white rounded-full border border-primary-500 !w-9 !h-9 shrink-0 object-contain p-0.5"
-          />
-          {isOpen ? (
-            <span className="font-heading font-bold text-lg text-white whitespace-nowrap">
-              {BRAND.name}
-            </span>
-          ) : null}
+          <Link to="/admin/dashboard" className="flex items-center gap-3 w-full group">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 bg-primary-500 rounded-full blur-[6px] opacity-0 group-hover:opacity-80 transition-opacity duration-300"></div>
+              <img
+                src={BRAND.assets.logo}
+                alt={BRAND.name}
+                className="bg-white rounded-full border-2 border-primary-400 !w-10 !h-10 relative z-10 object-contain p-0.5 transition-transform duration-300 group-hover:scale-110 shadow-md shadow-black/50"
+              />
+            </div>
+            {isOpen ? (
+              <span className="font-heading font-extrabold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-white whitespace-nowrap tracking-wide group-hover:from-primary-300 group-hover:to-primary-100 transition-all duration-300">
+                {BRAND.name}
+              </span>
+            ) : null}
+          </Link>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">

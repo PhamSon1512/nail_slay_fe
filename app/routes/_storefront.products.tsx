@@ -1,10 +1,11 @@
 import type { Route } from './+types/_storefront.products';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Input, Select, SelectItem } from '@heroui/react';
 import { RiSearchLine } from 'react-icons/ri';
 import { ProductCard, SectionTitle } from '~/components';
-import { CATEGORIES, PRODUCTS } from '~/data';
+import { CATEGORIES } from '~/data';
+import { fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
 import { formatTitleCase } from '~/utils/format';
 
 export const handle = { pageTitle: 'Sản phẩm' };
@@ -14,24 +15,28 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState(searchParams.get('category') ?? '');
+  const [products, setProducts] = useState<StoreProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const categoryOptions = CATEGORIES.filter((c) => c.level === 'child' || c.code === 'PK-02');
+  const categorySlugMap = useMemo(
+    () => new Map(categoryOptions.map((c) => [c.code, c.slug])),
+    [categoryOptions],
+  );
 
-  const products = useMemo(() => {
-    return PRODUCTS.filter((product) => {
-      const okCategory = !category || product.categoryCode === category;
-      const okSearch =
-        !search ||
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.sku.toLowerCase().includes(search.toLowerCase());
-      return okCategory && okSearch;
-    });
-  }, [category, search]);
+  useEffect(() => {
+    setLoading(true);
+    const slug = category ? categorySlugMap.get(category) : undefined;
+    fetchStoreProducts({ limit: 100, q: search || undefined, category_slug: slug })
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, [search, category, categorySlugMap]);
 
   return (
     <div className="container py-10 space-y-6">
       <SectionTitle
-        title="Bộ sưu tập sản phẩm"
+        title="Bộ sưu tập Sản phẩm"
         subtitle="Chọn style móng phù hợp với cá tính của bạn."
       />
 
@@ -69,26 +74,37 @@ export default function ProductsPage() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={{
-              id: product.id,
-              sku: product.sku,
-              name: product.name,
-              slug: product.slug,
-              price: product.salePrice,
-              originalPrice: product.originalPrice,
-              imageUrls: product.imageUrls,
-              categoryName: product.categoryCode,
-              stock: product.stock,
-              isNew: product.isNew,
-              isBestSeller: product.isFeatured,
-            }}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-sm text-[#8E8A8A]">Đang tải sản phẩm...</p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products.map((product) => {
+            const isNew = product.createdAt
+              ? Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000
+              : false;
+            return (
+            <ProductCard
+              key={product.id}
+              product={{
+                id: product.id,
+                sku: product.sku ?? '',
+                name: product.name,
+                slug: product.slug,
+                price: product.price,
+                originalPrice: product.originalPrice ?? product.price,
+                imageUrls: product.imageUrls ?? [],
+                categoryName: '',
+                stock: product.stock,
+                isNew,
+              }}
+            />
+            );
+          })}
+        </div>
+      )}
+      {!loading && products.length === 0 ? (
+        <p className="text-sm text-center text-[#8E8A8A] py-8">Không tìm thấy sản phẩm.</p>
+      ) : null}
     </div>
   );
 }

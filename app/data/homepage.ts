@@ -47,14 +47,40 @@ export const DEFAULT_FEATURED_PRODUCT_IDS = [
   'prod-care-kit',
 ];
 
+export type HomepageThankYouStat = {
+  id: string;
+  value: string;
+  label: string;
+};
+
+export type HomepageThankYou = {
+  title: string;
+  content: string;
+  stats: HomepageThankYouStat[];
+};
+
+export const DEFAULT_HOMEPAGE_THANK_YOU: HomepageThankYou = {
+  title: 'Cảm ơn bạn đã tin chọn Nail Slay!',
+  content:
+    'Hàng ngàn khách hàng đã trải nghiệm và hài lòng với Nail Slay. Chúng tôi tự hào mang đến những thiết kế nail box thủ công tinh xảo, chuẩn form, bền đẹp như ngoài tiệm. Tự tin tỏa sáng mọi lúc mọi nơi!',
+  stats: [
+    { id: 'stat-1', value: '10k+', label: 'Khách hàng' },
+    { id: 'stat-2', value: '500+', label: 'Mẫu thiết kế' },
+    { id: 'stat-3', value: '100%', label: 'Làm thủ công' },
+    { id: 'stat-4', value: '5★', label: 'Đánh giá tốt' },
+  ],
+};
+
 export type HomepageConfig = {
   banners: BannerItem[];
   features: HomepageFeature[];
   featuredProductIds: string[];
+  thankYou: HomepageThankYou;
 };
 
 export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
   banners: DEFAULT_BANNERS,
   features: DEFAULT_HOMEPAGE_FEATURES,
   featuredProductIds: DEFAULT_FEATURED_PRODUCT_IDS,
+  thankYou: DEFAULT_HOMEPAGE_THANK_YOU,
 };

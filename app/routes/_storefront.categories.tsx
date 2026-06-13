@@ -11,7 +11,7 @@ export default function CategoriesPage() {
   return (
     <div className="container py-10 space-y-6">
       <SectionTitle
-        title="Danh mục sản phẩm"
+        title="Danh mục Sản phẩm"
         subtitle="Khám phá các phong cách nail box được thiết kế riêng cho bạn."
       />
 

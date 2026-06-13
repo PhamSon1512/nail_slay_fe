@@ -1,5 +1,5 @@
 export const BRAND = {
-  name: 'NAILSLAY',
+  name: 'NailSlay',
   slogan: 'SLAY YOUR NAIL, EVERYDAY',
   colors: {
     primary: '#F2A7B7',
@@ -14,9 +14,9 @@ export const BRAND = {
     board: '/branding/brand-board.png',
   },
   contact: {
-    phone: '0901 234 567',
-    email: 'hello@nailslay.vn',
-    address: 'TP. Hồ Chí Minh, Việt Nam',
+    phone: '0123 456 789',
+    email: 'norely@nailslay.com',
+    address: 'TP. Hà Nội, Việt Nam',
   },
 } as const;
 

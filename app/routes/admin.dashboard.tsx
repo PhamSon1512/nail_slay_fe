@@ -2,7 +2,7 @@ import type { Route } from './+types/admin.dashboard';
 import { useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@heroui/react';
 import { RiAlertLine, RiBox3Line, RiMoneyDollarCircleLine, RiOrderPlayLine, RiUserLine } from 'react-icons/ri';
-import { AdminPageHeader, OrderTable } from '~/components';
+import { AdminOrderDetailModal, AdminPageHeader, OrderTable, useAdminOrderDetailModal } from '~/components';
 import type { OrderRow } from '~/components/admin/OrderTable';
 import { StatsCard } from '~/components/admin/StatsCard';
 import { fetchAdminOrders, fetchAdminStats } from '~/utils/api/admin';
@@ -35,12 +35,17 @@ function mapOrderRow(raw: Record<string, unknown>): OrderRow {
 export default function DashboardPage() {
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [recentOrders, setRecentOrders] = useState<OrderRow[]>([]);
+  const { selectedOrderId, isOpen, openOrderDetail, handleOpenChange } = useAdminOrderDetailModal();
 
-  useEffect(() => {
-    fetchAdminStats().then(setStats).catch(() => undefined);
+  const loadRecentOrders = () => {
     fetchAdminOrders({ limit: 5 })
       .then((data) => setRecentOrders(data.items.map(mapOrderRow)))
       .catch(() => undefined);
+  };
+
+  useEffect(() => {
+    fetchAdminStats().then(setStats).catch(() => undefined);
+    loadRecentOrders();
   }, []);
 
   return (
@@ -91,7 +96,7 @@ export default function DashboardPage() {
               </a>
             </CardHeader>
             <CardBody className="pt-4">
-              <OrderTable orders={recentOrders} />
+              <OrderTable orders={recentOrders} onViewOrder={openOrderDetail} />
             </CardBody>
           </Card>
         </div>
@@ -138,6 +143,13 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <AdminOrderDetailModal
+        orderId={selectedOrderId}
+        isOpen={isOpen}
+        onOpenChange={handleOpenChange}
+        onOrderUpdated={loadRecentOrders}
+      />
     </div>
   );
 }

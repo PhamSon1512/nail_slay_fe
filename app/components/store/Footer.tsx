@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import {
   RiFacebookFill,
@@ -8,6 +9,7 @@ import {
   RiTiktokFill,
 } from 'react-icons/ri';
 import { BRAND, CATEGORIES } from '~/data';
+import { fetchPublicSettings } from '~/utils/api/settings';
 
 const LINKS = {
   shop: CATEGORIES.filter((c) => c.level === 'child').map((c) => ({
@@ -16,27 +18,53 @@ const LINKS = {
   })),
   info: [
     { label: 'Về NailSlay', href: '/about' },
-    { label: 'Blog làm nail', href: '/blog' },
+    { label: 'Blog làm nail', href: '/#' },
     { label: 'Chính sách đổi trả', href: '/policy' },
     { label: 'Hướng dẫn mua hàng', href: '/guide' },
   ],
 };
 
-const SOCIALS = [
-  { label: 'Facebook', href: '#', icon: RiFacebookFill },
-  { label: 'Instagram', href: '#', icon: RiInstagramLine },
-  { label: 'TikTok', href: '#', icon: RiTiktokFill },
-];
-
 export function Footer() {
+  const [contactInfo, setContactInfo] = useState<Record<string, string> | null>(null);
+
+  useEffect(() => {
+    fetchPublicSettings()
+      .then((data) => setContactInfo(data.contact_info))
+      .catch(() => undefined);
+  }, []);
+
+  const contact = useMemo(
+    () => ({
+      address: contactInfo?.address || BRAND.contact.address,
+      phone: contactInfo?.phone || BRAND.contact.phone,
+      email: contactInfo?.email || BRAND.contact.email,
+    }),
+    [contactInfo],
+  );
+
+  const socials = useMemo(
+    () => [
+      { label: 'Facebook', href: contactInfo?.facebook || '#', icon: RiFacebookFill },
+      { label: 'Instagram', href: '#', icon: RiInstagramLine },
+      { label: 'TikTok', href: contactInfo?.tiktok || '#', icon: RiTiktokFill },
+    ],
+    [contactInfo],
+  );
+
   return (
     <footer className="bg-[#1D1D1D] text-[#FFF3F5] mt-20">
       <div className="container py-14">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={BRAND.assets.logo} alt={BRAND.name} className="brand-logo-ring-on-dark !w-10 !h-10" />
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="relative w-10 h-10 shrink-0">
+                <img
+                  src={BRAND.assets.logo}
+                  alt={BRAND.name}
+                  className="brand-logo-ring relative z-10 w-full h-full object-contain bg-white"
+                />
+              </div>
               <span className="font-heading text-xl font-bold text-white">{BRAND.name}</span>
             </Link>
             <p className="text-xs text-[#FFDDE5] uppercase tracking-[0.2em]">{BRAND.slogan}</p>
@@ -45,7 +73,7 @@ export function Footer() {
               toàn và dễ sử dụng tại nhà.
             </p>
             <div className="flex gap-3 pt-1">
-              {SOCIALS.map(({ label, href, icon: Icon }) => (
+              {socials.map(({ label, href, icon: Icon }) => (
                 <a
                   key={label}
                   href={href}
@@ -104,21 +132,21 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5 text-sm text-[#FFDDE5]">
                 <RiMapPinLine size={16} className="mt-0.5 text-[#F2A7B7] shrink-0" />
-                <span>{BRAND.contact.address}</span>
+                <span>{contact.address}</span>
               </li>
               <li className="flex items-center gap-2.5 text-sm">
                 <RiPhoneLine size={16} className="text-[#F2A7B7] shrink-0" />
-                <a href="tel:0901234567" className="text-[#FFDDE5] hover:text-[#F2A7B7] transition-colors">
-                  {BRAND.contact.phone}
+                <a href={`tel:${contact.phone}`} className="text-[#FFDDE5] hover:text-[#F2A7B7] transition-colors">
+                  {contact.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-sm">
                 <RiMailLine size={16} className="text-[#F2A7B7] shrink-0" />
                 <a
-                  href="mailto:hello@nailslay.vn"
+                  href={`mailto:${contact.email}`}
                   className="text-[#FFDDE5] hover:text-[#F2A7B7] transition-colors"
                 >
-                  {BRAND.contact.email}
+                  {contact.email}
                 </a>
               </li>
             </ul>

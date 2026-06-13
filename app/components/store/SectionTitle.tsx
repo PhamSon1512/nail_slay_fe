@@ -28,7 +28,12 @@ export function SectionTitle({
       ) : null}
       <h2 className="section-title">{title}</h2>
       {subtitle ? (
-        <p className="text-sm md:text-base text-[#8E8A8A] dark:text-[#FFDDE5] max-w-2xl">
+        <p
+          className={cn(
+            'text-sm md:text-base text-[#8E8A8A] dark:text-[#FFDDE5] max-w-2xl',
+            align === 'center' && 'mx-auto',
+          )}
+        >
           {subtitle}
         </p>
       ) : null}

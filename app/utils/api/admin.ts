@@ -1,5 +1,5 @@
 import { http } from '../http';
-import type { BannerItem, HomepageConfig, HomepageFeature } from '~/data/homepage';
+import type { BannerItem, HomepageConfig, HomepageFeature, HomepageThankYou } from '~/data/homepage';
 
 export type AdminCategory = {
   id: string;
@@ -59,6 +59,7 @@ export async function fetchAdminSettings() {
 export async function updateHomepageSettings(input: {
   features?: HomepageFeature[];
   featuredProductIds?: string[];
+  thankYou?: HomepageThankYou;
   contact_info?: Record<string, string>;
 }) {
   const { data } = await http.put('/admin/settings/homepage', input);
@@ -147,8 +148,20 @@ export type BankInfo = {
 };
 
 export async function fetchBankSettings() {
-  const { data } = await http.get<{ bank_info?: BankInfo | null }>('/admin/settings');
-  return data.bank_info ?? null;
+  const { data } = await http.get<Record<string, unknown>>('/admin/settings');
+  const bank = data.bank_info as BankInfo | null | undefined;
+  if (bank?.qr_code_url) return bank;
+  const qrUrl = typeof data.qr_code_url === 'string' ? data.qr_code_url : '';
+  if (bank) return { ...bank, qr_code_url: bank.qr_code_url || qrUrl };
+  return qrUrl
+    ? ({
+        bank_name: '',
+        account_number: '',
+        account_name: '',
+        transfer_content: '',
+        qr_code_url: qrUrl,
+      } satisfies BankInfo)
+    : null;
 }
 
 export async function updateBankSettings(form: FormData) {
@@ -156,12 +169,39 @@ export async function updateBankSettings(form: FormData) {
   return data;
 }
 
-export async function updateOrderStatus(id: string, status: string) {
-  const { data } = await http.patch(`/admin/orders/${id}/status`, { status });
+export async function fetchAdminUsers(params?: { page?: number; search?: string }) {
+  const { data } = await http.get<Paginated<Record<string, unknown>>>('/admin/users', { params });
   return data;
 }
 
-export async function fetchAdminUsers(params?: { page?: number; search?: string }) {
-  const { data } = await http.get<Paginated<Record<string, unknown>>>('/admin/users', { params });
+export async function updateAdminUser(
+  id: string,
+  input: {
+    accountStatus?: 'active' | 'blocked';
+    blockReason?: string;
+    role?: string;
+    fullName?: string;
+    phone?: string;
+  },
+) {
+  const { data } = await http.patch(`/admin/users/${id}`, input);
+  return data;
+}
+
+export async function fetchAdminComplaints() {
+  const { data } = await http.get<Record<string, unknown>[]>('/admin/complaints');
+  return data;
+}
+
+export async function resolveAdminComplaint(id: string, adminResponse: string) {
+  const { data } = await http.patch(`/admin/complaints/${id}`, {
+    admin_response: adminResponse,
+    status: 'RESOLVED',
+  });
+  return data;
+}
+
+export async function updateOrderStatus(id: string, status: string) {
+  const { data } = await http.patch(`/admin/orders/${id}/status`, { status });
   return data;
 }

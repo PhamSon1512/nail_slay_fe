@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
             Nếu email <strong className="text-[#1D1D1D]">{email}</strong> tồn tại trong hệ thống,
             chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.
           </p>
-          <p>Liên hệ: hello@nailslay.vn · 0901 234 567</p>
+          <p>Liên hệ: norely@nailslay.com · 0123 456 789</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">

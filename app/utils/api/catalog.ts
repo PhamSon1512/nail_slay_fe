@@ -13,6 +13,7 @@ export type StoreProduct = {
   imageUrls: string[];
   sizeOptions?: string[];
   formOptions?: string[];
+  createdAt?: string;
 };
 
 export async function fetchStoreProducts(params?: { limit?: number; q?: string; category_slug?: string }) {
@@ -27,6 +28,6 @@ export async function fetchStoreProducts(params?: { limit?: number; q?: string; 
 }
 
 export async function fetchStoreProduct(slug: string) {
-  const { data } = await http.get<StoreProduct>(`/products/${slug}`);
+  const { data } = await http.get<StoreProduct & { variants?: Array<Record<string, unknown>> }>(`/products/${slug}`);
   return data;
 }

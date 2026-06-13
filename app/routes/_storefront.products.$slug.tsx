@@ -1,27 +1,53 @@
 import type { Route } from './+types/_storefront.products.$slug';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Button, Chip, Divider } from '@heroui/react';
-import { useAtom } from 'jotai';
-import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiHeartLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
 import { Link } from 'react-router';
 import { AutoSlideGallery, ProductCard } from '~/components';
-import { CATEGORY_BY_CODE, PRODUCT_BY_SLUG, PRODUCTS } from '~/data';
-import { useRequireAuth } from '~/hooks';
-import { cartAtom } from '~/utils/atoms';
-import { formatTitleCase, formatVND } from '~/utils/format';
+import { useRequireAuth, useServerCart } from '~/hooks';
+import { fetchStoreProduct, fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
+import { formatVND } from '~/utils/format';
 
 export const handle = { pageTitle: 'Chi tiết sản phẩm' };
 export const meta = ({ params }: Route.MetaArgs) => [
   { title: `${params.slug ?? 'Sản phẩm'} - Nailslay` },
 ];
 
+type ProductVariant = {
+  id: string;
+  name: string;
+  color?: string | null;
+  size?: string | null;
+  price: number;
+  stock: number;
+};
+
 export default function ProductDetailPage({ params }: Route.ComponentProps) {
-  const [cart, setCart] = useAtom(cartAtom);
   const { requireAuth } = useRequireAuth();
+  const { add } = useServerCart();
+  const [product, setProduct] = useState<(StoreProduct & { variants?: ProductVariant[] }) | null>(null);
+  const [related, setRelated] = useState<StoreProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
 
-  const product = useMemo(() => PRODUCT_BY_SLUG.get(params.slug ?? ''), [params.slug]);
+  useEffect(() => {
+    if (!params.slug) return;
+    setLoading(true);
+    fetchStoreProduct(params.slug)
+      .then((data) => {
+        setProduct(data as StoreProduct & { variants?: ProductVariant[] });
+        return fetchStoreProducts({ limit: 20 });
+      })
+      .then((list) => {
+        setRelated(list.filter((p) => p.slug !== params.slug).slice(0, 4));
+      })
+      .catch(() => setProduct(null))
+      .finally(() => setLoading(false));
+  }, [params.slug]);
+
+  if (loading) {
+    return <div className="container py-20 text-center text-sm text-[#8E8A8A]">Đang tải...</div>;
+  }
 
   if (!product) {
     return (
@@ -34,35 +60,16 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
     );
   }
 
-  const category = CATEGORY_BY_CODE.get(product.categoryCode);
-  const related = PRODUCTS.filter(
-    (p) => p.categoryCode === product.categoryCode && p.id !== product.id,
-  ).slice(0, 4);
-  const images = (product.imageUrls.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5);
+  const images = (product.imageUrls?.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5);
+  const variants = product.variants ?? [];
 
   const addToCart = () => {
-    requireAuth(() => {
-      const existing = cart.find((item) => item.id === product.id);
-      if (existing) {
-        setCart(
-          cart.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + qty } : item,
-          ),
-        );
-      } else {
-        setCart([
-          ...cart,
-          {
-            id: product.id,
-            name: product.name,
-            price: product.salePrice,
-            quantity: qty,
-            slug: product.slug,
-            imageUrl: product.imageUrls[0],
-          },
-        ]);
+    requireAuth(async () => {
+      try {
+        await add(product.id, qty);
+      } catch {
+        // interceptor
       }
-      toast.success(`Đã thêm ${qty} "${product.name}" vào giỏ hàng`);
     });
   };
 
@@ -77,21 +84,17 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="space-y-3">
-          <AutoSlideGallery intervalMs={3500} className="rounded-2xl overflow-hidden border border-primary-200/70">
-            {images.map((src, i) => (
-              <div key={src + i} className="aspect-square bg-gradient-hero">
-                <img src={src} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </AutoSlideGallery>
-        </div>
+        <AutoSlideGallery intervalMs={3500} className="rounded-2xl overflow-hidden border border-primary-200/70">
+          {images.map((src, i) => (
+            <div key={src + i} className="aspect-square bg-gradient-hero">
+              <img src={src} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </AutoSlideGallery>
 
         <div className="space-y-5">
           <div className="flex items-center flex-wrap gap-2">
-            <Chip size="sm" variant="flat" color="primary">{product.categoryCode}</Chip>
-            <Badge color="secondary" variant="flat">Mã: {product.sku}</Badge>
-            {product.isNew ? <Badge color="primary" variant="solid">Mới</Badge> : null}
+            {product.sku ? <Badge color="secondary" variant="flat">Mã: {product.sku}</Badge> : null}
           </div>
 
           <h1 className="font-heading text-3xl md:text-4xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
@@ -100,50 +103,44 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
 
           <div className="flex items-end gap-3">
             <span className="font-heading text-3xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-              {formatVND(product.salePrice)}
+              {formatVND(product.price)}
             </span>
-            <span className="text-sm text-[#8E8A8A] line-through">
-              {formatVND(product.originalPrice)}
-            </span>
+            {product.originalPrice && product.originalPrice > product.price ? (
+              <span className="text-sm text-[#8E8A8A] line-through">{formatVND(product.originalPrice)}</span>
+            ) : null}
           </div>
 
-          <p className="text-sm leading-relaxed text-[#8E8A8A] dark:text-[#FFDDE5] whitespace-pre-line">
-            {product.description}
-          </p>
+          {product.description ? (
+            <p className="text-sm leading-relaxed text-[#8E8A8A] dark:text-[#FFDDE5] whitespace-pre-line">
+              {product.description}
+            </p>
+          ) : null}
 
           <Divider />
 
-          <div className="space-y-3 text-sm">
-            <p className="text-[#1D1D1D] dark:text-[#FFF3F5]">
-              <strong>Danh mục:</strong> {category ? formatTitleCase(category.name) : product.categoryCode}
-            </p>
-            <p className="text-[#1D1D1D] dark:text-[#FFF3F5]">
-              <strong>Tồn kho:</strong> {product.stock}
-            </p>
-            <p className="text-[#1D1D1D] dark:text-[#FFF3F5]">
-              <strong>Size:</strong>{' '}
-              {product.attributes.size?.length ? product.attributes.size.join(', ') : 'Không có'}
-            </p>
-            <p className="text-[#1D1D1D] dark:text-[#FFF3F5]">
-              <strong>Form móng:</strong>{' '}
-              {product.attributes.form?.length ? product.attributes.form.join(', ') : 'Không có'}
-            </p>
-          </div>
+          <p className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">
+            <strong>Tồn kho:</strong> {product.stock}
+          </p>
+
+          {variants.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Biến thể</p>
+              <div className="flex flex-wrap gap-2">
+                {variants.map((v) => (
+                  <Chip key={v.id} size="sm" variant="flat">
+                    {[v.name, v.color, v.size].filter(Boolean).join(' · ')} — {formatVND(v.price)} (SL: {v.stock})
+                  </Chip>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-[#8E8A8A]">Số lượng:</span>
             <div className="flex items-center border border-primary-200 rounded-lg overflow-hidden">
-              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>
-                −
-              </button>
+              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
               <span className="px-4 py-2">{qty}</span>
-              <button
-                type="button"
-                className="px-3 py-2"
-                onClick={() => setQty(Math.min(product.stock, qty + 1))}
-              >
-                +
-              </button>
+              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.min(product.stock, qty + 1))}>+</button>
             </div>
           </div>
 
@@ -152,6 +149,7 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
               color="primary"
               size="lg"
               onPress={addToCart}
+              isDisabled={product.stock <= 0}
               startContent={<RiShoppingBag3Line size={18} />}
               className="font-semibold text-[#1D1D1D]"
             >
@@ -164,7 +162,7 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
 
           <div className="flex items-center gap-2 text-xs text-[#8E8A8A]">
             <RiTruckLine size={14} />
-            <span>Giao nhanh 2–3 ngày. Hỗ trợ đổi trả trong 7 ngày.</span>
+            <span>Giao nhanh 2–3 ngày. Thanh toán chuyển khoản trước khi lên đơn.</span>
           </div>
         </div>
       </div>
@@ -178,13 +176,13 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
                 key={item.id}
                 product={{
                   id: item.id,
-                  sku: item.sku,
+                  sku: item.sku ?? '',
                   name: item.name,
                   slug: item.slug,
-                  price: item.salePrice,
-                  originalPrice: item.originalPrice,
-                  imageUrls: item.imageUrls,
-                  categoryName: item.categoryCode,
+                  price: item.price,
+                  originalPrice: item.originalPrice ?? item.price,
+                  imageUrls: item.imageUrls ?? [],
+                  categoryName: '',
                   stock: item.stock,
                 }}
               />

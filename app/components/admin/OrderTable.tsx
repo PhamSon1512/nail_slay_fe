@@ -9,18 +9,8 @@ import {
   TableRow,
 } from '@heroui/react';
 import { RiEyeLine } from 'react-icons/ri';
-import { Link } from 'react-router';
+import { ORDER_STATUS_LABELS, type OrderStatus } from '~/utils/orderStatus';
 import { formatDateTime, formatVND, shortId } from '~/utils/format';
-
-export type OrderStatus =
-  | 'PENDING_PAYMENT'
-  | 'PAID'
-  | 'SHIPPING'
-  | 'DELIVERED'
-  | 'RECEIVED'
-  | 'CANCELLED'
-  | 'COMPLAINED'
-  | 'RESOLVED';
 
 export type OrderRow = {
   id: string;
@@ -33,31 +23,39 @@ export type OrderRow = {
 };
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: 'warning' | 'primary' | 'secondary' | 'success' | 'danger' | 'default' }> = {
-  PENDING_PAYMENT: { label: 'Chờ thanh toán', color: 'warning' },
-  PAID:            { label: 'Đã thanh toán',  color: 'primary' },
-  SHIPPING:        { label: 'Đang giao',       color: 'secondary' },
-  DELIVERED:       { label: 'Đã giao',         color: 'success' },
-  RECEIVED:        { label: 'Đã nhận',         color: 'success' },
-  CANCELLED:       { label: 'Đã hủy',          color: 'danger' },
-  COMPLAINED:      { label: 'Khiếu nại',       color: 'warning' },
-  RESOLVED:        { label: 'Đã giải quyết',   color: 'default' },
+  PENDING_PAYMENT: { label: ORDER_STATUS_LABELS.PENDING_PAYMENT, color: 'warning' },
+  PAID: { label: ORDER_STATUS_LABELS.PAID, color: 'primary' },
+  SHIPPING: { label: ORDER_STATUS_LABELS.SHIPPING, color: 'secondary' },
+  DELIVERED: { label: ORDER_STATUS_LABELS.DELIVERED, color: 'success' },
+  RECEIVED: { label: ORDER_STATUS_LABELS.RECEIVED, color: 'success' },
+  CANCELLED: { label: ORDER_STATUS_LABELS.CANCELLED, color: 'danger' },
+  COMPLAINED: { label: ORDER_STATUS_LABELS.COMPLAINED, color: 'warning' },
+  RESOLVED: { label: ORDER_STATUS_LABELS.RESOLVED, color: 'default' },
 };
 
 const COLUMNS = [
-  { key: 'id',          label: 'Mã đơn' },
-  { key: 'customer',    label: 'Khách hàng' },
-  { key: 'amount',      label: 'Tổng tiền' },
-  { key: 'status',      label: 'Trạng thái' },
-  { key: 'date',        label: 'Ngày đặt' },
-  { key: 'actions',     label: '' },
+  { key: 'id', label: 'Mã đơn' },
+  { key: 'customer', label: 'Khách hàng' },
+  { key: 'amount', label: 'Tổng tiền' },
+  { key: 'status', label: 'Trạng thái' },
+  { key: 'date', label: 'Ngày đặt' },
+  { key: 'actions', label: '' },
 ];
 
 interface OrderTableProps {
   orders: OrderRow[];
   isLoading?: boolean;
+  onViewOrder?: (orderId: string) => void;
 }
 
-export function OrderTable({ orders, isLoading }: OrderTableProps) {
+export function OrderTable({ orders, isLoading, onViewOrder }: OrderTableProps) {
+  const handleView = (orderId: string) => {
+    if (onViewOrder) {
+      onViewOrder(orderId);
+      return;
+    }
+  };
+
   return (
     <Table
       aria-label="Danh sách đơn hàng"
@@ -66,6 +64,7 @@ export function OrderTable({ orders, isLoading }: OrderTableProps) {
       classNames={{
         th: 'bg-primary-100/50 dark:bg-primary-800/30 text-xs text-[#8E8A8A] dark:text-[#FFDDE5] font-semibold uppercase tracking-wider first:rounded-l-lg last:rounded-r-lg',
         td: 'py-3 text-sm',
+        tr: 'cursor-pointer hover:bg-primary-50/40 dark:hover:bg-[#32282d]',
       }}
     >
       <TableHeader columns={COLUMNS}>
@@ -82,7 +81,7 @@ export function OrderTable({ orders, isLoading }: OrderTableProps) {
         }
       >
         {(order) => (
-          <TableRow key={order.id}>
+          <TableRow key={order.id} onClick={() => handleView(order.id)}>
             <TableCell>
               <span className="font-mono font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">
                 {shortId(order.id)}
@@ -115,13 +114,12 @@ export function OrderTable({ orders, isLoading }: OrderTableProps) {
             </TableCell>
             <TableCell>
               <Button
-                as={Link}
-                to={`/admin/orders/${order.id}`}
                 isIconOnly
                 size="sm"
                 variant="light"
                 aria-label="Xem chi tiết"
                 className="text-[#8E8A8A] hover:text-[#1D1D1D]"
+                onPress={() => handleView(order.id)}
               >
                 <RiEyeLine size={16} />
               </Button>
@@ -132,3 +130,5 @@ export function OrderTable({ orders, isLoading }: OrderTableProps) {
     </Table>
   );
 }
+
+export type { OrderStatus };

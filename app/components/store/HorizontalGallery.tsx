@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@heroui/react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
@@ -10,14 +10,32 @@ type HorizontalGalleryProps = {
   className?: string;
   itemClassName?: string;
   intervalMs?: number;
+  pauseOnHover?: boolean;
 };
+
+const MIN_LOOP_SLIDES = 8;
+
+function buildLoopSlides(children: ReactNode[], minSlides = MIN_LOOP_SLIDES) {
+  if (children.length === 0) return [];
+  if (children.length >= minSlides) return children;
+
+  const slides: ReactNode[] = [];
+  for (let i = 0; slides.length < minSlides; i += 1) {
+    slides.push(children[i % children.length]);
+  }
+  return slides;
+}
 
 export function HorizontalGallery({
   children,
   className,
   itemClassName = 'basis-[82%] sm:basis-[46%] lg:basis-[31%]',
   intervalMs = 3000,
+  pauseOnHover = true,
 }: HorizontalGalleryProps) {
+  const [paused, setPaused] = useState(false);
+  const slides = useMemo(() => buildLoopSlides(children), [children]);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: 'start',
@@ -26,41 +44,34 @@ export function HorizontalGallery({
   });
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => {
-    if (!emblaApi) return;
-    if (emblaApi.canScrollNext()) {
-      emblaApi.scrollNext();
-    } else {
-      emblaApi.scrollTo(0);
-    }
-  }, [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.reInit();
-  }, [emblaApi, children.length]);
+  }, [emblaApi, slides.length]);
 
   useEffect(() => {
-    if (!emblaApi || children.length <= 1) return;
+    if (!emblaApi || slides.length <= 1 || (pauseOnHover && paused)) return;
 
     const timer = window.setInterval(() => {
-      if (emblaApi.canScrollNext()) {
-        emblaApi.scrollNext();
-      } else {
-        emblaApi.scrollTo(0);
-      }
+      emblaApi.scrollNext();
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [emblaApi, children.length, intervalMs]);
+  }, [emblaApi, slides.length, intervalMs, paused, pauseOnHover]);
 
   if (!children.length) return null;
 
   return (
-    <div className={cn('relative group', className)}>
+    <div
+      className={cn('relative group', className)}
+      onMouseEnter={pauseOnHover ? () => setPaused(true) : undefined}
+      onMouseLeave={pauseOnHover ? () => setPaused(false) : undefined}
+    >
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex gap-4 touch-pan-y">
-          {children.map((child, index) => (
+          {slides.map((child, index) => (
             <div key={index} className={cn('min-w-0 shrink-0 grow-0', itemClassName)}>
               {child}
             </div>

@@ -10,6 +10,7 @@ import {
 } from 'react-icons/ri';
 import {
   AutoSlideGallery,
+  BannerSlideImage,
   CategoryCard,
   Footer,
   HorizontalGallery,
@@ -17,7 +18,7 @@ import {
   ProductCard,
   SectionTitle,
 } from '~/components';
-import { BRAND, CATEGORIES } from '~/data';
+import { BRAND, CATEGORIES, DEFAULT_HOMEPAGE_THANK_YOU } from '~/data';
 import { useHomepage } from '~/hooks';
 import { fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
 
@@ -102,6 +103,8 @@ export default function HomePage() {
     isBestSeller: p.isFeatured,
   });
 
+  const thankYou = homepage.thankYou ?? DEFAULT_HOMEPAGE_THANK_YOU;
+
   return (
     <div className="min-h-screen flex flex-col bg-[color:var(--color-brand-bg)] dark:bg-[#1d1d1d]">
       <Navbar />
@@ -114,12 +117,11 @@ export default function HomePage() {
                 <Link
                   key={banner.id}
                   to={banner.link ?? '/products'}
-                  className="block relative w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden"
+                  className="block relative w-full bg-[#1d1d1d]/5 dark:bg-black/30"
                 >
-                  <img
+                  <BannerSlideImage
                     src={banner.imageUrl}
                     alt={banner.title ?? BRAND.name}
-                    className="w-full h-full object-cover"
                   />
                   {(banner.title || banner.subtitle) && (
                     <div className="absolute inset-0 bg-gradient-to-r from-[#1D1D1D]/50 via-transparent to-transparent flex items-center">
@@ -177,7 +179,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <HorizontalGallery intervalMs={3000}>
+          <HorizontalGallery intervalMs={3000} pauseOnHover>
             {childCategories.map((category) => (
               <CategoryCard
                 key={category.code}
@@ -188,6 +190,33 @@ export default function HomePage() {
               />
             ))}
           </HorizontalGallery>
+        </section>
+
+        <section className="container pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {homepage.features.map((feature) => {
+              const Icon = FEATURE_ICONS[feature.icon] ?? RiShoppingBag3Line;
+              return (
+                <Card
+                  key={feature.id}
+                  shadow="none"
+                  className="border border-primary-200/70 bg-white/80 dark:bg-[#2a2226] flex flex-col hover-3d transition-all duration-300 hover:border-primary-300 group py-6 px-6"
+                >
+                  <CardBody className="gap-4 flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-[#1D1D1D] mb-1 group-hover:scale-110 transition-transform duration-300">
+                      <Icon size={24} />
+                    </div>
+                    <h3 className="font-heading text-lg font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
+                      {feature.title}
+                    </h3>
+                    <p className="text-xs text-[#8E8A8A] dark:text-[#FFDDE5] leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </div>
         </section>
 
         <section className="container pb-16">
@@ -202,7 +231,7 @@ export default function HomePage() {
           </div>
 
           {featuredProducts.length > 0 ? (
-            <HorizontalGallery intervalMs={3000}>
+            <HorizontalGallery intervalMs={3000} pauseOnHover>
               {featuredProducts.map((product) => (
                 <ProductCard key={product!.id} product={mapProduct(product!)} />
               ))}
@@ -215,27 +244,28 @@ export default function HomePage() {
         </section>
 
         <section className="container pb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {homepage.features.map((feature) => {
-              const Icon = FEATURE_ICONS[feature.icon] ?? RiShoppingBag3Line;
-              return (
-                <Card
-                  key={feature.id}
-                  shadow="none"
-                  className="border border-primary-200/70 bg-white/80 dark:bg-[#2a2226]"
-                >
-                  <CardBody className="gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center text-[#1D1D1D]">
-                      <Icon size={22} />
-                    </div>
-                    <h3 className="font-heading text-xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-[#8E8A8A] dark:text-[#FFDDE5]">{feature.description}</p>
-                  </CardBody>
-                </Card>
-              );
-            })}
+          <div className="bg-white dark:bg-[#201a1d] rounded-3xl p-8 md:p-12 text-center border-2 border-primary-200 dark:border-primary-800 shadow-[8px_8px_0px_0px_#ffdde5] dark:shadow-[8px_8px_0px_0px_rgba(242,167,183,0.15)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#ffdde5] dark:hover:shadow-[4px_4px_0px_0px_rgba(242,167,183,0.15)] transition-all duration-300">
+            <div className="w-16 h-16 bg-primary-50 dark:bg-[#1d1d1d] rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-primary-100 dark:border-primary-800">
+              <RiShieldCheckLine size={32} className="text-primary-500" />
+            </div>
+            <h2 className="font-heading text-2xl md:text-3xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5] mb-4">
+              {thankYou.title}
+            </h2>
+            <p className="text-[#8E8A8A] dark:text-[#FFDDE5] max-w-2xl mx-auto leading-relaxed mb-10 text-sm md:text-base">
+              {thankYou.content}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              {thankYou.stats.map((stat) => (
+                <div key={stat.id} className="flex flex-col items-center group">
+                  <p className="text-3xl md:text-4xl font-heading font-bold text-primary-500 group-hover:scale-110 transition-transform">
+                    {stat.value}
+                  </p>
+                  <p className="text-[11px] md:text-xs uppercase tracking-wider text-[#8E8A8A] mt-2 font-medium">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
