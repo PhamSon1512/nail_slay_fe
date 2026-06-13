@@ -4,6 +4,8 @@ import { twMerge } from 'tailwind-merge';
 import { useTranslate } from '~/hooks';
 
 export { http } from './http';
+export * from './format';
+export * from './auth';
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -16,7 +18,7 @@ export function cn(...inputs: ClassValue[]) {
 export function metaBuilder(value: string) {
   const { __ } = useTranslate();
 
-  return [{ title: `${__(value)} | WinVu` }];
+  return [{ title: `${__(value)} | Nailslay` }];
 }
 
 export function convertType(value: string) {

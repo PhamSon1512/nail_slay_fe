@@ -10,7 +10,7 @@ export const http = xior.create({ baseURL: import.meta.env.VITE_HOST });
 // Add request interceptor to dynamically set Authorization header
 http.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('token') || localStorage.getItem('nailslay_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

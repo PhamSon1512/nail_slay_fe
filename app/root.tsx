@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import type { Route } from './+types/root';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { HeroUIProvider } from '@heroui/react';
+import { Toaster } from 'react-hot-toast';
+import { AuthBootstrap } from '~/components/AuthBootstrap';
 import './app.css';
 
 export const links: Route.LinksFunction = () => [
@@ -13,29 +15,35 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Dancing+Script:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap',
   },
   {
     rel: 'icon',
-    href: '/logo.svg',
-    type: 'image/svg+xml',
+    href: '/branding/logo-nailslay.png',
+    type: 'image/png',
     media: '(prefers-color-scheme: light)',
   },
   {
     rel: 'icon',
-    href: '/logo-white.svg',
-    type: 'image/svg+xml',
+    href: '/branding/logo-nailslay.png',
+    type: 'image/png',
     media: '(prefers-color-scheme: dark)',
   },
+  { rel: 'apple-touch-icon', href: '/branding/logo-nailslay.png' },
 ];
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <>
+      <AuthBootstrap />
+      <Outlet />
+    </>
+  );
 }
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="vi" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,7 +51,16 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        <HeroUIProvider>{children}</HeroUIProvider>
+        <HeroUIProvider>
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: { fontFamily: 'var(--font-sans)' },
+            }}
+          />
+        </HeroUIProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -58,7 +75,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? '404' : 'Error';
-    details = error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
+    details =
+      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

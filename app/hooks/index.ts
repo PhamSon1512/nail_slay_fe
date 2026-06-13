@@ -5,3 +5,5 @@ export { useTranslate } from './useTranslate';
 export { useEmbla } from './useEmbla';
 export { useLazyLoad } from './useLazyLoad';
 export { useSettings } from './useSettings';
+export { useRequireAuth } from './useRequireAuth';
+export { useHomepage } from './useHomepage';
