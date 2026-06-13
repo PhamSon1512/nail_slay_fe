@@ -8,7 +8,7 @@ import type { OrderRow } from '~/components/admin/OrderTable';
 import { fetchAdminOrders } from '~/utils/api/admin';
 import { adminInputClassNames, adminSelectClassNames } from '~/utils/adminForm';
 
-export const handle = { pageTitle: 'Quản lý đơn hàng' };
+export const handle = { pageTitle: 'Quản lý Đơn hàng' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Đơn hàng — NailSlay Admin' }];
 
 const STATUSES: { value: string; label: string }[] = [
@@ -103,7 +103,7 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-5 admin-surface">
       <AdminPageHeader
-        title="Quản lý đơn hàng"
+        title="Quản lý Đơn hàng"
         description={usingDemo ? 'Đang hiển thị 1 đơn mẫu — chưa có đơn hàng thật trong hệ thống.' : 'Danh sách đơn hàng từ hệ thống.'}
         actions={
           <Button variant="flat" startContent={<RiRefreshLine />} onPress={load}>

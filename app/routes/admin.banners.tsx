@@ -16,6 +16,7 @@ import {
 import toast from 'react-hot-toast';
 import { RiAddLine, RiArrowDownLine, RiArrowUpLine, RiDeleteBinLine } from 'react-icons/ri';
 import { AdminPageHeader } from '~/components';
+import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
 import type { BannerItem } from '~/data/homepage';
 import {
   createBanner,
@@ -198,20 +199,13 @@ export default function AdminBannersPage() {
             <>
               <ModalHeader className="text-[#1D1D1D] dark:text-[#FFF3F5]">Banner mới</ModalHeader>
               <ModalBody className="gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#1D1D1D]">
-                    Ảnh banner <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    key={createModal.isOpen ? 'open' : 'closed'}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    className="block w-full text-sm text-[#1D1D1D] file:mr-3 file:rounded-lg file:border-0 file:bg-primary-100 file:px-3 file:py-2 file:text-[#1D1D1D]"
-                    onChange={(e) => setDraft({ ...draft, imageFile: e.target.files?.[0] ?? null })}
+                <div className="pt-2 pb-2">
+                  <AdminImageUpload
+                    label="Ảnh banner"
+                    required
+                    previewUrl={draft.imageFile ? URL.createObjectURL(draft.imageFile) : undefined}
+                    onChange={(file) => setDraft({ ...draft, imageFile: file })}
                   />
-                  {draft.imageFile && (
-                    <img src={URL.createObjectURL(draft.imageFile)} alt="Preview" className="w-full max-h-44 object-cover rounded-xl mt-2" />
-                  )}
                 </div>
                 <Input
                   label="Liên kết (tuỳ chọn)"
@@ -296,14 +290,11 @@ function BannerEditor({
             </Button>
           </div>
         </div>
-        <img src={item.imageFile ? URL.createObjectURL(item.imageFile) : item.imageUrl} alt={`Banner ${index + 1}`} className="w-full max-h-44 object-cover rounded-xl" />
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#1D1D1D]">Đổi ảnh (tuỳ chọn)</label>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            className="block w-full text-sm text-[#1D1D1D] file:mr-3 file:rounded-lg file:border-0 file:bg-primary-100 file:px-3 file:py-2 file:text-[#1D1D1D]"
-            onChange={(e) => setItem({ ...item, imageFile: e.target.files?.[0] ?? null })}
+        <div className="pt-2">
+          <AdminImageUpload
+            label="Ảnh banner"
+            previewUrl={item.imageFile ? URL.createObjectURL(item.imageFile) : item.imageUrl}
+            onChange={(file) => setItem({ ...item, imageFile: file })}
           />
         </div>
         <Input

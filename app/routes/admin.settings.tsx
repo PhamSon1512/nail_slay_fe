@@ -13,7 +13,7 @@ import {
 } from '~/utils/api/admin';
 import { adminCardClass, adminInputClassNames, adminSelectClassNames } from '~/utils/adminForm';
 
-export const handle = { pageTitle: 'Cài đặt trang chủ' };
+export const handle = { pageTitle: 'Cài đặt Trang chủ' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Cài đặt - Admin Nailslay' }];
 
 const ICON_OPTIONS = [
@@ -85,7 +85,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-8 max-w-4xl admin-surface">
       <AdminPageHeader
-        title="Cài đặt trang chủ"
+        title="Cài đặt Trang chủ"
         description="Cấu hình các ô giới thiệu và sản phẩm nổi bật hiển thị trên trang chủ."
         actions={
           <Button color="primary" className="text-[#1D1D1D] font-semibold" isLoading={saving} onPress={save}>

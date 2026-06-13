@@ -23,7 +23,7 @@ export function StatsCard({
   const isPositive = change !== undefined && change >= 0;
 
   return (
-    <Card shadow="none" className="border border-primary-100/80 dark:border-[#4a3b42] bg-white/80 dark:bg-[#2a2226]">
+    <Card shadow="none" className="border border-primary-100/80 dark:border-[#4a3b42] bg-white/80 dark:bg-[#2a2226] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary-200">
       <CardBody className="flex flex-row items-center gap-4 p-5">
         {/* Icon */}
         <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center shrink-0', colorClass)}>

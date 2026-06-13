@@ -7,7 +7,7 @@ import { AdminPageHeader } from '~/components';
 import { fetchAdminUsers } from '~/utils/api/admin';
 import { adminInputClassNames, adminTableClassNames } from '~/utils/adminForm';
 
-export const handle = { pageTitle: 'Quản lý người dùng' };
+export const handle = { pageTitle: 'Quản lý Người dùng' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Người dùng - Admin Nailslay' }];
 
 export default function AdminUsersPage() {
@@ -34,7 +34,7 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6 admin-surface">
       <AdminPageHeader
-        title="Quản lý người dùng"
+        title="Quản lý Người dùng"
         actions={
           <Button variant="flat" startContent={<RiRefreshLine />} onPress={load}>
             Làm mới

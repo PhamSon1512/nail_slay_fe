@@ -4,17 +4,18 @@ import { Button, Card, CardBody, Input } from '@heroui/react';
 import toast from 'react-hot-toast';
 import { AdminPageHeader } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
+import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
 import { fetchBankSettings, updateBankSettings, type BankInfo } from '~/utils/api/admin';
 import { adminCardClass, adminInputClassNames } from '~/utils/adminForm';
 
-export const handle = { pageTitle: 'Cấu hình thanh toán QR' };
+export const handle = { pageTitle: 'Cấu hình Thanh toán QR' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Thanh toán QR - Admin Nailslay' }];
 
 export default function AdminPaymentPage() {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
-  const [transferContent, setTransferContent] = useState('NAILSLAY {order_id}');
+  const [transferContent, setTransferContent] = useState('');
   const [qrPreview, setQrPreview] = useState('');
   const [qrFile, setQrFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,31 +77,33 @@ export default function AdminPaymentPage() {
   return (
     <div className="space-y-6 admin-surface max-w-2xl">
       <AdminPageHeader
-        title="Cấu hình thanh toán QR"
+        title="Cấu hình Thanh toán QR"
         description="Mã QR và thông tin chuyển khoản hiển thị khi khách chọn thanh toán ngân hàng."
       />
 
       <Card shadow="none" className={adminCardClass}>
         <CardBody className="gap-4">
-          <Input label={<RequiredLabel required>Tên ngân hàng</RequiredLabel>} value={bankName} onValueChange={setBankName} classNames={adminInputClassNames} />
-          <Input label={<RequiredLabel required>Số tài khoản</RequiredLabel>} value={accountNumber} onValueChange={setAccountNumber} classNames={adminInputClassNames} />
-          <Input label={<RequiredLabel required>Chủ tài khoản</RequiredLabel>} value={accountName} onValueChange={setAccountName} classNames={adminInputClassNames} />
-          <Input label="Nội dung chuyển khoản" value={transferContent} onValueChange={setTransferContent} classNames={adminInputClassNames} />
-          <Input
-            type="file"
-            accept="image/*"
-            label={<RequiredLabel required={!qrPreview}>Ảnh mã QR</RequiredLabel>}
-            classNames={adminInputClassNames}
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              setQrFile(file);
-              if (file) setQrPreview(URL.createObjectURL(file));
-            }}
-          />
+          <Input label={<RequiredLabel required>Tên ngân hàng</RequiredLabel>} placeholder="VD: Vietcombank, MB Bank..." value={bankName} onValueChange={setBankName} classNames={adminInputClassNames} />
+          <Input label={<RequiredLabel required>Số tài khoản</RequiredLabel>} placeholder="VD: 0123456789" value={accountNumber} onValueChange={setAccountNumber} classNames={adminInputClassNames} />
+          <Input label={<RequiredLabel required>Chủ tài khoản</RequiredLabel>} placeholder="VD: NGUYEN VAN A" value={accountName} onValueChange={setAccountName} classNames={adminInputClassNames} />
+          <Input label="Nội dung chuyển khoản" placeholder="VD: NAILSLAY {order_id}" value={transferContent} onValueChange={setTransferContent} classNames={adminInputClassNames} />
+          
+          <div className="pt-2">
+            <AdminImageUpload
+              label="Ảnh mã QR"
+              required={!qrPreview}
+              previewUrl={qrPreview}
+              onChange={(file) => {
+                setQrFile(file);
+                if (file) setQrPreview(URL.createObjectURL(file));
+              }}
+            />
+          </div>
+
           {qrPreview ? (
-            <div className="flex flex-col items-center gap-2 pt-2">
-              <p className="text-xs text-[#8E8A8A]">Xem trước mã QR</p>
-              <img src={qrPreview} alt="Mã QR thanh toán" className="w-48 h-48 object-contain rounded-xl border border-primary-200 bg-white p-2" />
+            <div className="flex flex-col items-center gap-2 pt-2 border-t border-primary-100/50 mt-2">
+              <p className="text-xs text-[#8E8A8A] font-medium">Xem trước mã QR lớn</p>
+              <img src={qrPreview} alt="Mã QR thanh toán" className="w-48 h-48 object-contain rounded-xl border border-primary-200 bg-white p-2 shadow-sm" />
             </div>
           ) : null}
           <Button color="primary" className="text-[#1D1D1D] w-fit font-semibold" isLoading={saving} onPress={handleSave}>

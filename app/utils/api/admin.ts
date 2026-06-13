@@ -10,6 +10,19 @@ export type AdminCategory = {
   imageUrl: string | null;
 };
 
+export type AdminProductVariant = {
+  id: string;
+  productId: string;
+  sku: string | null;
+  name: string;
+  color: string | null;
+  size: string | null;
+  price: number;
+  stock: number;
+  imageUrl: string | null;
+  sortOrder: number;
+};
+
 export type AdminProduct = {
   id: string;
   categoryId: string;
@@ -17,12 +30,12 @@ export type AdminProduct = {
   name: string;
   slug: string;
   description: string | null;
+  status: 'active' | 'hidden' | 'draft';
   price: number;
   originalPrice: number | null;
-  sizeOptions: string[];
-  formOptions: string[];
   stock: number;
   imageUrls: string[];
+  variants?: AdminProductVariant[];
 };
 
 export type Paginated<T> = {

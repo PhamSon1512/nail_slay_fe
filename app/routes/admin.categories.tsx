@@ -23,6 +23,7 @@ import {
 } from 'react-icons/ri';
 import { AdminPageHeader } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
+import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
 import {
   createCategory,
   deleteCategory,
@@ -32,7 +33,7 @@ import {
 } from '~/utils/api/admin';
 import { adminInputClassNames, adminSelectClassNames } from '~/utils/adminForm';
 
-export const handle = { pageTitle: 'Quản lý danh mục' };
+export const handle = { pageTitle: 'Quản lý Danh mục' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Danh mục - Admin Nailslay' }];
 
 type FormState = {
@@ -41,6 +42,7 @@ type FormState = {
   slug: string;
   parentId: string;
   imageFile: File | null;
+  existingImageUrl?: string;
 };
 
 type SortKey = 'name-asc' | 'name-desc' | 'code-asc' | 'code-desc';
@@ -140,6 +142,7 @@ export default function AdminCategoriesPage() {
       slug: cat.slug,
       parentId: cat.parentId ?? '',
       imageFile: null,
+      existingImageUrl: cat.imageUrl,
     });
     formModal.onOpen();
   };
@@ -181,6 +184,13 @@ export default function AdminCategoriesPage() {
   const renderRow = (cat: AdminCategory, index: number, isChild = false) => (
     <tr key={cat.id} className={isChild ? 'bg-primary-50/30 dark:bg-[#241e22]' : 'hover:bg-primary-50/20'}>
       <td className="px-4 py-3 text-sm">{isChild ? '' : index + 1}</td>
+      <td className="px-4 py-3">
+        {cat.imageUrl ? (
+          <img src={cat.imageUrl} alt={cat.name} className="w-8 h-8 object-cover rounded-md shadow-sm" />
+        ) : (
+          <div className="w-8 h-8 bg-[#f5f5f5] dark:bg-[#1f1f1f] rounded-md border border-dashed border-gray-300"></div>
+        )}
+      </td>
       <td className="px-4 py-3 text-sm font-mono">{cat.code}</td>
       <td className={`px-4 py-3 text-sm font-medium ${isChild ? 'pl-10' : ''}`}>
         {isChild ? <span className="text-[#8E8A8A] mr-1">↳</span> : null}
@@ -203,7 +213,7 @@ export default function AdminCategoriesPage() {
   return (
     <div className="space-y-6 admin-surface">
       <AdminPageHeader
-        title="Quản lý danh mục"
+        title="Quản lý Danh mục"
         description="Bảng dạng cây — danh mục cha có thể mở rộng xem danh mục con."
         actions={
           <Button color="primary" className="text-[#1D1D1D] font-semibold" startContent={<RiAddLine />} onPress={openCreate}>
@@ -223,7 +233,7 @@ export default function AdminCategoriesPage() {
         />
         {!search.trim() ? (
           <Select
-            label="Sắp xếp"
+            placeholder="Sắp xếp"
             selectedKeys={new Set([sortKey])}
             onSelectionChange={(keys) => setSortKey(String(Array.from(keys)[0] ?? 'name-asc') as SortKey)}
             className="max-w-xs"
@@ -245,6 +255,7 @@ export default function AdminCategoriesPage() {
             <thead>
               <tr className="border-b border-primary-200/60 text-left text-xs uppercase tracking-wider text-[#8E8A8A]">
                 <th className="px-4 py-3 w-12">STT</th>
+                <th className="px-4 py-3 w-16">Ảnh</th>
                 <th className="px-4 py-3 w-24">Mã</th>
                 <th className="px-4 py-3">Tên danh mục</th>
                 <th className="px-4 py-3">Slug</th>
@@ -254,7 +265,7 @@ export default function AdminCategoriesPage() {
             <tbody>
               {rootCategories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-[#8E8A8A]">
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#8E8A8A]">
                     Chưa có danh mục
                   </td>
                 </tr>
@@ -281,6 +292,13 @@ export default function AdminCategoriesPage() {
                             )}
                             {index + 1}
                           </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {cat.imageUrl ? (
+                            <img src={cat.imageUrl} alt={cat.name} className="w-8 h-8 object-cover rounded-md shadow-sm" />
+                          ) : (
+                            <div className="w-8 h-8 bg-[#f5f5f5] dark:bg-[#1f1f1f] rounded-md border border-dashed border-gray-300"></div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm font-mono">{cat.code}</td>
                         <td className="px-4 py-3 text-sm font-medium">{cat.name}</td>
@@ -329,7 +347,13 @@ export default function AdminCategoriesPage() {
                       <SelectItem key={p.id}>{p.name}</SelectItem>
                     ))}
                 </Select>
-                <Input type="file" accept="image/*" label="Ảnh danh mục" classNames={adminInputClassNames} onChange={(e) => setForm({ ...form, imageFile: e.target.files?.[0] ?? null })} />
+                <div className="pt-2">
+                  <AdminImageUpload
+                    label="Ảnh danh mục"
+                    previewUrl={form.imageFile ? URL.createObjectURL(form.imageFile) : form.existingImageUrl}
+                    onChange={(file) => setForm({ ...form, imageFile: file })}
+                  />
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>Hủy</Button>

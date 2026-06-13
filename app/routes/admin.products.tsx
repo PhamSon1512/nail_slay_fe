@@ -23,6 +23,8 @@ import toast from 'react-hot-toast';
 import { RiAddLine, RiDeleteBinLine, RiEyeLine, RiPencilLine, RiSearchLine } from 'react-icons/ri';
 import { AdminPageHeader } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
+import { AdminMultipleImageUpload } from '~/components/admin/AdminMultipleImageUpload';
+import { CurrencyInput } from '~/components/admin/CurrencyInput';
 import {
   createProduct,
   deleteProduct,
@@ -35,7 +37,7 @@ import {
 import { adminInputClassNames, adminSelectClassNames, adminTableClassNames, adminTextareaClassNames } from '~/utils/adminForm';
 import { formatVND } from '~/utils/format';
 
-export const handle = { pageTitle: 'Quản lý sản phẩm' };
+export const handle = { pageTitle: 'Quản lý Sản phẩm' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Sản phẩm - Admin Nailslay' }];
 
 type FormState = {
@@ -44,13 +46,13 @@ type FormState = {
   name: string;
   slug: string;
   description: string;
+  status: string;
   price: string;
   originalPrice: string;
   stock: string;
-  sizeOptions: string;
-  formOptions: string;
   imageFiles: File[];
   existingImages: string[];
+  variants: Partial<AdminProductVariant>[];
 };
 
 type SortKey = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'stock-asc' | 'stock-desc';
@@ -61,13 +63,13 @@ const emptyForm = (): FormState => ({
   name: '',
   slug: '',
   description: '',
+  status: 'active',
   price: '',
   originalPrice: '',
   stock: '0',
-  sizeOptions: '["XS","S","M","L"]',
-  formOptions: '["Nhọn","Thang"]',
   imageFiles: [],
   existingImages: [],
+  variants: [],
 });
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
@@ -154,11 +156,11 @@ export default function AdminProductsPage() {
     fd.append('name', data.name);
     fd.append('slug', data.slug);
     if (data.description) fd.append('description', data.description);
+    fd.append('status', data.status);
     fd.append('price', data.price);
     if (data.originalPrice) fd.append('originalPrice', data.originalPrice);
     fd.append('stock', data.stock);
-    fd.append('sizeOptions', data.sizeOptions);
-    fd.append('formOptions', data.formOptions);
+    fd.append('variants', JSON.stringify(data.variants));
     fd.append('existingImages', JSON.stringify(data.existingImages));
     for (const file of data.imageFiles) fd.append('images', file);
     return fd;
@@ -178,13 +180,13 @@ export default function AdminProductsPage() {
       name: p.name,
       slug: p.slug,
       description: p.description ?? '',
+      status: p.status ?? 'active',
       price: String(p.price),
       originalPrice: String(p.originalPrice ?? p.price),
       stock: String(p.stock),
-      sizeOptions: JSON.stringify(p.sizeOptions ?? []),
-      formOptions: JSON.stringify(p.formOptions ?? []),
       imageFiles: [],
       existingImages: p.imageUrls ?? [],
+      variants: p.variants ?? [],
     });
     formModal.onOpen();
   };
@@ -231,7 +233,7 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6 admin-surface">
       <AdminPageHeader
-        title="Quản lý sản phẩm"
+        title="Quản lý Sản phẩm"
         description="Danh sách sản phẩm dạng bảng — tìm kiếm, lọc và sắp xếp."
         actions={
           <Button color="primary" className="text-[#1D1D1D] font-semibold" startContent={<RiAddLine />} onPress={openCreate}>
@@ -269,7 +271,7 @@ export default function AdminProductsPage() {
           ))}
         </Select>
         <Select
-          label="Sắp xếp"
+          placeholder="Sắp xếp"
           selectedKeys={new Set([sortKey])}
           onSelectionChange={(keys) => setSortKey(String(Array.from(keys)[0] ?? 'name-asc') as SortKey)}
           className="max-w-xs"
@@ -288,6 +290,7 @@ export default function AdminProductsPage() {
           <Table aria-label="Danh sách sản phẩm" removeWrapper classNames={adminTableClassNames}>
             <TableHeader>
               <TableColumn>STT</TableColumn>
+              <TableColumn>Ảnh</TableColumn>
               <TableColumn>SKU</TableColumn>
               <TableColumn>Tên sản phẩm</TableColumn>
               <TableColumn>Danh mục</TableColumn>
@@ -299,6 +302,13 @@ export default function AdminProductsPage() {
               {filteredProducts.map((p, index) => (
                 <TableRow key={p.id} className="cursor-pointer hover:bg-primary-50/40" onClick={() => openDetail(p)}>
                   <TableCell>{index + 1}</TableCell>
+                  <TableCell>
+                    {p.imageUrls && p.imageUrls[0] ? (
+                      <img src={p.imageUrls[0]} alt={p.name} className="w-10 h-10 object-cover rounded-md shadow-sm" />
+                    ) : (
+                      <div className="w-10 h-10 bg-[#f5f5f5] dark:bg-[#1f1f1f] rounded-md border border-dashed border-gray-300"></div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-mono text-xs">{p.sku}</TableCell>
                   <TableCell className="font-medium max-w-[220px]">{p.name}</TableCell>
                   <TableCell>{categoryMap.get(p.categoryId) ?? '—'}</TableCell>
@@ -347,13 +357,62 @@ export default function AdminProductsPage() {
                 <Input label={<RequiredLabel required>SKU</RequiredLabel>} value={form.sku} onValueChange={(v) => setForm({ ...form, sku: v })} classNames={adminInputClassNames} />
                 <Input label={<RequiredLabel required>Tên</RequiredLabel>} value={form.name} onValueChange={(v) => setForm({ ...form, name: v })} classNames={adminInputClassNames} />
                 <Input label={<RequiredLabel required>Slug</RequiredLabel>} value={form.slug} onValueChange={(v) => setForm({ ...form, slug: v })} classNames={adminInputClassNames} />
-                <Input label={<RequiredLabel required>Giá bán (VND)</RequiredLabel>} value={form.price} onValueChange={(v) => setForm({ ...form, price: v })} classNames={adminInputClassNames} />
-                <Input label="Giá gốc (VND)" value={form.originalPrice} onValueChange={(v) => setForm({ ...form, originalPrice: v })} classNames={adminInputClassNames} />
-                <Input label="Tồn kho" value={form.stock} onValueChange={(v) => setForm({ ...form, stock: v })} classNames={adminInputClassNames} />
-                <Input label="Size (JSON array)" value={form.sizeOptions} onValueChange={(v) => setForm({ ...form, sizeOptions: v })} classNames={adminInputClassNames} />
-                <Input label="Form móng (JSON array)" value={form.formOptions} onValueChange={(v) => setForm({ ...form, formOptions: v })} classNames={adminInputClassNames} />
-                <Textarea label="Mô tả" className="md:col-span-2" value={form.description} onValueChange={(v) => setForm({ ...form, description: v })} classNames={adminTextareaClassNames} />
-                <Input type="file" accept="image/*" multiple label="Ảnh sản phẩm (tối đa 5)" className="md:col-span-2" classNames={adminInputClassNames} onChange={(e) => setForm({ ...form, imageFiles: Array.from(e.target.files ?? []).slice(0, 5) })} />
+                <Select
+                  label="Trạng thái"
+                  selectedKeys={form.status ? new Set([form.status]) : new Set(['active'])}
+                  onSelectionChange={(keys) => setForm({ ...form, status: String(Array.from(keys)[0] ?? 'active') })}
+                  classNames={adminSelectClassNames}
+                >
+                  <SelectItem key="active">Đang bán</SelectItem>
+                  <SelectItem key="hidden">Đã ẩn</SelectItem>
+                  <SelectItem key="draft">Nháp</SelectItem>
+                </Select>
+                <CurrencyInput label={<RequiredLabel required>Giá bán (VND)</RequiredLabel>} value={form.price} onValueChange={(v) => setForm({ ...form, price: v })} classNames={adminInputClassNames} />
+                <CurrencyInput label="Giá gốc (VND)" value={form.originalPrice} onValueChange={(v) => setForm({ ...form, originalPrice: v })} classNames={adminInputClassNames} />
+                <Input label="Tồn kho tổng" value={form.stock} onValueChange={(v) => setForm({ ...form, stock: v })} classNames={adminInputClassNames} />
+                <Textarea label={<RequiredLabel required>Mô tả sản phẩm</RequiredLabel>} className="md:col-span-2" value={form.description} onValueChange={(v) => setForm({ ...form, description: v })} classNames={adminTextareaClassNames} />
+                
+                <div className="md:col-span-2 border border-primary-200 rounded-xl p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Biến thể sản phẩm (Màu sắc, Size)</h4>
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={<RiAddLine />}
+                      onPress={() => setForm({ ...form, variants: [...form.variants, { sku: '', name: '', color: '', size: '', price: Number(form.price) || 0, stock: 0 }] })}
+                    >
+                      Thêm biến thể
+                    </Button>
+                  </div>
+                  {form.variants.length === 0 ? (
+                    <p className="text-sm text-[#8E8A8A]">Chưa có biến thể nào. Sản phẩm sẽ sử dụng giá và tồn kho chung.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {form.variants.map((v, i) => (
+                        <div key={i} className="flex flex-wrap items-center gap-2 p-3 bg-[#f9f9f9] dark:bg-[#1f1f1f] rounded-lg border border-gray-200 dark:border-gray-800">
+                          <Input size="sm" placeholder="SKU biến thể" value={v.sku ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].sku = val; setForm({ ...form, variants: arr }); }} className="w-24" />
+                          <Input size="sm" placeholder="Tên (VD: Màu đỏ)" value={v.name ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].name = val; setForm({ ...form, variants: arr }); }} className="w-32" />
+                          <Input size="sm" placeholder="Màu" value={v.color ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].color = val; setForm({ ...form, variants: arr }); }} className="w-20" />
+                          <Input size="sm" placeholder="Size" value={v.size ?? ''} onValueChange={(val) => { const arr = [...form.variants]; arr[i].size = val; setForm({ ...form, variants: arr }); }} className="w-16" />
+                          <CurrencyInput size="sm" placeholder="Giá" value={String(v.price ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].price = Number(val); setForm({ ...form, variants: arr }); }} className="w-24" />
+                          <Input size="sm" placeholder="Tồn" value={String(v.stock ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].stock = Number(val); setForm({ ...form, variants: arr }); }} className="w-16" />
+                          <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => { const arr = [...form.variants]; arr.splice(i, 1); setForm({ ...form, variants: arr }); }}>
+                            <RiDeleteBinLine />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="md:col-span-2 pt-2">
+                  <AdminMultipleImageUpload
+                    label="Ảnh sản phẩm (tối đa 5)"
+                    maxFiles={5}
+                    previewUrls={[...form.existingImages, ...form.imageFiles.map(f => URL.createObjectURL(f))]}
+                    onChange={(files) => setForm({ ...form, imageFiles: files, existingImages: files.length > 0 ? [] : form.existingImages })}
+                  />
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>Hủy</Button>

@@ -35,34 +35,17 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
 
       <div className="flex-1" />
 
-      <div className="flex items-center gap-2">
-        <Link to="/" className="hidden md:flex items-center gap-2 group">
-          <img
-            src={BRAND.assets.logo}
-            alt={BRAND.name}
-            className="brand-logo-ring !w-9 !h-9 transition-transform group-hover:scale-105"
-          />
-        </Link>
-
+      <div className="flex items-center gap-4">
         <Button
           as={Link}
           to="/"
           size="sm"
-          variant="light"
+          color="primary"
+          variant="solid"
           startContent={<RiExternalLinkLine size={14} />}
-          className="hidden sm:flex text-[#8E8A8A] dark:text-[#FFDDE5] text-xs"
+          className="hidden sm:flex text-xs font-medium mr-2 shadow-sm"
         >
           Xem cửa hàng
-        </Button>
-
-        <Button
-          isIconOnly
-          variant="light"
-          size="sm"
-          aria-label="Thông báo"
-          className="text-[#8E8A8A] dark:text-[#FFDDE5]"
-        >
-          <RiBellLine size={18} />
         </Button>
 
         <Dropdown placement="bottom-end">

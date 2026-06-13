@@ -58,7 +58,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <img
             src={BRAND.assets.logo}
             alt={BRAND.name}
-            className="brand-logo-ring-on-dark !w-9 !h-9 shrink-0"
+            className="bg-white rounded-full border border-primary-500 !w-9 !h-9 shrink-0 object-contain p-0.5"
           />
           {isOpen ? (
             <span className="font-heading font-bold text-lg text-white whitespace-nowrap">
