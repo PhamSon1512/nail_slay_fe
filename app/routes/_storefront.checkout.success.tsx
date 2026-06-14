@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, Card, CardBody } from '@heroui/react';
 import { Link, useLocation, useSearchParams } from 'react-router';
 import type { CheckoutResponse } from '~/utils/api/orders';
+import { fetchUserOrder } from '~/utils/api/orders';
 import { fetchPublicSettings } from '~/utils/api/settings';
 import { formatVND } from '~/utils/format';
 
@@ -15,6 +16,15 @@ export default function CheckoutSuccessPage() {
   const orderId = searchParams.get('orderId') ?? '';
   const checkout = (location.state as { checkout?: CheckoutResponse } | null)?.checkout;
   const [fallbackBank, setFallbackBank] = useState<Record<string, string>>({});
+  const [orderTotal, setOrderTotal] = useState<number | null>(checkout?.order.total_amount ?? null);
+
+  useEffect(() => {
+    if (orderId && !checkout) {
+      fetchUserOrder(orderId)
+        .then((order) => setOrderTotal(order.totalAmount))
+        .catch(() => setOrderTotal(null));
+    }
+  }, [orderId, checkout]);
 
   useEffect(() => {
     if (checkout?.payment.qr_code_url) return;
@@ -36,7 +46,22 @@ export default function CheckoutSuccessPage() {
 
   const bankInfo = checkout?.payment.bank_info ?? fallbackBank;
   const qrUrl = checkout?.payment.qr_code_url || bankInfo.qr_code_url || '';
-  const total = checkout?.order.total_amount ?? 0;
+  const total = checkout?.order.total_amount ?? orderTotal ?? 0;
+  const transferContent =
+    bankInfo.transfer_content?.includes('{order_id}') && orderId
+      ? bankInfo.transfer_content.replace('{order_id}', orderId)
+      : bankInfo.transfer_content ?? orderId;
+
+  if (!orderId) {
+    return (
+      <div className="container py-16 text-center space-y-4">
+        <h1 className="font-heading text-2xl">Không tìm thấy đơn hàng</h1>
+        <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+          Tiếp tục mua sắm
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-16 relative overflow-hidden">
@@ -65,7 +90,7 @@ export default function CheckoutSuccessPage() {
                 <span className="text-[#8E8A8A]">Chủ TK</span>
                 <span className="font-semibold">{bankInfo.account_name}</span>
                 <span className="text-[#8E8A8A]">Nội dung CK</span>
-                <span className="font-semibold break-all">{bankInfo.transfer_content}</span>
+                <span className="font-semibold break-all">{transferContent}</span>
               </div>
             ) : null}
             {qrUrl ? (

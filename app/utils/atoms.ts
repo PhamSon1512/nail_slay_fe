@@ -12,6 +12,8 @@ export type CartItem = {
   quantity: number;
   slug: string;
   imageUrl?: string;
+  stock?: number;
+  variantId?: string;
 };
 
 export const cartAtom = atomWithStorage<CartItem[]>('nailslay_cart', []);
@@ -25,10 +27,6 @@ export const cartSubtotalAtom = atom((get) =>
 );
 
 export const cartTotalAtom = cartSubtotalAtom;
-
-export const cartVatAtom = atom((get) => Math.round(get(cartSubtotalAtom) * 0.1));
-
-export const cartGrandTotalAtom = atom((get) => get(cartSubtotalAtom) + get(cartVatAtom));
 
 export const serverCartItemsAtom = atom<ServerCartItem[]>([]);
 export const serverCartSubtotalAtom = atom(0);

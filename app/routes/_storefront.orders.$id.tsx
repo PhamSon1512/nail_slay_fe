@@ -44,6 +44,7 @@ export default function UserOrderDetailPage() {
   const { authUser } = useRequireAuth();
   const [order, setOrder] = useState<UserOrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [bankInfo, setBankInfo] = useState<Record<string, string>>({});
   const [qrUrl, setQrUrl] = useState('');
@@ -62,7 +63,11 @@ export default function UserOrderDetailPage() {
     if (!authUser || !id) return;
     fetchUserOrder(id)
       .then(setOrder)
-      .catch(() => {
+      .catch((err: { response?: { status?: number } }) => {
+        if (err?.response?.status === 404) {
+          setNotFound(true);
+          return;
+        }
         toast.error('Không tải được đơn hàng');
         navigate('/orders');
       })
@@ -163,7 +168,17 @@ export default function UserOrderDetailPage() {
     return <div className="container py-20 text-center text-sm text-[#8E8A8A]">Đang tải...</div>;
   }
 
-  if (!order) return null;
+  if (notFound || !order) {
+    return (
+      <div className="container py-20 text-center space-y-4">
+        <h1 className="section-title">Không tìm thấy đơn hàng</h1>
+        <p className="text-sm text-[#8E8A8A]">Đơn hàng không tồn tại hoặc bạn không có quyền xem.</p>
+        <Button as={Link} to="/orders" color="primary" className="text-[#1D1D1D] font-semibold">
+          Quay lại danh sách
+        </Button>
+      </div>
+    );
+  }
 
   const nextActions = getUserNextStatuses(order.status);
 

@@ -128,6 +128,9 @@ export default function AdminCategoriesPage() {
     fd.append('slug', data.slug);
     if (data.parentId) fd.append('parentId', data.parentId);
     if (data.imageFile) fd.append('image', data.imageFile);
+    if (editingId && !data.imageFile && !data.existingImageUrl) {
+      fd.append('remove_image', 'true');
+    }
     return fd;
   };
 

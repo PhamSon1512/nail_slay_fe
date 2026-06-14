@@ -1,12 +1,7 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useCallback, useEffect, useState } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import toast from 'react-hot-toast';
-import {
-  authUserAtom,
-  cartAtom,
-  serverCartItemsAtom,
-  serverCartSubtotalAtom,
-} from '~/utils/atoms';
+import { authUserAtom, serverCartItemsAtom, serverCartSubtotalAtom } from '~/utils/atoms';
 import type { CartItem } from '~/utils/api/cart';
 import {
   addCartItem,
@@ -21,13 +16,11 @@ function calcSubtotal(items: CartItem[]) {
 
 export function useServerCart() {
   const authUser = useAtomValue(authUserAtom);
-  const [localCart, setLocalCart] = useAtom(cartAtom);
   const items = useAtomValue(serverCartItemsAtom);
   const subtotal = useAtomValue(serverCartSubtotalAtom);
   const setItems = useSetAtom(serverCartItemsAtom);
   const setSubtotal = useSetAtom(serverCartSubtotalAtom);
   const [loading, setLoading] = useState(false);
-  const mergedRef = useRef(false);
 
   const refresh = useCallback(async () => {
     if (!authUser) {
@@ -49,36 +42,16 @@ export function useServerCart() {
   }, [authUser, setItems, setSubtotal]);
 
   useEffect(() => {
-    if (!authUser) {
-      mergedRef.current = false;
-      void refresh();
-      return;
-    }
-    if (mergedRef.current || localCart.length === 0) {
-      void refresh();
-      return;
-    }
-    mergedRef.current = true;
-    (async () => {
-      for (const item of localCart) {
-        try {
-          await addCartItem(item.id, item.quantity);
-        } catch {
-          // skip invalid items
-        }
-      }
-      setLocalCart([]);
-      await refresh();
-    })();
-  }, [authUser, localCart, refresh, setLocalCart]);
+    void refresh();
+  }, [refresh]);
 
   const applyOptimistic = (nextItems: CartItem[]) => {
     setItems(nextItems);
     setSubtotal(calcSubtotal(nextItems));
   };
 
-  const add = async (productId: string, quantity = 1) => {
-    await addCartItem(productId, quantity);
+  const add = async (productId: string, quantity = 1, variantId?: string) => {
+    await addCartItem(productId, quantity, variantId);
     toast.success('Đã thêm vào giỏ hàng');
     await refresh();
   };
@@ -120,16 +93,20 @@ export function useServerCart() {
     toast.success('Đã xóa khỏi giỏ');
   };
 
-  const changeProductQty = async (productId: string, delta: number) => {
+  const changeProductQty = async (productId: string, delta: number, variantId?: string) => {
     const resolveItem = async () => {
-      const cached = items.find((entry) => entry.product.id === productId);
+      const cached = items.find(
+        (entry) => entry.product.id === productId && (entry.variantId ?? undefined) === variantId,
+      );
       if (cached?.id) return cached;
 
       try {
         const data = await fetchCart();
         setItems(data.items);
         setSubtotal(data.subtotal);
-        return data.items.find((entry) => entry.product.id === productId);
+        return data.items.find(
+          (entry) => entry.product.id === productId && (entry.variantId ?? undefined) === variantId,
+        );
       } catch {
         return undefined;
       }

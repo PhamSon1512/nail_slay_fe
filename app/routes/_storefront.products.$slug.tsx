@@ -1,10 +1,13 @@
 import type { Route } from './+types/_storefront.products.$slug';
-import { useEffect, useState } from 'react';
-import { Badge, Button, Chip, Divider } from '@heroui/react';
-import { RiArrowLeftLine, RiHeartLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
+import { useEffect, useMemo, useState } from 'react';
+import { Badge, Button, Divider } from '@heroui/react';
+import { useAtom, useAtomValue } from 'jotai';
+import toast from 'react-hot-toast';
+import { RiArrowLeftLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
 import { Link } from 'react-router';
 import { AutoSlideGallery, ProductCard } from '~/components';
 import { useRequireAuth, useServerCart } from '~/hooks';
+import { authUserAtom, cartAtom } from '~/utils/atoms';
 import { fetchStoreProduct, fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
 import { formatVND } from '~/utils/format';
 
@@ -23,12 +26,29 @@ type ProductVariant = {
 };
 
 export default function ProductDetailPage({ params }: Route.ComponentProps) {
+  const authUser = useAtomValue(authUserAtom);
+  const [localCart, setLocalCart] = useAtom(cartAtom);
   const { requireAuth } = useRequireAuth();
   const { add } = useServerCart();
   const [product, setProduct] = useState<(StoreProduct & { variants?: ProductVariant[] }) | null>(null);
   const [related, setRelated] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+
+  const variants = product?.variants ?? [];
+  const selectedVariant = useMemo(
+    () => variants.find((v) => v.id === selectedVariantId) ?? null,
+    [variants, selectedVariantId],
+  );
+  const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
+  const displayStock = selectedVariant?.stock ?? product?.stock ?? 0;
+
+  useEffect(() => {
+    if (variants.length > 0 && !selectedVariantId) {
+      setSelectedVariantId(variants[0]?.id ?? null);
+    }
+  }, [variants, selectedVariantId]);
 
   useEffect(() => {
     if (!params.slug) return;
@@ -61,16 +81,52 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
   }
 
   const images = (product.imageUrls?.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5);
-  const variants = product.variants ?? [];
 
   const addToCart = () => {
-    requireAuth(async () => {
-      try {
-        await add(product.id, qty);
-      } catch {
-        // interceptor
-      }
-    });
+    if (variants.length > 0 && !selectedVariantId) {
+      toast.error('Vui lòng chọn biến thể');
+      return;
+    }
+    if (displayStock <= 0) return;
+
+    if (authUser) {
+      requireAuth(async () => {
+        try {
+          await add(product.id, qty, selectedVariantId ?? undefined);
+        } catch {
+          // interceptor
+        }
+      });
+      return;
+    }
+
+    const existing = localCart.find((item) =>
+      selectedVariantId ? item.id === product.id && item.variantId === selectedVariantId : item.id === product.id,
+    );
+    if (existing) {
+      setLocalCart(
+        localCart.map((item) =>
+          (selectedVariantId ? item.variantId === selectedVariantId && item.id === product.id : item.id === product.id)
+            ? { ...item, quantity: Math.min(displayStock, item.quantity + qty) }
+            : item,
+        ),
+      );
+    } else {
+      setLocalCart([
+        ...localCart,
+        {
+          id: product.id,
+          variantId: selectedVariantId ?? undefined,
+          name: selectedVariant ? `${product.name} — ${selectedVariant.name}` : product.name,
+          price: displayPrice,
+          quantity: Math.min(displayStock, qty),
+          slug: product.slug,
+          imageUrl: images[0],
+          stock: displayStock,
+        },
+      ]);
+    }
+    toast.success('Đã thêm vào giỏ hàng');
   };
 
   return (
@@ -103,9 +159,9 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
 
           <div className="flex items-end gap-3">
             <span className="font-heading text-3xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-              {formatVND(product.price)}
+              {formatVND(displayPrice)}
             </span>
-            {product.originalPrice && product.originalPrice > product.price ? (
+            {product.originalPrice && product.originalPrice > displayPrice ? (
               <span className="text-sm text-[#8E8A8A] line-through">{formatVND(product.originalPrice)}</span>
             ) : null}
           </div>
@@ -119,17 +175,28 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
           <Divider />
 
           <p className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">
-            <strong>Tồn kho:</strong> {product.stock}
+            <strong>Tồn kho:</strong> {displayStock}
           </p>
 
           {variants.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Biến thể</p>
+              <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Chọn biến thể</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v) => (
-                  <Chip key={v.id} size="sm" variant="flat">
-                    {[v.name, v.color, v.size].filter(Boolean).join(' · ')} — {formatVND(v.price)} (SL: {v.stock})
-                  </Chip>
+                  <Button
+                    key={v.id}
+                    size="sm"
+                    variant={selectedVariantId === v.id ? 'solid' : 'bordered'}
+                    color={selectedVariantId === v.id ? 'primary' : 'default'}
+                    className={selectedVariantId === v.id ? 'text-[#1D1D1D]' : ''}
+                    onPress={() => {
+                      setSelectedVariantId(v.id);
+                      setQty(1);
+                    }}
+                    isDisabled={v.stock <= 0}
+                  >
+                    {[v.name, v.color, v.size].filter(Boolean).join(' · ')} — {formatVND(v.price)}
+                  </Button>
                 ))}
               </div>
             </div>
@@ -140,7 +207,7 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
             <div className="flex items-center border border-primary-200 rounded-lg overflow-hidden">
               <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
               <span className="px-4 py-2">{qty}</span>
-              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.min(product.stock, qty + 1))}>+</button>
+              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.min(displayStock, qty + 1))}>+</button>
             </div>
           </div>
 
@@ -149,14 +216,11 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
               color="primary"
               size="lg"
               onPress={addToCart}
-              isDisabled={product.stock <= 0}
+              isDisabled={displayStock <= 0}
               startContent={<RiShoppingBag3Line size={18} />}
               className="font-semibold text-[#1D1D1D]"
             >
               Thêm vào giỏ
-            </Button>
-            <Button isIconOnly variant="bordered" aria-label="Yêu thích">
-              <RiHeartLine size={18} />
             </Button>
           </div>
 

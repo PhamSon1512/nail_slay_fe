@@ -12,6 +12,7 @@ export type CartProduct = {
 export type CartItem = {
   id: string;
   quantity: number;
+  variantId?: string | null;
   product: CartProduct;
 };
 
@@ -40,6 +41,7 @@ function mapCartItem(raw: Record<string, unknown>): CartItem {
   return {
     id: String(raw.id ?? raw.cart_item_id ?? raw.cartItemId ?? ''),
     quantity: Number(raw.quantity ?? 0),
+    variantId: (raw.variant_id ?? raw.variantId ?? null) as string | null,
     product: {
       id: productId,
       name: String(productRaw.name ?? ''),
@@ -68,8 +70,12 @@ export async function fetchCart() {
   };
 }
 
-export async function addCartItem(productId: string, quantity = 1) {
-  const { data } = await http.post('/cart', { product_id: productId, quantity });
+export async function addCartItem(productId: string, quantity = 1, variantId?: string) {
+  const { data } = await http.post('/cart', {
+    product_id: productId,
+    quantity,
+    ...(variantId ? { variant_id: variantId } : {}),
+  });
   return data;
 }
 

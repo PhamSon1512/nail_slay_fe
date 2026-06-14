@@ -1,11 +1,11 @@
 import type { Route } from './+types/_storefront.cart';
 import { Link } from 'react-router';
-import { Button, Card, CardBody, Divider } from '@heroui/react';
+import { Button, Card, CardBody } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri';
 import { useServerCart } from '~/hooks';
-import { authUserAtom, cartAtom, cartSubtotalAtom, cartVatAtom } from '~/utils/atoms';
-import { calcVat, formatVND } from '~/utils/format';
+import { authUserAtom, cartAtom, cartSubtotalAtom } from '~/utils/atoms';
+import { formatVND, calcVatIncluded } from '~/utils/format';
 
 export const handle = { pageTitle: 'Giỏ hàng' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Giỏ hàng - Nailslay' }];
@@ -14,23 +14,22 @@ export default function CartPage() {
   const authUser = useAtomValue(authUserAtom);
   const [localCart, setLocalCart] = useAtom(cartAtom);
   const localSubtotal = useAtomValue(cartSubtotalAtom);
-  const localVat = useAtomValue(cartVatAtom);
   const { items, subtotal, loading, updateQty, remove } = useServerCart();
 
   const usingServer = !!authUser;
   const isEmpty = usingServer ? items.length === 0 : localCart.length === 0;
-  const displaySubtotal = usingServer ? subtotal : localSubtotal;
-  const displayVat = usingServer ? calcVat(subtotal) : localVat;
-  const displayTotal = displaySubtotal + displayVat;
+  const displayTotal = usingServer ? subtotal : localSubtotal;
+  const vatIncluded = calcVatIncluded(displayTotal);
 
-  const updateLocalQty = (productId: string, nextQty: number) => {
+  const updateLocalQty = (productId: string, nextQty: number, maxStock?: number) => {
     if (nextQty <= 0) {
       setLocalCart(localCart.filter((item) => item.id !== productId));
       return;
     }
+    const capped = maxStock !== undefined ? Math.min(nextQty, maxStock) : nextQty;
     setLocalCart(
       localCart.map((item) =>
-        item.id === productId ? { ...item, quantity: nextQty } : item,
+        item.id === productId ? { ...item, quantity: capped } : item,
       ),
     );
   };
@@ -144,7 +143,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           className="w-8 h-8 flex items-center justify-center hover:bg-primary-50"
-                          onClick={() => updateLocalQty(item.id, item.quantity + 1)}
+                          onClick={() => updateLocalQty(item.id, item.quantity + 1, item.stock)}
                           aria-label="Tăng số lượng"
                         >
                           <RiAddLine size={14} />
@@ -170,17 +169,21 @@ export default function CartPage() {
         <Card shadow="none" className="border border-primary-200/70 bg-white/80 dark:bg-[#2a2226] sticky top-24">
           <CardBody className="space-y-4">
             <h2 className="font-heading font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Tóm tắt đơn hàng</h2>
-            <div className="flex justify-between text-sm">
-              <span className="text-[#8E8A8A]">Tạm tính</span>
-              <span>{formatVND(displaySubtotal)}</span>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-[#8E8A8A]">Tạm tính</span>
+                <span className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">{formatVND(displayTotal)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#8E8A8A]">Trong đó thuế VAT (10%)</span>
+                <span className="text-[#8E8A8A]">{formatVND(vatIncluded)}</span>
+              </div>
+              <p className="text-xs text-[#8E8A8A] leading-relaxed">
+                Giá sản phẩm đã bao gồm thuế VAT 10%. Số tiền thanh toán không cộng thêm VAT.
+              </p>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[#8E8A8A]">Thuế VAT (10%)</span>
-              <span>{formatVND(displayVat)}</span>
-            </div>
-            <Divider />
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-[#8E8A8A]">Tổng cộng</span>
+            <div className="flex justify-between items-center pt-1 border-t border-primary-100/80">
+              <span className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">Tổng thanh toán</span>
               <span className="text-2xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
                 {formatVND(displayTotal)}
               </span>

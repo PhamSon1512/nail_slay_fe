@@ -41,9 +41,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const addToLocalCart = () => {
     if (localItem) {
+      const maxStock = product.stock ?? Number.POSITIVE_INFINITY;
       setLocalCart(
         localCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
+          item.id === product.id
+            ? { ...item, quantity: Math.min(maxStock, item.quantity + 1), stock: product.stock }
+            : item,
         ),
       );
     } else {
@@ -56,6 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
           quantity: 1,
           slug: product.slug,
           imageUrl: thumb,
+          stock: product.stock,
         },
       ]);
     }
@@ -70,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     setLocalCart(
       localCart.map((item) =>
-        item.id === product.id ? { ...item, quantity: nextQty } : item,
+        item.id === product.id ? { ...item, quantity: nextQty, stock: product.stock } : item,
       ),
     );
   };
@@ -92,6 +96,8 @@ export function ProductCard({ product }: ProductCardProps) {
     if (isOutOfStock) return;
     if (authUser) {
       try {
+        const maxStock = serverItem?.product.stock ?? product.stock;
+        if (maxStock !== undefined && serverItem && serverItem.quantity >= maxStock) return;
         if (serverItem) {
           await changeProductQty(product.id, 1);
         } else {

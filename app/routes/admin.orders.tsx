@@ -83,16 +83,18 @@ export default function AdminOrdersPage() {
       const matchStatus = !statusFilter || o.status === statusFilter;
       return matchSearch && matchStatus;
     });
-    const demoMatches =
-      (!search ||
-        DEMO_ORDER_ROW.userEmail.toLowerCase().includes(search.toLowerCase()) ||
-        DEMO_ORDER_ID.includes(search.toLowerCase()) ||
-        search.toLowerCase().includes('mẫu') ||
-        search.toLowerCase().includes('mau') ||
-        search.toLowerCase().includes('demo')) &&
-      (!statusFilter || DEMO_ORDER_ROW.status === statusFilter);
-    if (demoMatches && !base.some((o) => o.id === DEMO_ORDER_ID)) {
-      return [DEMO_ORDER_ROW, ...base];
+    if (import.meta.env.DEV) {
+      const demoMatches =
+        (!search ||
+          DEMO_ORDER_ROW.userEmail.toLowerCase().includes(search.toLowerCase()) ||
+          DEMO_ORDER_ID.includes(search.toLowerCase()) ||
+          search.toLowerCase().includes('mẫu') ||
+          search.toLowerCase().includes('mau') ||
+          search.toLowerCase().includes('demo')) &&
+        (!statusFilter || DEMO_ORDER_ROW.status === statusFilter);
+      if (demoMatches && !base.some((o) => o.id === DEMO_ORDER_ID)) {
+        return [DEMO_ORDER_ROW, ...base];
+      }
     }
     return base;
   }, [orders, search, statusFilter]);

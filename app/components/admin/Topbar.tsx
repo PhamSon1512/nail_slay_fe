@@ -1,8 +1,8 @@
 import { Avatar, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
 import { useAtom } from 'jotai';
-import { RiBellLine, RiExternalLinkLine, RiLogoutBoxLine, RiMenuLine } from 'react-icons/ri';
-import { Link } from 'react-router';
-import { BRAND } from '~/data';
+import { RiExternalLinkLine, RiLogoutBoxLine, RiMenuLine } from 'react-icons/ri';
+import { Link, useNavigate } from 'react-router';
+import { useLogout } from '~/hooks';
 import { authUserAtom } from '~/utils/atoms';
 
 interface TopbarProps {
@@ -11,6 +11,8 @@ interface TopbarProps {
 
 export function Topbar({ onMenuToggle }: TopbarProps) {
   const [authUser] = useAtom(authUserAtom);
+  const logout = useLogout();
+  const navigate = useNavigate();
 
   const displayName = authUser?.fullName ?? authUser?.email ?? 'Admin';
   const initials = displayName
@@ -19,6 +21,11 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
     .slice(0, 2)
     .join('')
     .toUpperCase();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <header className="site-header h-16 flex items-center justify-between px-4 gap-4 sticky top-0 z-10 supports-[backdrop-filter]:bg-white/92 dark:supports-[backdrop-filter]:bg-[#2a2226]/92">
@@ -63,7 +70,12 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
             <DropdownItem key="name" isReadOnly className="opacity-70 text-xs text-[#1D1D1D] dark:text-[#FFF3F5]">
               {displayName}
             </DropdownItem>
-            <DropdownItem key="logout" color="danger" startContent={<RiLogoutBoxLine size={14} />}>
+            <DropdownItem
+              key="logout"
+              color="danger"
+              startContent={<RiLogoutBoxLine size={14} />}
+              onPress={() => void handleLogout()}
+            >
               Đăng xuất
             </DropdownItem>
           </DropdownMenu>

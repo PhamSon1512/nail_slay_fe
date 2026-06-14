@@ -50,7 +50,6 @@ http.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Only show toast for client errors (status < 500)
     if (status && status < 500) {
       let message = getApiErrorMessage(error.response?.data) || 'Đã xảy ra lỗi, vui lòng thử lại sau.';
       
@@ -65,6 +64,8 @@ http.interceptors.response.use(
       }
 
       toast.error(message);
+    } else if (status && status >= 500) {
+      toast.error('Máy chủ đang gặp sự cố. Vui lòng thử lại sau.');
     }
     return Promise.reject(error);
   },

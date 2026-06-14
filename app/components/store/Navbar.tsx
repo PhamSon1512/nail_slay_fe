@@ -20,7 +20,8 @@ import { RiMoonLine, RiShoppingBag3Line, RiSunLine, RiUserLine } from 'react-ico
 import { useAuthReady } from '~/components/AuthBootstrap';
 import { useServerCart } from '~/hooks';
 import { BRAND } from '~/data';
-import { clearAuth, isAdminRole, logoutApi } from '~/utils/auth';
+import { useLogout } from '~/hooks';
+import { isAdminRole } from '~/utils/auth';
 import { authUserAtom, cartCountAtom, darkModeAtom, serverCartCountAtom } from '~/utils/atoms';
 
 const NAV_LINKS = [
@@ -40,7 +41,7 @@ export function Navbar() {
   const serverCartCount = useAtomValue(serverCartCountAtom);
   useServerCart();
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
-  const [authUser, setAuthUser] = useAtom(authUserAtom);
+  const [authUser] = useAtom(authUserAtom);
   const cartCount = authUser ? serverCartCount : localCartCount;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -63,13 +64,10 @@ export function Navbar() {
   const isActive = (href: string) =>
     href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
 
-  const handleLogout = async () => {
-    try {
-      await logoutApi();
-    } catch {
-      clearAuth();
-    }
-    setAuthUser(null);
+  const handleLogout = useLogout();
+
+  const onLogout = async () => {
+    await handleLogout();
     navigate('/');
   };
 
@@ -88,7 +86,7 @@ export function Navbar() {
         navigate('/admin/dashboard');
         break;
       case 'logout':
-        void handleLogout();
+        void onLogout();
         break;
       default:
         break;

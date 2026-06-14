@@ -42,6 +42,12 @@ export function formatTitleCase(value: string): string {
 
 export const VAT_RATE = 0.1;
 
+/** VAT amount when listed prices already include VAT (tax-inclusive). */
+export function calcVatIncluded(totalInclusive: number): number {
+  return Math.round((totalInclusive * VAT_RATE) / (1 + VAT_RATE));
+}
+
+/** @deprecated Use calcVatIncluded for tax-inclusive display; kept for legacy callers. */
 export function calcVat(subtotal: number): number {
   return Math.round(subtotal * VAT_RATE);
 }

@@ -14,12 +14,17 @@ export default function UserOrdersPage() {
   const { authUser } = useRequireAuth();
   const [orders, setOrders] = useState<UserOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authUser) return;
+    setError(null);
     fetchUserOrders()
       .then(setOrders)
-      .catch(() => setOrders([]))
+      .catch(() => {
+        setOrders([]);
+        setError('Không tải được danh sách đơn hàng. Vui lòng thử lại sau.');
+      })
       .finally(() => setLoading(false));
   }, [authUser]);
 
@@ -40,6 +45,24 @@ export default function UserOrdersPage() {
 
       {loading ? (
         <p className="text-sm text-[#8E8A8A]">Đang tải...</p>
+      ) : error ? (
+        <div className="text-center py-12 space-y-3">
+          <p className="text-sm text-danger">{error}</p>
+          <Button
+            color="primary"
+            className="text-[#1D1D1D] font-semibold"
+            onPress={() => {
+              setLoading(true);
+              setError(null);
+              fetchUserOrders()
+                .then(setOrders)
+                .catch(() => setError('Không tải được danh sách đơn hàng. Vui lòng thử lại sau.'))
+                .finally(() => setLoading(false));
+            }}
+          >
+            Thử lại
+          </Button>
+        </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <p className="text-sm text-[#8E8A8A]">Bạn chưa có đơn hàng nào.</p>
