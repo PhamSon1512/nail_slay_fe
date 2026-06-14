@@ -397,6 +397,20 @@ export default function AdminProductsPage() {
                     ...form.imageFiles.map((f) => URL.createObjectURL(f)),
                   ]}
                   onChange={(files) => setForm({ ...form, imageFiles: files })}
+                  onRemoveAt={(index) => {
+                    if (index < form.existingImages.length) {
+                      setForm({
+                        ...form,
+                        existingImages: form.existingImages.filter((_, i) => i !== index),
+                      });
+                    } else {
+                      const fileIndex = index - form.existingImages.length;
+                      setForm({
+                        ...form,
+                        imageFiles: form.imageFiles.filter((_, i) => i !== fileIndex),
+                      });
+                    }
+                  }}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

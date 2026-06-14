@@ -1,5 +1,5 @@
 import type { Route } from './+types/admin.banners';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Card,
@@ -20,10 +20,14 @@ import {
   RiArrowRightSLine,
   RiDeleteBinLine,
   RiEditLine,
+  RiInformationLine,
+  RiUploadCloud2Line,
 } from 'react-icons/ri';
 import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
-import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
+import { BannerSlideImage } from '~/components/store/BannerSlideImage';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
+import { ImagePreviewClearButton } from '~/components/admin/AdminImageUpload';
+import { cn } from '~/utils';
 import type { BannerItem } from '~/data/homepage';
 import {
   createBanner,
@@ -38,7 +42,7 @@ export const meta = (_: Route.MetaArgs) => [{ title: 'Banner - Admin Nailslay' }
 
 const MAX_BANNERS = 6;
 const BANNER_SIZE_HINT =
-  'Khuyến nghị: 1920×640 px (tỷ lệ 3:1), JPG/PNG/WebP, dung lượng ≤ 2MB. Ảnh hiển thị nguyên vẹn, không bị cắt.';
+  'Desktop 1920×640 px · Mobile 1080×1350 px · JPG/PNG/WebP ≤ 2MB';
 
 type DraftBanner = BannerItem & { imageFile?: File | null };
 
@@ -234,13 +238,7 @@ export default function AdminBannersPage() {
             </div>
           ) : (
             <div className="relative overflow-hidden rounded-2xl border border-primary-200 dark:border-[#4a3b42] bg-[#1d1d1d]/5 dark:bg-black/40">
-              {curSlide ? (
-                <img
-                  src={curSlide.imageUrl}
-                  alt=""
-                  className="w-full h-auto max-h-64 object-contain mx-auto block"
-                />
-              ) : null}
+              {curSlide ? <BannerSlideImage src={curSlide.imageUrl} alt="" /> : null}
               {activeSlides.length > 1 ? (
                 <>
                   <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
@@ -433,73 +431,218 @@ function CreateEditBannerModal({
   activeCount: number;
   existingActive?: boolean;
 }) {
-  const previewUrl = draft.imageFile ? URL.createObjectURL(draft.imageFile) : draft.imageUrl || undefined;
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const blobRef = useRef<string | null>(null);
+
+  const previewUrl = useMemo(() => {
+    if (blobRef.current) {
+      URL.revokeObjectURL(blobRef.current);
+      blobRef.current = null;
+    }
+    if (draft.imageFile) {
+      blobRef.current = URL.createObjectURL(draft.imageFile);
+      return blobRef.current;
+    }
+    return draft.imageUrl || undefined;
+  }, [draft.imageFile, draft.imageUrl]);
+
+  useEffect(
+    () => () => {
+      if (blobRef.current) URL.revokeObjectURL(blobRef.current);
+    },
+    [],
+  );
+
   const wouldExceedActive =
     draft.isActive && !existingActive && activeCount >= MAX_BANNERS;
 
+  const previewFrameClass =
+    previewMode === 'mobile'
+      ? '!min-h-0 !h-52 !max-h-52 sm:!h-56 sm:!max-h-56'
+      : '!min-h-0 !h-40 sm:!h-44 md:!h-48 !max-h-48';
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" scrollBehavior="inside">
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl" scrollBehavior="inside">
       <ModalContent className="bg-white dark:bg-[#2a2226]">
         {(onClose) => (
           <>
-            <ModalHeader className="text-[#1D1D1D] dark:text-[#FFF3F5]">{title}</ModalHeader>
-            <ModalBody className="gap-4">
-              {showSizeHint ? (
-                <p className="text-xs text-[#8E8A8A] dark:text-[#FFDDE5] rounded-xl bg-primary-50/60 dark:bg-[#1d1d1d] px-3 py-2 border border-primary-100 dark:border-[#4a3b42]">
-                  {BANNER_SIZE_HINT}
-                </p>
-              ) : null}
-              <AdminImageUpload
-                label="Ảnh banner"
-                required={imageRequired}
-                previewUrl={previewUrl}
-                previewClassName="w-full max-w-xs h-auto max-h-32 object-contain rounded border border-primary-200"
-                onChange={(file) => setDraft((prev) => ({ ...prev, imageFile: file }))}
-              />
-              <Input
-                type="number"
-                label={<RequiredLabel required>Thứ tự hiển thị</RequiredLabel>}
-                description="Số nhỏ hơn hiển thị trước (bắt đầu từ 0)"
-                min={0}
-                value={String(draft.sortOrder)}
-                onValueChange={(v) => {
-                  const n = Number.parseInt(v, 10);
-                  setDraft((prev) => ({ ...prev, sortOrder: Number.isNaN(n) ? 0 : Math.max(0, n) }));
-                }}
-                classNames={adminInputClassNames}
-                isDisabled={saving}
-              />
-              <Input
-                label="Liên kết (tuỳ chọn)"
-                placeholder="/products"
-                value={draft.link ?? ''}
-                onValueChange={(v) => setDraft((prev) => ({ ...prev, link: v }))}
-                classNames={adminInputClassNames}
-                isDisabled={saving}
-              />
-              <div className="flex items-center gap-3">
-                <Switch
-                  isSelected={draft.isActive}
-                  onValueChange={(v) => setDraft((prev) => ({ ...prev, isActive: v }))}
-                  aria-label="Đang hoạt động"
-                  isDisabled={saving}
-                />
-                <span className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">Đang hoạt động</span>
+            <ModalHeader className="flex-col items-start gap-1 pb-2">
+              <span className="font-heading text-xl text-[#1D1D1D] dark:text-[#FFF3F5]">{title}</span>
+              <span className="text-sm font-normal text-[#8E8A8A] dark:text-[#FFDDE5]">
+                Tải ảnh và xem trước như trên trang chủ
+              </span>
+            </ModalHeader>
+            <ModalBody className="gap-6 pb-4">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-heading text-base font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">
+                      {imageRequired ? (
+                        <RequiredLabel required>Ảnh banner</RequiredLabel>
+                      ) : (
+                        'Ảnh banner'
+                      )}
+                    </h3>
+                    {previewUrl ? (
+                      <div
+                        className="inline-flex shrink-0 rounded-lg border border-primary-200 dark:border-[#4a3b42] p-0.5"
+                        role="tablist"
+                        aria-label="Chế độ xem trước"
+                      >
+                        {(['desktop', 'mobile'] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            role="tab"
+                            aria-selected={previewMode === mode}
+                            onClick={() => setPreviewMode(mode)}
+                            className={cn(
+                              'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                              previewMode === mode
+                                ? 'bg-primary text-[#1D1D1D] shadow-sm'
+                                : 'text-[#8E8A8A] hover:text-[#1D1D1D] dark:hover:text-[#FFF3F5]',
+                            )}
+                          >
+                            {mode === 'desktop' ? 'Desktop' : 'Mobile'}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <input
+                    ref={inputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      setDraft((prev) => ({ ...prev, imageFile: file }));
+                      e.target.value = '';
+                    }}
+                  />
+
+                  {previewUrl ? (
+                    <div className="space-y-3">
+                      <div
+                        className={cn(
+                          'relative overflow-hidden rounded-xl border border-primary-200 dark:border-[#4a3b42] bg-[#FFF3F5]/40 dark:bg-[#1d1d1d]',
+                          previewMode === 'mobile' && 'mx-auto max-w-[280px]',
+                        )}
+                      >
+                        <ImagePreviewClearButton
+                          className="right-2 top-2"
+                          disabled={saving}
+                          onClear={() => {
+                            setDraft((prev) => ({ ...prev, imageFile: null, imageUrl: '' }));
+                            if (inputRef.current) inputRef.current.value = '';
+                          }}
+                        />
+                        <BannerSlideImage
+                          src={previewUrl}
+                          alt="Xem trước banner"
+                          className={previewFrameClass}
+                        />
+                      </div>
+                      <Button
+                        variant="flat"
+                        color="primary"
+                        fullWidth
+                        startContent={<RiUploadCloud2Line size={18} />}
+                        onPress={() => inputRef.current?.click()}
+                        isDisabled={saving}
+                        className="font-medium"
+                      >
+                        Đổi ảnh
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => inputRef.current?.click()}
+                      disabled={saving}
+                      className="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary-200 bg-primary-50/30 px-4 py-10 transition-colors hover:border-primary-400 hover:bg-primary-50/60 disabled:opacity-60 dark:border-[#4a3b42] dark:bg-[#1d1d1d]/50 dark:hover:border-primary-500"
+                    >
+                      <RiUploadCloud2Line size={36} className="text-primary" />
+                      <span className="mt-3 text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">
+                        Tải ảnh banner
+                      </span>
+                      <span className="mt-1 text-xs text-[#8E8A8A] dark:text-[#FFDDE5]">
+                        Nhấn để chọn JPG, PNG hoặc WebP
+                      </span>
+                    </button>
+                  )}
+
+                  {showSizeHint ? (
+                    <p className="flex items-start gap-1.5 text-xs leading-relaxed text-[#8E8A8A] dark:text-[#FFDDE5]">
+                      <RiInformationLine className="mt-0.5 shrink-0" size={14} />
+                      <span>{BANNER_SIZE_HINT}</span>
+                    </p>
+                  ) : null}
+                </section>
+
+                <section className="space-y-4 lg:border-l lg:border-primary-100 lg:pl-8 dark:lg:border-[#4a3b42]">
+                  <h3 className="font-heading text-base font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">
+                    Cài đặt hiển thị
+                  </h3>
+                  <Input
+                    type="number"
+                    label={<RequiredLabel required>Thứ tự hiển thị</RequiredLabel>}
+                    description="Số nhỏ hơn hiển thị trước (bắt đầu từ 0)"
+                    min={0}
+                    value={String(draft.sortOrder)}
+                    onValueChange={(v) => {
+                      const n = Number.parseInt(v, 10);
+                      setDraft((prev) => ({
+                        ...prev,
+                        sortOrder: Number.isNaN(n) ? 0 : Math.max(0, n),
+                      }));
+                    }}
+                    classNames={adminInputClassNames}
+                    isDisabled={saving}
+                  />
+                  <Input
+                    label="Liên kết (tuỳ chọn)"
+                    placeholder="/products"
+                    value={draft.link ?? ''}
+                    onValueChange={(v) => setDraft((prev) => ({ ...prev, link: v }))}
+                    classNames={adminInputClassNames}
+                    isDisabled={saving}
+                  />
+                  <div className="flex items-center justify-between rounded-xl border border-primary-100 bg-primary-50/40 px-4 py-3 dark:border-[#4a3b42] dark:bg-[#1d1d1d]/50">
+                    <div>
+                      <p className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">
+                        Đang hoạt động
+                      </p>
+                      <p className="text-xs text-[#8E8A8A] dark:text-[#FFDDE5]">
+                        Banner hiển thị trên trang chủ
+                      </p>
+                    </div>
+                    <Switch
+                      isSelected={draft.isActive}
+                      onValueChange={(v) => setDraft((prev) => ({ ...prev, isActive: v }))}
+                      aria-label="Đang hoạt động"
+                      isDisabled={saving}
+                    />
+                  </div>
+                  {wouldExceedActive ? (
+                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                      Đã đủ {MAX_BANNERS} banner đang bật — tắt một banner khác trước khi bật banner
+                      này.
+                    </p>
+                  ) : null}
+                </section>
               </div>
-              {wouldExceedActive ? (
-                <p className="text-sm text-amber-700 dark:text-amber-400">
-                  Đã đủ {MAX_BANNERS} banner đang bật — tắt một banner khác trước khi bật banner này.
-                </p>
-              ) : null}
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter className="border-t border-primary-100 dark:border-[#4a3b42]">
               <Button variant="light" onPress={onClose} isDisabled={saving}>
                 Hủy
               </Button>
               <Button
                 color="primary"
                 className="text-[#1D1D1D]"
-                isDisabled={saving || wouldExceedActive || (imageRequired && !draft.imageFile)}
+                isDisabled={saving || wouldExceedActive || !previewUrl}
                 onPress={onSave}
               >
                 {saving ? 'Đang lưu...' : saveLabel}

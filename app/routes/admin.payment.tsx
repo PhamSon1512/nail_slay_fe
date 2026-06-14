@@ -4,6 +4,7 @@ import { Button, Card, CardBody, Input } from '@heroui/react';
 import toast from 'react-hot-toast';
 import { AdminPageHeader } from '~/components';
 import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
+import { RequiredLabel } from '~/components/admin/RequiredLabel';
 import { fetchBankSettings, updateBankSettings } from '~/utils/api/admin';
 import { adminCardClass, adminInputClassNames } from '~/utils/adminForm';
 
@@ -112,26 +113,27 @@ export default function AdminPaymentPage() {
             onChange={(file) => {
               setQrFile(file);
               if (file) setPreviewUrl(URL.createObjectURL(file));
+              else setPreviewUrl('');
             }}
           />
           <p className="text-xs text-[#8E8A8A]">Khuyến nghị: ảnh QR vuông, tối thiểu 300×300 px, PNG/JPG.</p>
 
           <Input
-            label="Tên ngân hàng *"
+            label={<RequiredLabel required>Tên ngân hàng</RequiredLabel>}
             placeholder="VD: Vietcombank, MB Bank..."
             value={bankName}
             onValueChange={setBankName}
             classNames={adminInputClassNames}
           />
           <Input
-            label="Số tài khoản *"
+            label={<RequiredLabel required>Số tài khoản</RequiredLabel>}
             placeholder="VD: 0123456789"
             value={accountNumber}
             onValueChange={setAccountNumber}
             classNames={adminInputClassNames}
           />
           <Input
-            label="Chủ tài khoản *"
+            label={<RequiredLabel required>Chủ tài khoản</RequiredLabel>}
             placeholder="VD: NGUYEN VAN A"
             value={accountName}
             onValueChange={setAccountName}

@@ -124,15 +124,15 @@ export default function HomePage() {
                     alt={banner.title ?? BRAND.name}
                   />
                   {(banner.title || banner.subtitle) && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#1D1D1D]/50 via-transparent to-transparent flex items-center">
-                      <div className="container py-8 space-y-2">
+                    <div className="absolute inset-0 z-20 flex items-end bg-gradient-to-t from-[#1D1D1D]/75 via-[#1D1D1D]/25 to-transparent md:items-center md:bg-gradient-to-r md:from-[#1D1D1D]/50 md:via-transparent md:to-transparent pointer-events-none">
+                      <div className="container w-full px-4 pb-5 pt-10 sm:px-6 sm:pb-6 md:py-8 space-y-1 sm:space-y-2">
                         {banner.title ? (
-                          <p className="brand-name text-3xl md:text-5xl text-white drop-shadow-lg">
+                          <p className="brand-name text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white drop-shadow-lg line-clamp-2 md:line-clamp-none leading-tight">
                             {banner.title}
                           </p>
                         ) : null}
                         {banner.subtitle ? (
-                          <p className="text-sm md:text-base text-[#FFDDE5] uppercase tracking-[0.2em]">
+                          <p className="text-[10px] sm:text-xs md:text-base text-[#FFDDE5] uppercase tracking-[0.14em] sm:tracking-[0.2em] line-clamp-2 md:line-clamp-none">
                             {banner.subtitle}
                           </p>
                         ) : null}

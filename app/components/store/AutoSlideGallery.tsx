@@ -68,7 +68,7 @@ export function AutoSlideGallery({
             variant="flat"
             aria-label="Slide trước"
             onPress={scrollPrev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-white/85 text-[#1D1D1D] shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1D1D1D] shadow-md opacity-90 sm:opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity min-w-9 min-h-9"
           >
             <RiArrowLeftSLine size={20} />
           </Button>
@@ -78,7 +78,7 @@ export function AutoSlideGallery({
             variant="flat"
             aria-label="Slide sau"
             onPress={scrollNext}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-white/85 text-[#1D1D1D] shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1D1D1D] shadow-md opacity-90 sm:opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity min-w-9 min-h-9"
           >
             <RiArrowRightSLine size={20} />
           </Button>
@@ -86,14 +86,14 @@ export function AutoSlideGallery({
       ) : null}
 
       {showDots && children.length > 1 ? (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+        <div className="absolute bottom-4 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-1.5 z-20">
           {children.map((_, index) => (
             <button
               key={index}
               type="button"
               aria-label={`Slide ${index + 1}`}
               onClick={() => emblaApi?.scrollTo(index)}
-              className="w-2 h-2 rounded-full bg-white/70 hover:bg-white transition-colors"
+              className="w-2.5 h-2.5 sm:w-2 sm:h-2 rounded-full bg-white/80 hover:bg-white transition-colors shadow-sm"
             />
           ))}
         </div>

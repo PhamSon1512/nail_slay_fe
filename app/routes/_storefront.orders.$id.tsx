@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiBankLine } from 'react-icons/ri';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useRequireAuth } from '~/hooks';
+import { ImagePreviewClearButton } from '~/components/admin/AdminImageUpload';
 import {
   fetchUserOrder,
   updateUserOrderStatus,
@@ -319,7 +320,14 @@ export default function UserOrderDetailPage() {
                   {complaintImages.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {complaintImages.map((url) => (
-                        <img key={url} src={url} alt="" className="w-16 h-16 object-cover rounded-lg border" />
+                        <div key={url} className="relative inline-block">
+                          <img src={url} alt="" className="h-16 w-16 rounded-lg border object-cover" />
+                          <ImagePreviewClearButton
+                            onClear={() =>
+                              setComplaintImages((prev) => prev.filter((item) => item !== url))
+                            }
+                          />
+                        </div>
                       ))}
                     </div>
                   ) : null}

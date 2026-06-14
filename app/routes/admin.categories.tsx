@@ -351,7 +351,13 @@ export default function AdminCategoriesPage() {
                 <AdminImageUpload
                   label="Ảnh danh mục"
                   previewUrl={form.imageFile ? URL.createObjectURL(form.imageFile) : form.existingImageUrl}
-                  onChange={(file) => setForm({ ...form, imageFile: file })}
+                  onChange={(file) => {
+                    if (!file) {
+                      setForm({ ...form, imageFile: null, existingImageUrl: '' });
+                    } else {
+                      setForm({ ...form, imageFile: file });
+                    }
+                  }}
                 />
                 <Input
                   label={<RequiredLabel required>Mã</RequiredLabel>}
