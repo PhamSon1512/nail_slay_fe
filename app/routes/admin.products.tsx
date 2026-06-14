@@ -160,15 +160,17 @@ export default function AdminProductsPage() {
 
   const toFormData = (data: FormState) => {
     const fd = new FormData();
+    const price = data.price.replace(/\D/g, '');
+    const originalPrice = data.originalPrice.replace(/\D/g, '');
     fd.append('categoryId', data.categoryId);
-    fd.append('sku', data.sku);
-    fd.append('name', data.name);
-    fd.append('slug', data.slug);
-    if (data.description) fd.append('description', data.description);
+    fd.append('sku', data.sku.trim());
+    fd.append('name', data.name.trim());
+    fd.append('slug', data.slug.trim());
+    fd.append('description', data.description.trim());
     fd.append('status', data.status);
-    fd.append('price', data.price);
-    fd.append('originalPrice', data.originalPrice);
-    fd.append('stock', data.stock);
+    fd.append('price', price);
+    fd.append('originalPrice', originalPrice);
+    fd.append('stock', data.stock.replace(/\D/g, '') || data.stock);
     fd.append('variants', JSON.stringify(data.variants));
     fd.append('existingImages', JSON.stringify(data.existingImages));
     for (const file of data.imageFiles) fd.append('images', file);
@@ -241,8 +243,11 @@ export default function AdminProductsPage() {
       }
       formModal.onClose();
       await load();
-    } catch {
-      // interceptor
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Không lưu được sản phẩm. Vui lòng thử lại.';
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -387,10 +392,11 @@ export default function AdminProductsPage() {
                 <AdminMultipleImageUpload
                   label="Ảnh sản phẩm (tối đa 5)"
                   maxFiles={5}
-                  previewUrls={[...form.existingImages, ...form.imageFiles.map((f) => URL.createObjectURL(f))]}
-                  onChange={(files) =>
-                    setForm({ ...form, imageFiles: files, existingImages: files.length > 0 ? [] : form.existingImages })
-                  }
+                  previewUrls={[
+                    ...form.existingImages,
+                    ...form.imageFiles.map((f) => URL.createObjectURL(f)),
+                  ]}
+                  onChange={(files) => setForm({ ...form, imageFiles: files })}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
