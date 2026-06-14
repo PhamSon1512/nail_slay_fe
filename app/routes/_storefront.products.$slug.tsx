@@ -39,22 +39,20 @@ export default function ProductDetailPage() {
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   const variants = product?.variants ?? [];
+  const hasVariants = variants.length > 0;
   const selectedVariant = useMemo(
     () => variants.find((v) => v.id === selectedVariantId) ?? null,
     [variants, selectedVariantId],
   );
   const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
-  const displayStock = selectedVariant?.stock ?? product?.stock ?? 0;
-
-  useEffect(() => {
-    if (variants.length > 0 && !selectedVariantId) {
-      setSelectedVariantId(variants[0]?.id ?? null);
-    }
-  }, [variants, selectedVariantId]);
+  const displayStock = selectedVariant?.stock ?? (hasVariants ? 0 : product?.stock ?? 0);
+  const maxQty = hasVariants && !selectedVariantId ? 1 : Math.max(displayStock, 1);
 
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
+    setSelectedVariantId(null);
+    setQty(1);
     fetchStoreProduct(slug)
       .then((data) => {
         setProduct(data as StoreProduct & { variants?: ProductVariant[] });
@@ -85,11 +83,14 @@ export default function ProductDetailPage() {
   const images = (product.imageUrls?.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5);
 
   const addToCart = () => {
-    if (variants.length > 0 && !selectedVariantId) {
-      toast.error('Vui lòng chọn biến thể');
+    if (hasVariants && !selectedVariantId) {
+      toast.error('Bạn chưa chọn biến thể. Vui lòng chọn phân loại trước khi thêm vào giỏ hàng.');
       return;
     }
-    if (displayStock <= 0) return;
+    if (displayStock <= 0) {
+      toast.error('Sản phẩm đã hết hàng');
+      return;
+    }
 
     if (authUser) {
       requireAuth(async () => {
@@ -177,12 +178,18 @@ export default function ProductDetailPage() {
           <Divider />
 
           <p className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">
-            <strong>Tồn kho:</strong> {displayStock}
+            <strong>Tồn kho:</strong>{' '}
+            {hasVariants && !selectedVariantId ? (
+              <span className="text-[#8E8A8A]">Chọn biến thể để xem tồn kho</span>
+            ) : (
+              displayStock
+            )}
           </p>
 
-          {variants.length > 0 ? (
+          {hasVariants ? (
             <div className="space-y-2">
               <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Chọn biến thể</p>
+              <p className="text-xs text-[#8E8A8A]">Bắt buộc chọn một biến thể trước khi thêm vào giỏ.</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v) => (
                   <Button
@@ -192,7 +199,7 @@ export default function ProductDetailPage() {
                     color={selectedVariantId === v.id ? 'primary' : 'default'}
                     className={selectedVariantId === v.id ? 'text-[#1D1D1D]' : ''}
                     onPress={() => {
-                      setSelectedVariantId(v.id);
+                      setSelectedVariantId((prev) => (prev === v.id ? null : v.id));
                       setQty(1);
                     }}
                     isDisabled={v.stock <= 0}
@@ -209,7 +216,14 @@ export default function ProductDetailPage() {
             <div className="flex items-center border border-primary-200 rounded-lg overflow-hidden">
               <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
               <span className="px-4 py-2">{qty}</span>
-              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.min(displayStock, qty + 1))}>+</button>
+              <button
+                type="button"
+                className="px-3 py-2 disabled:opacity-40"
+                disabled={hasVariants && !selectedVariantId}
+                onClick={() => setQty(Math.min(maxQty, qty + 1))}
+              >
+                +
+              </button>
             </div>
           </div>
 
@@ -218,7 +232,7 @@ export default function ProductDetailPage() {
               color="primary"
               size="lg"
               onPress={addToCart}
-              isDisabled={displayStock <= 0}
+              isDisabled={!hasVariants ? displayStock <= 0 : Boolean(selectedVariantId) && displayStock <= 0}
               startContent={<RiShoppingBag3Line size={18} />}
               className="font-semibold text-[#1D1D1D]"
             >
