@@ -26,10 +26,11 @@ export function AdminMultipleImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let files = Array.from(e.target.files ?? []);
-    if (maxFiles) {
-      files = files.slice(0, maxFiles);
-    }
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length === 0) return;
+    const remaining = Math.max(0, maxFiles - previewUrls.length);
+    const files = picked.slice(0, remaining);
+    if (files.length === 0) return;
     onChange(files);
     if (inputRef.current) inputRef.current.value = '';
   };

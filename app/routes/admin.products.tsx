@@ -162,6 +162,15 @@ export default function AdminProductsPage() {
     const fd = new FormData();
     const price = data.price.replace(/\D/g, '');
     const originalPrice = data.originalPrice.replace(/\D/g, '');
+    const variants = data.variants.filter(
+      (v) =>
+        (v.sku?.trim() ?? '') !== '' ||
+        (v.name?.trim() ?? '') !== '' ||
+        (v.color?.trim() ?? '') !== '' ||
+        (v.size?.trim() ?? '') !== '' ||
+        (v.price ?? 0) > 0 ||
+        (v.stock ?? 0) > 0,
+    );
     fd.append('categoryId', data.categoryId);
     fd.append('sku', data.sku.trim());
     fd.append('name', data.name.trim());
@@ -171,7 +180,7 @@ export default function AdminProductsPage() {
     fd.append('price', price);
     fd.append('originalPrice', originalPrice);
     fd.append('stock', data.stock.replace(/\D/g, '') || data.stock);
-    fd.append('variants', JSON.stringify(data.variants));
+    fd.append('variants', JSON.stringify(variants));
     fd.append('existingImages', JSON.stringify(data.existingImages));
     for (const file of data.imageFiles) fd.append('images', file);
     return fd;
@@ -227,8 +236,8 @@ export default function AdminProductsPage() {
     }
     for (let i = 0; i < form.variants.length; i++) {
       const variantStock = Number(form.variants[i].stock ?? 0);
-      if (Number.isNaN(variantStock) || variantStock <= 0) {
-        toast.error(`Tồn kho biến thể #${i + 1} phải lớn hơn 0`);
+      if (Number.isNaN(variantStock) || variantStock < 0) {
+        toast.error(`Tồn kho biến thể #${i + 1} không hợp lệ`);
         return;
       }
     }
@@ -393,7 +402,13 @@ export default function AdminProductsPage() {
                     ...form.existingImages,
                     ...form.imageFiles.map((f) => URL.createObjectURL(f)),
                   ]}
-                  onChange={(files) => setForm({ ...form, imageFiles: files })}
+                  onChange={(newFiles) => {
+                    setForm((prev) => {
+                      const maxNew = 5 - prev.existingImages.length;
+                      const merged = [...prev.imageFiles, ...newFiles].slice(0, maxNew);
+                      return { ...prev, imageFiles: merged };
+                    });
+                  }}
                   onRemoveAt={(index) => {
                     if (index < form.existingImages.length) {
                       setForm({
@@ -458,7 +473,7 @@ export default function AdminProductsPage() {
                       color="primary"
                       className="text-[#1D1D1D] font-medium shadow-sm"
                       startContent={<RiAddLine />}
-                      onPress={() => setForm({ ...form, variants: [...form.variants, { sku: form.sku ? `${form.sku}-${form.variants.length + 1}` : '', name: '', color: '', size: '', price: Number(form.price) || 0, stock: 1 }] })}
+                      onPress={() => setForm({ ...form, variants: [...form.variants, { sku: form.sku ? `${form.sku}-${form.variants.length + 1}` : '', name: '', color: '', size: '', price: Number(form.price) || 0, stock: 0 }] })}
                     >
                       Thêm biến thể
                     </Button>
@@ -466,6 +481,7 @@ export default function AdminProductsPage() {
                   {form.variants.length === 0 ? (
                     <div className="text-center py-6 bg-gray-50 dark:bg-[#1a1417] rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
                       <p className="text-sm text-[#8E8A8A]">Chưa có biến thể nào. Sản phẩm sẽ sử dụng giá và tồn kho chung.</p>
+                      <p className="text-xs text-[#8E8A8A] mt-1">Các trường biến thể đều tùy chọn — chỉ điền những gì cần phân loại.</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-lg">
@@ -506,7 +522,7 @@ export default function AdminProductsPage() {
                                 <CurrencyInput size="sm" placeholder="Giá bán" value={String(v.price ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].price = Number(val); setForm({ ...form, variants: arr }); }} className="w-full min-w-[130px]" classNames={variantInputClassNames} />
                               </td>
                               <td className="px-3 py-2">
-                                <Input size="sm" placeholder="Tồn kho" value={String(v.stock ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].stock = Number(val); setForm({ ...form, variants: arr }); }} type="number" min={1} className="w-full min-w-[100px]" classNames={variantInputClassNames} />
+                                <Input size="sm" placeholder="Tồn kho" value={String(v.stock ?? '')} onValueChange={(val) => { const arr = [...form.variants]; arr[i].stock = val === '' ? 0 : Number(val); setForm({ ...form, variants: arr }); }} type="number" min={0} className="w-full min-w-[100px]" classNames={variantInputClassNames} />
                               </td>
                               <td className="px-3 py-2 text-center">
                                 <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => { const arr = [...form.variants]; arr.splice(i, 1); setForm({ ...form, variants: arr }); }}>

@@ -4,7 +4,7 @@ import { Badge, Button, Divider } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
-import { Link } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { AutoSlideGallery, ProductCard } from '~/components';
 import { useRequireAuth, useServerCart } from '~/hooks';
 import { authUserAtom, cartAtom } from '~/utils/atoms';
@@ -25,7 +25,9 @@ type ProductVariant = {
   stock: number;
 };
 
-export default function ProductDetailPage({ params }: Route.ComponentProps) {
+export default function ProductDetailPage() {
+  const { slug: slugParam } = useParams();
+  const slug = slugParam ?? '';
   const authUser = useAtomValue(authUserAtom);
   const [localCart, setLocalCart] = useAtom(cartAtom);
   const { requireAuth } = useRequireAuth();
@@ -51,19 +53,19 @@ export default function ProductDetailPage({ params }: Route.ComponentProps) {
   }, [variants, selectedVariantId]);
 
   useEffect(() => {
-    if (!params.slug) return;
+    if (!slug) return;
     setLoading(true);
-    fetchStoreProduct(params.slug)
+    fetchStoreProduct(slug)
       .then((data) => {
         setProduct(data as StoreProduct & { variants?: ProductVariant[] });
         return fetchStoreProducts({ limit: 20 });
       })
       .then((list) => {
-        setRelated(list.filter((p) => p.slug !== params.slug).slice(0, 4));
+        setRelated(list.filter((p) => p.slug !== slug).slice(0, 4));
       })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
-  }, [params.slug]);
+  }, [slug]);
 
   if (loading) {
     return <div className="container py-20 text-center text-sm text-[#8E8A8A]">Đang tải...</div>;
