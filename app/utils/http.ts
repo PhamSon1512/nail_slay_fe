@@ -4,6 +4,18 @@ import dedupePlugin from 'xior/plugins/dedupe';
 import errorCachePlugin from 'xior/plugins/error-cache';
 import throttlePlugin from 'xior/plugins/throttle';
 import { readStoredToken } from './tokenStorage';
+
+export function getApiErrorMessage(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') return undefined;
+  const record = data as Record<string, unknown>;
+  if (typeof record.message === 'string') return record.message;
+  const nested = record.error;
+  if (nested && typeof nested === 'object' && typeof (nested as { message?: unknown }).message === 'string') {
+    return (nested as { message: string }).message;
+  }
+  return undefined;
+}
+
 export const http = xior.create({
   baseURL: import.meta.env.VITE_HOST,
   withCredentials: true,
@@ -40,7 +52,7 @@ http.interceptors.response.use(
 
     // Only show toast for client errors (status < 500)
     if (status && status < 500) {
-      let message = error.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.';
+      let message = getApiErrorMessage(error.response?.data) || 'Đã xảy ra lỗi, vui lòng thử lại sau.';
       
       // Dịch nhanh các lỗi tiếng Anh phổ biến do backend hoặc network trả về
       if (typeof message === 'string') {

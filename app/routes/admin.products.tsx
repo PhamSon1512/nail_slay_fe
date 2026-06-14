@@ -243,11 +243,8 @@ export default function AdminProductsPage() {
       }
       formModal.onClose();
       await load();
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Không lưu được sản phẩm. Vui lòng thử lại.';
-      toast.error(message);
+    } catch {
+      // http interceptor shows API error message (409 slug/sku conflict, etc.)
     } finally {
       setSaving(false);
     }
