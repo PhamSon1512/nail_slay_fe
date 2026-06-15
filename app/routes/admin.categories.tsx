@@ -343,7 +343,14 @@ export default function AdminCategoriesPage() {
         )}
       </div>
 
-      <Modal isOpen={formModal.isOpen} onOpenChange={formModal.onOpenChange} size="lg">
+      <Modal 
+        isOpen={formModal.isOpen} 
+        onOpenChange={(open) => {
+          if (open) formModal.onOpen();
+          else formModal.onClose();
+        }} 
+        size="lg"
+      >
         <ModalContent className="bg-white dark:bg-[#2a2226]">
           {(onClose) => (
             <>
@@ -394,14 +401,16 @@ export default function AdminCategoriesPage() {
                   }}
                   classNames={adminSelectClassNames}
                 >
-                  <SelectItem key="none" textValue="Không có (danh mục cha)">
-                    Không có (danh mục cha)
-                  </SelectItem>
-                  {parentOptions
-                    .filter((p) => p.id !== editingId)
-                    .map((p) => (
-                      <SelectItem key={p.id}>{p.name}</SelectItem>
-                    ))}
+                  {[
+                    <SelectItem key="none" textValue="Không có (danh mục cha)">
+                      Không có (danh mục cha)
+                    </SelectItem>,
+                    ...parentOptions
+                      .filter((p) => p.id !== editingId)
+                      .map((p) => (
+                        <SelectItem key={p.id}>{p.name}</SelectItem>
+                      )),
+                  ]}
                 </Select>
               </ModalBody>
               <ModalFooter>
@@ -416,8 +425,11 @@ export default function AdminCategoriesPage() {
       <ConfirmDeleteModal
         isOpen={deleteModal.isOpen}
         onOpenChange={(open) => {
-          deleteModal.onOpenChange(open);
-          if (!open) setDeleteTarget(null);
+          if (open) deleteModal.onOpen();
+          else {
+            deleteModal.onClose();
+            setDeleteTarget(null);
+          }
         }}
         message={
           deleteTarget

@@ -370,8 +370,11 @@ export default function AdminBannersPage() {
           title="Sửa banner"
           isOpen={editModal.isOpen}
           onOpenChange={(open) => {
-            editModal.onOpenChange(open);
-            if (!open) setEditDraft(null);
+            if (open) editModal.onOpen();
+            else {
+              editModal.onClose();
+              setEditDraft(null);
+            }
           }}
           draft={editDraft}
           setDraft={(next) => {
@@ -393,8 +396,11 @@ export default function AdminBannersPage() {
       <ConfirmDeleteModal
         isOpen={deleteModal.isOpen}
         onOpenChange={(open) => {
-          deleteModal.onOpenChange(open);
-          if (!open) setDeleteTargetId(null);
+          if (open) deleteModal.onOpen();
+          else {
+            deleteModal.onClose();
+            setDeleteTargetId(null);
+          }
         }}
         message="Bạn có chắc muốn xóa banner này? Hành động này không thể hoàn tác."
         loading={deleting}
