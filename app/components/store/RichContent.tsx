@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 import { cn } from '~/utils';
 
 type RichContentProps = {
@@ -7,6 +7,24 @@ type RichContentProps = {
 };
 
 const HTML_TAG_RE = /<\/?[a-z][\s\S]*>/i;
+
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'img', 'span', 'div'],
+  allowedAttributes: {
+    a: ['href', 'title', 'target', 'rel', 'class'],
+    img: ['src', 'alt', 'title', 'class', 'style'],
+    p: ['class', 'style'],
+    span: ['class', 'style'],
+    div: ['class', 'style'],
+    ul: ['class'],
+    ol: ['class'],
+    li: ['class'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+  transformTags: {
+    a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }),
+  },
+};
 
 function toDisplayHtml(raw: string): string {
   if (!raw.trim()) return '';
@@ -21,26 +39,7 @@ function toDisplayHtml(raw: string): string {
 export function RichContent({ html, className }: RichContentProps) {
   if (!html?.trim()) return null;
 
-  const safe = DOMPurify.sanitize(toDisplayHtml(html), {
-    ADD_ATTR: ['target', 'rel', 'class'],
-    ALLOWED_TAGS: [
-      'p',
-      'br',
-      'strong',
-      'b',
-      'em',
-      'i',
-      'u',
-      'a',
-      'ul',
-      'ol',
-      'li',
-      'img',
-      'span',
-      'div',
-    ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel', 'style'],
-  });
+  const safe = sanitizeHtml(toDisplayHtml(html), SANITIZE_OPTIONS);
 
   return (
     <div
