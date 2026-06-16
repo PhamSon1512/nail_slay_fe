@@ -27,6 +27,7 @@ import { authUserAtom, cartCountAtom, darkModeAtom, serverCartCountAtom } from '
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Sản phẩm', href: '/products' },
+  { label: 'Bài viết', href: '/articles' },
   { label: 'Danh mục', href: '/categories' },
   { label: 'Về NailSlay', href: '/about' },
   { label: 'Chính sách Đổi trả', href: '/policy' },

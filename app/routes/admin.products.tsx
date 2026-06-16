@@ -16,7 +16,6 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Textarea,
   useDisclosure,
 } from '@heroui/react';
 import toast from 'react-hot-toast';
@@ -24,6 +23,7 @@ import { RiAddLine, RiDeleteBinLine, RiEyeLine, RiPencilLine, RiSearchLine, RiIm
 import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
 import { AdminMultipleImageUpload } from '~/components/admin/AdminMultipleImageUpload';
+import { RichTextEditor } from '~/components/admin/RichTextEditor';
 import { CurrencyInput } from '~/components/admin/CurrencyInput';
 import {
   createProduct,
@@ -35,8 +35,9 @@ import {
   type AdminProduct,
   type AdminProductVariant,
 } from '~/utils/api/admin';
-import { adminInputClassNames, adminSelectClassNames, adminTableClassNames, adminTextareaClassNames } from '~/utils/adminForm';
+import { adminInputClassNames, adminSelectClassNames, adminTableClassNames } from '~/utils/adminForm';
 import { formatVND } from '~/utils/format';
+import { RichContent } from '~/components/store/RichContent';
 
 export const handle = { pageTitle: 'Quản lý Sản phẩm' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Sản phẩm - Admin Nailslay' }];
@@ -462,7 +463,12 @@ export default function AdminProductsPage() {
                   description="Phải lớn hơn 0"
                   classNames={adminInputClassNames}
                 />
-                <Textarea label={<RequiredLabel required>Mô tả sản phẩm</RequiredLabel>} className="md:col-span-2" value={form.description} onValueChange={(v) => setForm({ ...form, description: v })} classNames={adminTextareaClassNames} />
+                <div className="md:col-span-2 space-y-2">
+                  <p className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">
+                    <RequiredLabel required>Mô tả sản phẩm</RequiredLabel>
+                  </p>
+                  <RichTextEditor value={form.description} onChange={(html) => setForm({ ...form, description: html })} />
+                </div>
                 </div>
                 
                 <div className="border border-primary-200 rounded-xl p-4 space-y-4">
@@ -566,7 +572,7 @@ export default function AdminProductsPage() {
                   {detailProduct.description ? (
                     <div>
                       <p className="text-xs uppercase tracking-wider text-[#8E8A8A] mb-1">Mô tả</p>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{detailProduct.description}</p>
+                      <RichContent html={detailProduct.description} />
                     </div>
                   ) : null}
                 </ModalBody>

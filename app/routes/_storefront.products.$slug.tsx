@@ -1,15 +1,15 @@
 import type { Route } from './+types/_storefront.products.$slug';
 import { useEffect, useMemo, useState } from 'react';
-import { Badge, Button, Divider } from '@heroui/react';
+import { Badge, Button } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
 import { Link, useParams } from 'react-router';
-import { AutoSlideGallery, ProductCard } from '~/components';
+import { ProductCard, ProductImageGallery, RichContent } from '~/components';
 import { useRequireAuth, useServerCart } from '~/hooks';
 import { authUserAtom, cartAtom } from '~/utils/atoms';
 import { fetchStoreProduct, fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
-import { formatVND } from '~/utils/format';
+import { formatPriceDisplay } from '~/utils/format';
 
 export const handle = { pageTitle: 'Chi tiết sản phẩm' };
 export const meta = ({ params }: Route.MetaArgs) => [
@@ -134,60 +134,52 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container py-8 space-y-8">
-      <nav className="flex items-center gap-2 text-xs text-[#8E8A8A]">
-        <Link to="/" className="hover:text-[#1D1D1D]">Trang chủ</Link>
-        <span>/</span>
-        <Link to="/products" className="hover:text-[#1D1D1D]">Sản phẩm</Link>
-        <span>/</span>
-        <span className="text-[#1D1D1D] dark:text-[#FFF3F5]">{product.name}</span>
-      </nav>
+      <Link
+        to="/products"
+        className="inline-flex items-center gap-1.5 text-sm text-[#8E8A8A] hover:text-[#1D1D1D] dark:hover:text-[#FFF3F5] transition-colors"
+      >
+        <RiArrowLeftLine size={16} />
+        Quay lại danh sách sản phẩm
+      </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <AutoSlideGallery intervalMs={3500} className="rounded-2xl overflow-hidden border border-primary-200/70">
-          {images.map((src, i) => (
-            <div key={src + i} className="aspect-square bg-gradient-hero">
-              <img src={src} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
-            </div>
-          ))}
-        </AutoSlideGallery>
+        <ProductImageGallery images={images} alt={product.name} />
 
         <div className="space-y-5">
-          <div className="flex items-center flex-wrap gap-2">
-            {product.sku ? <Badge color="secondary" variant="flat">Mã: {product.sku}</Badge> : null}
-          </div>
+          <div className="rounded-2xl border border-primary-200/70 bg-white/95 dark:bg-[#2a2226] p-5 shadow-sm space-y-3">
+            <div className="flex items-center flex-wrap gap-2">
+              {product.sku ? (
+                <Badge color="secondary" variant="flat">
+                  Mã: {product.sku}
+                </Badge>
+              ) : null}
+            </div>
 
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-            {product.name}
-          </h1>
+            <h1 className="font-heading text-3xl md:text-4xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
+              {product.name}
+            </h1>
 
-          <div className="flex items-end gap-3">
-            <span className="font-heading text-3xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-              {formatVND(displayPrice)}
-            </span>
-            {product.originalPrice && product.originalPrice > displayPrice ? (
-              <span className="text-sm text-[#8E8A8A] line-through">{formatVND(product.originalPrice)}</span>
-            ) : null}
+            <div className="flex items-end gap-3">
+              <span className="font-sans text-3xl font-bold tabular-nums text-[#1D1D1D] dark:text-[#FFF3F5]">
+                {formatPriceDisplay(displayPrice)}
+              </span>
+              {product.originalPrice && product.originalPrice > displayPrice ? (
+                <span className="font-sans text-sm text-[#8E8A8A] line-through tabular-nums">
+                  {formatPriceDisplay(product.originalPrice)}
+                </span>
+              ) : null}
+            </div>
           </div>
 
           {product.description ? (
-            <p className="text-sm leading-relaxed text-[#8E8A8A] dark:text-[#FFDDE5] whitespace-pre-line">
-              {product.description}
-            </p>
+            <div className="rounded-2xl border border-primary-200/70 bg-white/95 dark:bg-[#2a2226] p-5 shadow-sm">
+              <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5] mb-3">Mô tả sản phẩm</p>
+              <RichContent html={product.description} />
+            </div>
           ) : null}
 
-          <Divider />
-
-          <p className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">
-            <strong>Tồn kho:</strong>{' '}
-            {hasVariants && !selectedVariantId ? (
-              <span className="text-[#8E8A8A]">Chọn biến thể để xem tồn kho</span>
-            ) : (
-              displayStock
-            )}
-          </p>
-
           {hasVariants ? (
-            <div className="space-y-2">
+            <div className="rounded-2xl border border-primary-200/70 bg-white/95 dark:bg-[#2a2226] p-5 shadow-sm space-y-2">
               <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Chọn biến thể</p>
               <p className="text-xs text-[#8E8A8A]">Bắt buộc chọn một biến thể trước khi thêm vào giỏ.</p>
               <div className="flex flex-wrap gap-2">
@@ -204,45 +196,58 @@ export default function ProductDetailPage() {
                     }}
                     isDisabled={v.stock <= 0}
                   >
-                    {[v.name, v.color, v.size].filter(Boolean).join(' · ')} — {formatVND(v.price)}
+                    {[v.name, v.color, v.size].filter(Boolean).join(' · ')} — {formatPriceDisplay(v.price)}
                   </Button>
                 ))}
               </div>
             </div>
           ) : null}
 
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[#8E8A8A]">Số lượng:</span>
-            <div className="flex items-center border border-primary-200 rounded-lg overflow-hidden">
-              <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
-              <span className="px-4 py-2">{qty}</span>
-              <button
-                type="button"
-                className="px-3 py-2 disabled:opacity-40"
-                disabled={hasVariants && !selectedVariantId}
-                onClick={() => setQty(Math.min(maxQty, qty + 1))}
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <div className="rounded-2xl border border-primary-200/70 bg-white dark:bg-[#2a2226] p-6 shadow-md space-y-4">
+            <p className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Mua hàng</p>
 
-          <div className="flex gap-3">
+            <p className="text-sm text-[#1D1D1D] dark:text-[#FFF3F5]">
+              <strong>Tồn kho:</strong>{' '}
+              {hasVariants && !selectedVariantId ? (
+                <span className="text-[#8E8A8A]">Chọn biến thể để xem tồn kho</span>
+              ) : (
+                displayStock
+              )}
+            </p>
+
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">Số lượng</span>
+              <div className="flex items-center border border-primary-200 rounded-lg overflow-hidden">
+                <button type="button" className="px-3 py-2" onClick={() => setQty(Math.max(1, qty - 1))}>
+                  −
+                </button>
+                <span className="px-4 py-2">{qty}</span>
+                <button
+                  type="button"
+                  className="px-3 py-2 disabled:opacity-40"
+                  disabled={hasVariants && !selectedVariantId}
+                  onClick={() => setQty(Math.min(maxQty, qty + 1))}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             <Button
               color="primary"
               size="lg"
               onPress={addToCart}
               isDisabled={!hasVariants ? displayStock <= 0 : Boolean(selectedVariantId) && displayStock <= 0}
               startContent={<RiShoppingBag3Line size={18} />}
-              className="font-semibold text-[#1D1D1D]"
+              className="w-full font-semibold text-[#1D1D1D]"
             >
               Thêm vào giỏ
             </Button>
-          </div>
 
-          <div className="flex items-center gap-2 text-xs text-[#8E8A8A]">
-            <RiTruckLine size={14} />
-            <span>Giao nhanh 2–3 ngày. Thanh toán chuyển khoản trước khi lên đơn.</span>
+            <div className="flex items-center gap-2 text-xs text-[#8E8A8A]">
+              <RiTruckLine size={14} />
+              <span>Giao nhanh 2–3 ngày. Thanh toán chuyển khoản trước khi lên đơn.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -270,11 +275,6 @@ export default function ProductDetailPage() {
           </div>
         </section>
       ) : null}
-
-      <Link to="/products" className="inline-flex items-center gap-1.5 text-sm text-[#8E8A8A] hover:text-[#1D1D1D]">
-        <RiArrowLeftLine size={14} />
-        Quay lại danh sách sản phẩm
-      </Link>
     </div>
   );
 }

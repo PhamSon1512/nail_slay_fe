@@ -205,3 +205,47 @@ export async function updateOrderStatus(id: string, status: string) {
   const { data } = await http.patch(`/admin/orders/${id}/status`, { status });
   return data;
 }
+
+export type AdminArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImageUrl: string | null;
+  status: 'draft' | 'published';
+  publishedAt?: string | null;
+  createdAt?: string;
+};
+
+export async function fetchAdminArticles(params?: { page?: number; limit?: number; search?: string }) {
+  const { data } = await http.get<Paginated<AdminArticle>>('/admin/articles', {
+    params: {
+      page: params?.page?.toString(),
+      limit: params?.limit?.toString(),
+      search: params?.search,
+    },
+  });
+  return data;
+}
+
+export async function createArticle(form: FormData) {
+  const { data } = await http.post<AdminArticle>('/admin/articles', form);
+  return data;
+}
+
+export async function updateArticle(id: string, form: FormData) {
+  const { data } = await http.put<AdminArticle>(`/admin/articles/${id}`, form);
+  return data;
+}
+
+export async function deleteArticle(id: string) {
+  await http.delete(`/admin/articles/${id}`);
+}
+
+export async function uploadContentImage(file: File) {
+  const form = new FormData();
+  form.append('image', file);
+  const { data } = await http.post<{ url: string }>('/admin/upload/content-image', form);
+  return data;
+}

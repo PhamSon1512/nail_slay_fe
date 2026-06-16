@@ -6,6 +6,11 @@ export function formatVND(amount: number): string {
   }).format(amount);
 }
 
+/** Display price with Montserrat-friendly suffix (no currency style). */
+export function formatPriceDisplay(amount: number): string {
+  return `${amount.toLocaleString('vi-VN')}₫`;
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
