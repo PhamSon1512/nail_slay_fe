@@ -11,6 +11,12 @@ export function formatPriceDisplay(amount: number): string {
   return `${amount.toLocaleString('vi-VN')}₫`;
 }
 
+/** Percentage off when original price is higher than sale price. */
+export function calcDiscountPercent(original: number, sale: number): number {
+  if (original <= 0 || sale >= original) return 0;
+  return Math.round(((original - sale) / original) * 100);
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',

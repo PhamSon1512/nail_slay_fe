@@ -72,8 +72,8 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
             </DropdownItem>
             <DropdownItem
               key="logout"
-              color="danger"
-              startContent={<RiLogoutBoxLine size={14} />}
+              className="text-[#D64545] font-medium data-[hover=true]:bg-[#FEF2F2] dark:data-[hover=true]:bg-[#3f2020] data-[hover=true]:text-[#B83838]"
+              startContent={<RiLogoutBoxLine size={14} className="text-[#D64545]" />}
               onPress={() => void handleLogout()}
             >
               Đăng xuất

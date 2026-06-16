@@ -6,7 +6,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Button } from '@heroui/react';
+import { Button, Tooltip } from '@heroui/react';
 import {
   RiAlignCenter,
   RiAlignLeft,
@@ -40,17 +40,19 @@ function ToolbarButton({
   label: string;
 }) {
   return (
-    <Button
-      isIconOnly
-      size="sm"
-      variant={active ? 'solid' : 'flat'}
-      color={active ? 'primary' : 'default'}
-      aria-label={label}
-      onPress={onPress}
-      className="min-w-8 min-h-8"
-    >
-      {children}
-    </Button>
+    <Tooltip content={label} placement="top" delay={300} closeDelay={0}>
+      <Button
+        isIconOnly
+        size="sm"
+        variant={active ? 'solid' : 'flat'}
+        color={active ? 'primary' : 'default'}
+        aria-label={label}
+        onPress={onPress}
+        className="min-w-8 min-h-8"
+      >
+        {children}
+      </Button>
+    </Tooltip>
   );
 }
 
@@ -131,10 +133,10 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
   return (
     <div className={cn('rounded-xl border border-primary-200 bg-white dark:bg-[#2a2226] overflow-hidden', className)}>
       <div className="flex flex-wrap gap-1 p-2 border-b border-primary-200/70 bg-[#FFF8FA] dark:bg-[#32282c]">
-        <ToolbarButton active={editor.isActive('bold')} onPress={() => editor.chain().focus().toggleBold().run()} label="Đậm">
+        <ToolbarButton active={editor.isActive('bold')} onPress={() => editor.chain().focus().toggleBold().run()} label="In đậm">
           <RiBold size={16} />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive('italic')} onPress={() => editor.chain().focus().toggleItalic().run()} label="Nghiêng">
+        <ToolbarButton active={editor.isActive('italic')} onPress={() => editor.chain().focus().toggleItalic().run()} label="In nghiêng">
           <RiItalic size={16} />
         </ToolbarButton>
         <ToolbarButton active={editor.isActive('underline')} onPress={() => editor.chain().focus().toggleUnderline().run()} label="Gạch chân">
@@ -149,13 +151,13 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
         <ToolbarButton active={editor.isActive({ textAlign: 'right' })} onPress={() => editor.chain().focus().setTextAlign('right').run()} label="Căn phải">
           <RiAlignRight size={16} />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive('link')} onPress={setLink} label="Liên kết">
+        <ToolbarButton active={editor.isActive('link')} onPress={setLink} label="Chèn liên kết">
           <RiLink size={16} />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive('bulletList')} onPress={() => editor.chain().focus().toggleBulletList().run()} label="Danh sách">
+        <ToolbarButton active={editor.isActive('bulletList')} onPress={() => editor.chain().focus().toggleBulletList().run()} label="Danh sách gạch đầu dòng">
           <RiListUnordered size={16} />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive('orderedList')} onPress={() => editor.chain().focus().toggleOrderedList().run()} label="Danh sách số">
+        <ToolbarButton active={editor.isActive('orderedList')} onPress={() => editor.chain().focus().toggleOrderedList().run()} label="Danh sách đánh số">
           <RiListOrdered size={16} />
         </ToolbarButton>
         <ToolbarButton onPress={() => editor.chain().focus().undo().run()} label="Hoàn tác">

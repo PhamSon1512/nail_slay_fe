@@ -10,6 +10,7 @@ export { ProductCard } from './store/ProductCard';
 export type { Product } from './store/ProductCard';
 export { AutoSlideGallery } from './store/AutoSlideGallery';
 export { ProductImageGallery } from './store/ProductImageGallery';
+export { ProductPriceDisplay, ProductDiscountBadge } from './store/ProductPriceDisplay';
 export { RichContent } from './store/RichContent';
 export { BannerSlideImage } from './store/BannerSlideImage';
 export { HorizontalGallery } from './store/HorizontalGallery';

@@ -253,3 +253,144 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(20%) rotate(360deg);
   }
 }
+
+/* ── Nail Box price: brand rose + rose-gold (contrast via depth, not off-palette colors) ── */
+.nail-price-box {
+  border: 1px solid rgba(184, 134, 90, 0.45);
+  background:
+    linear-gradient(145deg, #ffffff 0%, #fffcfd 45%, #fff9f5 100%);
+  box-shadow:
+    0 8px 28px -8px rgba(157, 81, 103, 0.2),
+    0 2px 12px -2px rgba(184, 134, 90, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.dark .nail-price-box {
+  border-color: rgba(184, 134, 90, 0.35);
+  background:
+    linear-gradient(145deg, rgba(42, 34, 38, 0.98) 0%, rgba(48, 38, 42, 0.96) 100%);
+  box-shadow:
+    0 8px 28px -8px rgba(195, 109, 128, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.nail-price-glow {
+  position: absolute;
+  inset: -25% -8%;
+  background:
+    radial-gradient(ellipse at 28% 38%, rgba(212, 175, 130, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 72% 62%, rgba(195, 109, 128, 0.12) 0%, transparent 50%);
+  animation: nail-price-glow-pulse 5s ease-in-out infinite;
+}
+
+@keyframes nail-price-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.04);
+  }
+}
+
+/* Deep mauve-rose → brand rose → blush highlight → rose gold → deep mauve */
+.nail-price-shimmer {
+  background: linear-gradient(
+    105deg,
+    #78394c 0%,
+    #9d5167 14%,
+    #c36d80 30%,
+    #de8a9b 44%,
+    #f2a7b7 52%,
+    #d4af37 68%,
+    #b8860b 78%,
+    #9d5167 90%,
+    #78394c 100%
+  );
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 3px rgba(120, 57, 76, 0.18));
+  animation: nail-price-shimmer 5.5s ease-in-out infinite;
+}
+
+@keyframes nail-price-shimmer {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+.nail-price-savings {
+  background: linear-gradient(90deg, #9d5167, #c36d80, #b8860b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nail-discount-badge {
+  background: linear-gradient(135deg, #78394c 0%, #c36d80 45%, #b8860b 100%);
+  box-shadow: 0 4px 14px -2px rgba(157, 81, 103, 0.4);
+}
+
+.nail-price-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.nail-price-sparkle {
+  position: absolute;
+  opacity: 0;
+  animation: nail-sparkle-twinkle 2.8s ease-in-out infinite;
+}
+
+.nail-price-sparkle:nth-child(odd) {
+  color: #d4af37;
+  text-shadow: 0 0 7px rgba(212, 175, 55, 0.75);
+}
+
+.nail-price-sparkle:nth-child(even) {
+  color: #c36d80;
+  text-shadow: 0 0 7px rgba(242, 167, 183, 0.65);
+}
+
+.dark .nail-price-sparkle:nth-child(odd) {
+  color: #e8c872;
+  text-shadow: 0 0 8px rgba(232, 200, 114, 0.6);
+}
+
+.dark .nail-price-sparkle:nth-child(even) {
+  color: #de8a9b;
+  text-shadow: 0 0 8px rgba(222, 138, 155, 0.55);
+}
+
+@keyframes nail-sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  15% {
+    opacity: 0.95;
+    transform: scale(1.1) rotate(20deg);
+  }
+  35% {
+    opacity: 0.35;
+    transform: scale(0.85) rotate(-10deg);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.15) rotate(15deg);
+  }
+  75% {
+    opacity: 0.2;
+    transform: scale(0.7) rotate(-5deg);
+  }
+}

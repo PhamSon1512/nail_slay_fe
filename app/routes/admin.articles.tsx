@@ -22,9 +22,9 @@ import {
 import toast from 'react-hot-toast';
 import { RiAddLine, RiDeleteBinLine, RiPencilLine, RiSearchLine } from 'react-icons/ri';
 import { AdminPageHeader, ConfirmDeleteModal } from '~/components';
+import { AdminImageUpload } from '~/components/admin/AdminImageUpload';
 import { RichTextEditor } from '~/components/admin/RichTextEditor';
 import { RequiredLabel } from '~/components/admin/RequiredLabel';
-import { ImagePreviewClearButton } from '~/components/admin/AdminImageUpload';
 import {
   createArticle,
   deleteArticle,
@@ -272,27 +272,20 @@ export default function AdminArticlesPage() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">Ảnh bìa</p>
-                  {coverPreview ? (
-                    <div className="relative w-full max-w-xs">
-                      <img src={coverPreview} alt="Ảnh bìa" className="w-full rounded-xl border border-primary-200 object-cover aspect-video" />
-                      <ImagePreviewClearButton
-                        onClear={() => setForm({ ...form, coverFile: null, existingCover: null, removeCover: true })}
-                      />
-                    </div>
-                  ) : null}
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    label="Chọn ảnh bìa"
-                    classNames={adminInputClassNames}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] ?? null;
-                      setForm({ ...form, coverFile: file, removeCover: false });
-                    }}
-                  />
-                </div>
+                <AdminImageUpload
+                  label="Ảnh bìa"
+                  previewUrl={coverPreview ?? undefined}
+                  previewClassName="h-16 w-28 rounded-xl border border-primary-200 object-cover"
+                  onChange={(file) =>
+                    setForm({
+                      ...form,
+                      coverFile: file,
+                      removeCover: !file,
+                      existingCover: file ? form.existingCover : null,
+                    })
+                  }
+                  onClear={() => setForm({ ...form, coverFile: null, existingCover: null, removeCover: true })}
+                />
 
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">Nội dung</p>

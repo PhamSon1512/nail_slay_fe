@@ -15,6 +15,7 @@ export function ProductImageGallery({ images, alt, className, intervalMs = 3500 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: images.length > 1, align: 'start' });
   const [thumbRef, thumbApi] = useEmblaCarousel({ containScroll: 'keepSnaps', dragFree: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -35,13 +36,13 @@ export function ProductImageGallery({ images, alt, className, intervalMs = 3500 
   }, [emblaApi, onSelect]);
 
   useEffect(() => {
-    if (!emblaApi || images.length <= 1) return;
+    if (!emblaApi || images.length <= 1 || isHovered) return;
     const timer = window.setInterval(() => {
       if (emblaApi.canScrollNext()) emblaApi.scrollNext();
       else emblaApi.scrollTo(0);
     }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [emblaApi, images.length, intervalMs]);
+  }, [emblaApi, images.length, intervalMs, isHovered]);
 
   if (!images.length) return null;
 
@@ -51,8 +52,12 @@ export function ProductImageGallery({ images, alt, className, intervalMs = 3500 
   };
 
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="relative group rounded-2xl overflow-hidden border border-primary-200/70 aspect-square w-full">
+    <div className={cn('space-y-4', className)}>
+      <div
+        className="relative group rounded-3xl overflow-hidden border border-primary-200/70 aspect-square w-full shadow-[0_24px_48px_-12px_rgba(195,109,128,0.35)] hover-3d"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div ref={emblaRef} className="overflow-hidden h-full">
           <div className="flex h-full touch-pan-y">
             {images.map((src, i) => (
@@ -90,8 +95,8 @@ export function ProductImageGallery({ images, alt, className, intervalMs = 3500 
       </div>
 
       {images.length > 1 ? (
-        <div ref={thumbRef} className="overflow-hidden">
-          <div className="flex gap-2">
+        <div ref={thumbRef} className="overflow-hidden w-full">
+          <div className="flex gap-2.5 justify-center">
             {images.map((src, i) => (
               <button
                 key={`thumb-${src}-${i}`}
@@ -99,10 +104,10 @@ export function ProductImageGallery({ images, alt, className, intervalMs = 3500 
                 aria-label={`Xem ảnh ${i + 1}`}
                 onClick={() => scrollTo(i)}
                 className={cn(
-                  'shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all',
+                  'shrink-0 w-16 h-16 sm:w-[4.5rem] sm:h-[4.5rem] rounded-xl overflow-hidden border-2 transition-all duration-300',
                   selectedIndex === i
-                    ? 'border-primary-500 ring-2 ring-primary-500/40'
-                    : 'border-primary-200/70 opacity-80 hover:opacity-100',
+                    ? 'border-primary-500 ring-2 ring-primary-400/50 shadow-lg shadow-primary-200/60 scale-105'
+                    : 'border-primary-200/70 opacity-75 hover:opacity-100 hover:scale-105',
                 )}
               >
                 <img src={src} alt="" className="w-full h-full object-cover" />

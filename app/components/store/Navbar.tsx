@@ -217,7 +217,10 @@ export function Navbar() {
                 {isAdminRole(authUser.role) ? (
                   <DropdownItem key="admin">Quản trị</DropdownItem>
                 ) : null}
-                <DropdownItem key="logout" className="text-danger" color="danger">
+                <DropdownItem
+                  key="logout"
+                  className="text-[#D64545] font-medium data-[hover=true]:bg-[#FEF2F2] data-[hover=true]:text-[#B83838]"
+                >
                   Đăng xuất
                 </DropdownItem>
               </DropdownMenu>
