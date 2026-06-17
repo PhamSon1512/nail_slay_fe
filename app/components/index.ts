@@ -19,6 +19,7 @@ export { CategoryCard } from './store/CategoryCard';
 export { AuthFormLayout } from './store/AuthFormLayout';
 export { BrandLogoFrame } from './store/BrandLogoFrame';
 export { InfoPageLayout } from './store/InfoPageLayout';
+export { ProductReviews } from './store/ProductReviews';
 
 // Admin components
 export { Sidebar } from './admin/Sidebar';

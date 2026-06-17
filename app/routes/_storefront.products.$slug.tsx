@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
 import { Link, useParams } from 'react-router';
-import { ProductCard, ProductDiscountBadge, ProductImageGallery, ProductPriceDisplay, RichContent } from '~/components';
+import { ProductCard, ProductDiscountBadge, ProductImageGallery, ProductPriceDisplay, RichContent, ProductReviews } from '~/components';
 import { useRequireAuth, useServerCart } from '~/hooks';
 import { authUserAtom, cartAtom } from '~/utils/atoms';
 import { fetchStoreProduct, fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
@@ -284,6 +284,8 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      <ProductReviews productId={product.id} />
 
       {related.length ? (
         <section className="space-y-4">
