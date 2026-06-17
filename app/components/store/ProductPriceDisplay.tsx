@@ -60,9 +60,8 @@ export function ProductPriceDisplay({
         </div>
 
         {hasDiscount ? (
-          <p className="mt-2.5 text-xs text-[#8E8A8A]">
-            Tiết kiệm{' '}
-            <span className="nail-price-savings font-semibold">{formatPriceDisplay(savings)}</span> so với giá gốc
+          <p className="mt-2.5 text-xs text-[#8E8A8A] bg-primary-50/50 dark:bg-[#32282c]/50 inline-block px-2 py-1 rounded-md border border-primary-100/50 dark:border-primary-900/30">
+            🔥 Tiết kiệm <span className="nail-price-savings font-bold text-[#e83863] text-sm">{formatPriceDisplay(savings)}</span> so với giá gốc
           </p>
         ) : null}
       </div>
