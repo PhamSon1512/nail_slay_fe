@@ -8,6 +8,7 @@ export type ArticleListItem = {
   coverImageUrl: string | null;
   publishedAt?: string | null;
   createdAt?: string;
+  author?: { id: string; name: string | null } | null;
 };
 
 export type ArticleDetail = {
@@ -19,6 +20,7 @@ export type ArticleDetail = {
   coverImageUrl: string | null;
   publishedAt?: string | null;
   createdAt?: string;
+  author?: { id: string; name: string | null } | null;
 };
 
 export type ArticleListResponse = {

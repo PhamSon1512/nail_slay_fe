@@ -66,9 +66,17 @@ export default function ArticleDetailPage() {
         ) : null}
 
         <header className="space-y-2">
-          <p className="text-sm text-[#8E8A8A]">
-            {article.publishedAt ? formatDate(article.publishedAt) : ''}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-[#8E8A8A]">
+            <p>{article.publishedAt ? formatDate(article.publishedAt) : ''}</p>
+            {article.author?.name ? (
+              <>
+                <span>•</span>
+                <p className="flex items-center gap-1 font-medium text-primary-600 dark:text-primary-400">
+                  👤 Đăng bởi: {article.author.name}
+                </p>
+              </>
+            ) : null}
+          </div>
           <h1 className="font-heading text-3xl md:text-4xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
             {article.title}
           </h1>

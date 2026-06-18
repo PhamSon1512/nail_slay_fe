@@ -91,9 +91,15 @@ export default function ArticlesListPage() {
                 )}
               </div>
               <div className="p-4 space-y-2">
-                <p className="text-xs text-[#8E8A8A]">
-                  {article.publishedAt ? formatDate(article.publishedAt) : ''}
-                </p>
+                <div className="flex items-center gap-1 text-xs text-[#8E8A8A]">
+                  <p>{article.publishedAt ? formatDate(article.publishedAt) : ''}</p>
+                  {article.author?.name ? (
+                    <>
+                      <span>•</span>
+                      <p>👤 {article.author.name}</p>
+                    </>
+                  ) : null}
+                </div>
                 <h2 className="font-heading text-lg font-bold text-[#1D1D1D] dark:text-[#FFF3F5] line-clamp-2 group-hover:text-primary-600 transition-colors">
                   {article.title}
                 </h2>
