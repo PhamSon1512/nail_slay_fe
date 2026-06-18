@@ -96,7 +96,7 @@ export default function ArticlesListPage() {
                   {article.author?.name ? (
                     <>
                       <span>•</span>
-                      <p>👤 {article.author.name}</p>
+                      <p>{article.author.name}</p>
                     </>
                   ) : null}
                 </div>

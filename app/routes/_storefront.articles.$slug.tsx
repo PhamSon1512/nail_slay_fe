@@ -72,7 +72,7 @@ export default function ArticleDetailPage() {
               <>
                 <span>•</span>
                 <p className="flex items-center gap-1 font-medium text-primary-600 dark:text-primary-400">
-                  👤 Đăng bởi: {article.author.name}
+                  Đăng bởi: {article.author.name}
                 </p>
               </>
             ) : null}
