@@ -45,6 +45,11 @@ http.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url;
 
+    // Suppress noisy toasts during bootstrap for missing endpoints on some environments.
+    // These calls are caught upstream and should not block login UX.
+    if ((url === '/profile' || url === '/auth/me') && status === 404) return Promise.reject(error);
+    if (url === '/cart' && status === 404) return Promise.reject(error);
+
     // Không hiển thị popup lỗi nếu là gọi API /profile bị từ chối do token hết hạn/lỗi
     if (url === '/profile' && (status === 400 || status === 401 || status === 403)) {
       return Promise.reject(error);

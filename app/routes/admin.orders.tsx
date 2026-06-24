@@ -86,7 +86,7 @@ export default function AdminOrdersPage() {
     if (import.meta.env.DEV) {
       const demoMatches =
         (!search ||
-          DEMO_ORDER_ROW.userEmail.toLowerCase().includes(search.toLowerCase()) ||
+          DEMO_ORDER_ROW.userEmail?.toLowerCase().includes(search.toLowerCase()) ||
           DEMO_ORDER_ID.includes(search.toLowerCase()) ||
           search.toLowerCase().includes('mẫu') ||
           search.toLowerCase().includes('mau') ||

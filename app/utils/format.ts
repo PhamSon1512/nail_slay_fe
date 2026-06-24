@@ -35,6 +35,22 @@ export function formatDateTime(date: string | Date): string {
   }).format(new Date(date));
 }
 
+/** "Thứ Hai, ngày 23 tháng 6 năm 2026 lúc 14:30" */
+export function formatPublishDateVi(date: string | Date): string {
+  const d = new Date(date);
+  const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long' }).format(d);
+  const day = d.getDate();
+  const month = d.getMonth() + 1;
+  const year = d.getFullYear();
+  const time = new Intl.DateTimeFormat('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
+  const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+  return `${cap}, ngày ${day} tháng ${month} năm ${year} lúc ${time}`;
+}
+
 export function shortId(id: string): string {
   return `#${id.slice(-6).toUpperCase()}`;
 }

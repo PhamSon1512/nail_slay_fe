@@ -26,7 +26,20 @@ export function AuthBootstrap() {
       try {
         const profile = await getProfileApi();
         if (!cancelled) setAuthUser(profile);
-      } catch {
+      } catch (e) {
+        // Some environments might not expose profile endpoints yet (404).
+        // In that case, keep local session to avoid breaking admin login UX.
+        const status = (e as { response?: { status?: number } } | undefined)?.response?.status;
+        if (status === 404) {
+          try {
+            const cached = localStorage.getItem('nailslay_user');
+            if (cached && !cancelled) setAuthUser(JSON.parse(cached));
+          } catch {
+            // ignore
+          }
+          return;
+        }
+
         clearAuth();
         if (!cancelled) {
           setAuthUser(null);

@@ -214,8 +214,41 @@ export type AdminArticle = {
   content: string;
   coverImageUrl: string | null;
   status: 'draft' | 'published';
+  visibility?: 'public' | 'private';
   publishedAt?: string | null;
   createdAt?: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
+  ogImageUrl?: string | null;
+  canonicalUrl?: string | null;
+  schemaType?: string | null;
+  noIndex?: number | null;
+  readingTime?: number | null;
+  seoScore?: number | null;
+  categoryIds?: string[];
+  tagIds?: string[];
+  tags?: { id: string; name: string; slug: string }[];
+};
+
+export type ArticleCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  parentId?: string | null;
+};
+
+export type ArticleTag = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export type SeoAiSuggestResult = {
+  focusKeywords: string[];
+  metaTitle: string;
+  metaDescription: string;
+  relatedQuestions: string[];
 };
 
 export async function fetchAdminArticles(params?: { page?: number; limit?: number; search?: string }) {
@@ -226,6 +259,67 @@ export async function fetchAdminArticles(params?: { page?: number; limit?: numbe
       search: params?.search,
     },
   });
+  return data;
+}
+
+export async function fetchAdminArticleById(id: string) {
+  const { data } = await http.get<AdminArticle>(`/admin/articles/${id}`);
+  return data;
+}
+
+export async function checkFocusKeyword(keyword: string, excludeId?: string) {
+  const { data } = await http.get<{ isUnique: boolean; usedBy: string | null }>('/admin/articles/check-focus-keyword', {
+    params: { keyword, excludeId },
+  });
+  return data;
+}
+
+export async function fetchArticleCategories() {
+  const { data } = await http.get<ArticleCategory[]>('/admin/article-categories');
+  return data;
+}
+
+export async function fetchPopularArticleCategories(limit = 20) {
+  const { data } = await http.get<(ArticleCategory & { articleCount?: number })[]>('/admin/article-categories/popular', {
+    params: { limit: String(limit) },
+  });
+  return data;
+}
+
+export async function createArticleCategory(payload: { name: string; slug?: string; parent_id?: string }) {
+  const { data } = await http.post<ArticleCategory>('/admin/article-categories', payload);
+  return data;
+}
+
+export async function updateArticleCategory(id: string, payload: { name?: string; slug?: string; parent_id?: string }) {
+  const { data } = await http.patch<ArticleCategory>(`/admin/article-categories/${id}`, payload);
+  return data;
+}
+
+export async function deleteArticleCategory(id: string) {
+  const { data } = await http.delete<{ success: boolean }>(`/admin/article-categories/${id}`);
+  return data;
+}
+
+export async function fetchArticleTags() {
+  const { data } = await http.get<ArticleTag[]>('/admin/article-tags');
+  return data;
+}
+
+export async function fetchPopularArticleTags(limit = 20) {
+  const { data } = await http.get<(ArticleTag & { articleCount?: number })[]>('/admin/article-tags/popular', {
+    params: { limit: String(limit) },
+  });
+  return data;
+}
+
+export async function createArticleTag(payload: { name: string; slug?: string }) {
+  const { data } = await http.post<ArticleTag>('/admin/article-tags', payload);
+  return data;
+}
+
+export async function suggestSeoAi(payload: { title: string; content?: string; excerpt?: string }) {
+  const { data } = await http.post<SeoAiSuggestResult>('/admin/articles/seo-ai-suggest', payload);
   return data;
 }
 
@@ -247,5 +341,86 @@ export async function uploadContentImage(file: File) {
   const form = new FormData();
   form.append('image', file);
   const { data } = await http.post<{ url: string }>('/admin/upload/content-image', form);
+  return data;
+}
+
+export async function uploadContentAsset(file: File) {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await http.post<{ url: string; mimeType: string; fileName: string }>(
+    '/admin/upload/content-asset',
+    form,
+  );
+  return data;
+}
+
+export type NotFoundLog = {
+  id: string;
+  path: string;
+  referrer: string | null;
+  userAgent: string | null;
+  hitCount: number;
+  firstSeen: string;
+  lastSeen: string;
+};
+
+export type UrlRedirect = {
+  id: string;
+  fromPath: string;
+  toPath: string;
+  statusCode: 301 | 302;
+  enabled: boolean;
+  createdAt: string;
+};
+
+export type LinkSuggestionItem = {
+  id: string;
+  title: string;
+  slug: string;
+  url: string;
+  absoluteUrl?: string;
+  score: number;
+};
+
+export async function fetchNotFoundLogs() {
+  const { data } = await http.get<NotFoundLog[]>('/admin/seo/404-logs');
+  return data;
+}
+
+export async function deleteNotFoundLog(id: string) {
+  await http.delete(`/admin/seo/404-logs/${id}`);
+}
+
+export async function fetchRedirects() {
+  const { data } = await http.get<UrlRedirect[]>('/admin/seo/redirects');
+  return data;
+}
+
+export async function createRedirect(payload: {
+  fromPath: string;
+  toPath: string;
+  statusCode?: number;
+  enabled?: boolean;
+}) {
+  const { data } = await http.post<UrlRedirect>('/admin/seo/redirects', payload);
+  return data;
+}
+
+export async function updateRedirect(
+  id: string,
+  payload: { fromPath?: string; toPath?: string; statusCode?: number; enabled?: boolean },
+) {
+  const { data } = await http.put<UrlRedirect>(`/admin/seo/redirects/${id}`, payload);
+  return data;
+}
+
+export async function deleteRedirect(id: string) {
+  await http.delete(`/admin/seo/redirects/${id}`);
+}
+
+export async function fetchLinkSuggestions(params: { articleId?: string; q?: string }) {
+  const { data } = await http.get<{ items: LinkSuggestionItem[] }>('/admin/articles/link-suggestions', {
+    params: { articleId: params.articleId, q: params.q },
+  });
   return data;
 }

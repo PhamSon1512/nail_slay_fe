@@ -44,7 +44,7 @@ export default function CheckoutSuccessPage() {
     };
   }, []);
 
-  const bankInfo = checkout?.payment.bank_info ?? fallbackBank;
+  const bankInfo = (checkout?.payment.bank_info ?? fallbackBank) as any;
   const qrUrl = checkout?.payment.qr_code_url || bankInfo.qr_code_url || '';
   const total = checkout?.order.total_amount ?? orderTotal ?? 0;
   const transferContent =

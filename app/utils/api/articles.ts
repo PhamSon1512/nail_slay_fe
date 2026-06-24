@@ -20,7 +20,18 @@ export type ArticleDetail = {
   coverImageUrl: string | null;
   publishedAt?: string | null;
   createdAt?: string;
+  updatedAt?: string | null;
   author?: { id: string; name: string | null } | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
+  ogImageUrl?: string | null;
+  canonicalUrl?: string | null;
+  schemaType?: string | null;
+  noIndex?: number | null;
+  readingTime?: number | null;
+  categories?: { id: string; name: string; slug: string }[];
+  tags?: { id: string; name: string; slug: string }[];
 };
 
 export type ArticleListResponse = {

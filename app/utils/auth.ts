@@ -77,14 +77,27 @@ export async function logoutApi() {
 }
 
 export async function getProfileApi() {
-  const { data } = await http.get<Record<string, unknown>>('/profile');
-  return {
-    id: String(data.id),
-    email: String(data.email),
-    fullName: (data.fullName as string | null) ?? null,
-    phone: (data.phone as string | null) ?? null,
-    role: String(data.role ?? 'user'),
-  } satisfies AuthUser;
+  // Prefer /auth/me (stable for bootstrap). Fallback to legacy /profile.
+  try {
+    const { data } = await http.get<Record<string, unknown>>('/auth/me');
+    const user = (data.user as Record<string, unknown> | undefined) ?? data;
+    return {
+      id: String(user.id),
+      email: String(user.email),
+      fullName: ((user.full_name ?? user.fullName) as string | null) ?? null,
+      phone: (user.phone as string | null) ?? null,
+      role: String(user.role ?? 'user'),
+    } satisfies AuthUser;
+  } catch {
+    const { data } = await http.get<Record<string, unknown>>('/profile');
+    return {
+      id: String(data.id),
+      email: String(data.email),
+      fullName: (data.fullName as string | null) ?? null,
+      phone: (data.phone as string | null) ?? null,
+      role: String(data.role ?? 'user'),
+    } satisfies AuthUser;
+  }
 }
 
 export async function updateProfileApi(input: {

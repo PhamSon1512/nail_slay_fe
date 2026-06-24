@@ -315,14 +315,16 @@ export default function AdminProductsPage() {
           className="max-w-xs"
           classNames={adminSelectClassNames}
         >
-          <SelectItem key="all" textValue="Tất cả danh mục">
-            Tất cả danh mục
-          </SelectItem>
-          {categories.map((c) => (
-            <SelectItem key={c.id} textValue={c.name}>
-              {c.name}
-            </SelectItem>
-          ))}
+          {[
+            <SelectItem key="all" textValue="Tất cả danh mục">
+              Tất cả danh mục
+            </SelectItem>,
+            ...categories.map((c) => (
+              <SelectItem key={c.id} textValue={c.name}>
+                {c.name}
+              </SelectItem>
+            ))
+          ]}
         </Select>
         <Select
           placeholder="Sắp xếp"
@@ -589,7 +591,7 @@ export default function AdminProductsPage() {
       <ConfirmDeleteModal
         isOpen={deleteModal.isOpen}
         onOpenChange={(open) => {
-          deleteModal.onOpenChange(open);
+          if (open) deleteModal.onOpen(); else deleteModal.onClose();
           if (!open) setDeleteTarget(null);
         }}
         message={
