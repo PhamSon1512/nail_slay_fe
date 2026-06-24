@@ -120,7 +120,7 @@ export default function ArticleDetailPage() {
       </div>
 
       {/* Hero Parallax Section */}
-      <div className="relative h-[65vh] md:h-[75vh] w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-20 z-10">
+      <div className="relative min-h-[55vh] md:min-h-[60vh] pt-32 md:pt-40 w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-16 z-10">
         {article.coverImageUrl ? (
           <motion.div 
             className="absolute inset-0 w-full h-[120%]"
@@ -136,7 +136,7 @@ export default function ArticleDetailPage() {
         <div className="container relative z-20">
           <Link
             to="/articles"
-            className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors mb-6 backdrop-blur-sm bg-black/20 px-3 py-1.5 rounded-full w-fit"
+            className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors mb-4 backdrop-blur-sm bg-black/20 px-3 py-1.5 rounded-full w-fit"
           >
             <RiArrowLeftLine size={16} />
             Danh sách bài viết
@@ -146,13 +146,13 @@ export default function ArticleDetailPage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-4xl backdrop-blur-xl bg-white/10 dark:bg-black/30 border border-white/20 p-6 md:p-10 rounded-[2rem] shadow-2xl"
+            className="max-w-3xl backdrop-blur-xl bg-white/10 dark:bg-black/30 border border-white/20 p-5 md:p-8 rounded-[2rem] shadow-2xl"
           >
-            <div className="flex flex-wrap items-center gap-4 text-sm text-white/90 mb-5">
+            <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-white/90 mb-4">
                {article.tags && article.tags.length > 0 ? (
                  <div className="flex flex-wrap gap-2 mr-2">
                    {article.tags.map((t) => (
-                     <span key={t.id} className="text-xs rounded-full bg-[#ff6ea8]/80 text-white px-3 py-1 font-semibold backdrop-blur-md shadow-sm">
+                     <span key={t.id} className="text-[11px] md:text-xs rounded-full bg-[#ff6ea8]/80 text-white px-3 py-1 font-semibold backdrop-blur-md shadow-sm">
                        {t.name}
                      </span>
                    ))}
@@ -167,24 +167,24 @@ export default function ArticleDetailPage() {
               ) : null}
             </div>
 
-            <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5 drop-shadow-lg tracking-tight">
+            <h1 className="font-heading text-2xl md:text-4xl lg:text-[2.75rem] font-extrabold text-white leading-tight mb-4 drop-shadow-lg tracking-tight">
               {article.title}
             </h1>
 
             {article.excerpt ? (
-              <p className="text-base md:text-xl text-white/90 line-clamp-3 md:line-clamp-none max-w-3xl font-light leading-relaxed">
+              <p className="text-sm md:text-lg text-white/90 line-clamp-3 md:line-clamp-none max-w-2xl font-light leading-relaxed">
                 {article.excerpt}
               </p>
             ) : null}
             
             {article.author?.name ? (
-              <div className="mt-8 flex items-center gap-4 border-t border-white/20 pt-6">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ffb6c1] to-[#ff6ea8] flex items-center justify-center text-white text-lg font-bold shadow-lg border-2 border-white/50">
+              <div className="mt-6 flex items-center gap-3 border-t border-white/20 pt-5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffb6c1] to-[#ff6ea8] flex items-center justify-center text-white text-base font-bold shadow-lg border-2 border-white/50">
                   {article.author.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-xs text-white/60 mb-0.5 uppercase tracking-wider font-semibold">Tác giả</p>
-                  <p className="font-bold text-white text-base">
+                  <p className="text-[10px] md:text-xs text-white/60 mb-0.5 uppercase tracking-wider font-semibold">Tác giả</p>
+                  <p className="font-bold text-white text-sm md:text-base">
                     {article.author.name}
                   </p>
                 </div>
@@ -195,13 +195,13 @@ export default function ArticleDetailPage() {
       </div>
 
       {/* Main Content */}
-      <div className="container relative z-20 -mt-10 md:-mt-16">
+      <div className="container relative z-20 -mt-8 md:-mt-12">
         <motion.article 
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-4xl mx-auto bg-white/95 dark:bg-[#1a1518]/95 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-14 shadow-[0_20px_60px_rgb(0,0,0,0.08)] border border-white dark:border-[#2a2226]"
+          className="max-w-4xl mx-auto bg-white/95 dark:bg-[#1a1518]/95 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 lg:p-14 shadow-[0_20px_60px_rgb(0,0,0,0.08)] border border-white dark:border-[#2a2226]"
         >
           <RichContent html={article.content} className="prose-lg md:prose-xl prose-headings:font-heading prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#ff6ea8]" />
 
