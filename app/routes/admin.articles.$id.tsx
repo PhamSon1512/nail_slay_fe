@@ -331,38 +331,43 @@ export default function AdminArticleEditorPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
         <div className="space-y-4 min-w-0">
-          <div className="border border-[#c3c4c7] bg-white shadow-sm">
-            <input
-              type="text"
-              placeholder="Nhập tiêu đề bài viết"
-              value={form.title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full border-0 border-b border-[#c3c4c7] px-4 py-3 text-2xl font-normal text-[#1d2327] placeholder:text-[#a7aaad] focus:outline-none focus:ring-0"
-            />
-            <div className="px-4 py-2 border-b border-[#c3c4c7] bg-[#fafafa]">
-              <ArticlePermalink
-                slug={form.slug}
-                onSlugChange={(slug) => patch({ slug })}
-                onSlugManualChange={setSlugManual}
-              />
-            </div>
-            <div className="px-3 py-2 border-b border-[#c3c4c7] bg-[#fafafa] flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="flat"
-                color="primary"
-                startContent={<RiImageAddLine />}
-                className="font-semibold text-[#1d1d1d]"
-                onPress={() => editorRef.current?.openMediaPicker()}
-              >
-                Thêm tệp
-              </Button>
-            </div>
+          <div className="border border-[#c3c4c7] bg-white shadow-sm min-w-0 overflow-visible">
           <Suspense fallback={<div className="h-[400px] flex items-center justify-center bg-white"><Spinner /></div>}>
             <ArticleRichTextEditor
               ref={editorRef}
               value={form.content}
               onChange={(content) => patch({ content })}
+              stickyChrome
+              chromePrefix={
+                <>
+                  <input
+                    type="text"
+                    placeholder="Nhập tiêu đề bài viết"
+                    value={form.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    className="w-full border-0 border-b border-[#c3c4c7] px-4 py-3 text-2xl font-normal text-[#1d2327] placeholder:text-[#a7aaad] focus:outline-none focus:ring-0 bg-white"
+                  />
+                  <div className="px-4 py-2 border-b border-[#c3c4c7] bg-[#fafafa]">
+                    <ArticlePermalink
+                      slug={form.slug}
+                      onSlugChange={(slug) => patch({ slug })}
+                      onSlugManualChange={setSlugManual}
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-b border-[#c3c4c7] bg-[#fafafa] flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="primary"
+                      startContent={<RiImageAddLine />}
+                      className="font-semibold text-[#1d1d1d]"
+                      onPress={() => editorRef.current?.openMediaPicker()}
+                    >
+                      Thêm tệp
+                    </Button>
+                  </div>
+                </>
+              }
               className="border-0 shadow-none rounded-none"
             />
           </Suspense>

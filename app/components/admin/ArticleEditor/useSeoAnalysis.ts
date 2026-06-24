@@ -96,17 +96,6 @@ function checkExternalLinks(doc: Document | null): boolean {
   return false;
 }
 
-function checkDofollowExternalLinks(doc: Document | null): boolean {
-  if (!doc) return false;
-  for (const a of doc.querySelectorAll('a[href]')) {
-    const href = a.getAttribute('href') ?? '';
-    if (!isExternalSeoLink(href)) continue;
-    const rel = (a.getAttribute('rel') ?? '').toLowerCase();
-    if (!rel.includes('nofollow')) return true;
-  }
-  return false;
-}
-
 function checkInternalLinks(doc: Document | null): boolean {
   if (!doc) return false;
   for (const a of doc.querySelectorAll('a[href]')) {
@@ -245,12 +234,6 @@ export function analyzeSeo(input: SeoAnalysisInput): SeoAnalysisResult {
       label: 'Liên kết đến các tài nguyên bên ngoài.',
       passed: hasContent && checkExternalLinks(doc),
       tooltip: 'Thêm ít nhất 1 liên kết ra website bên ngoài.',
-    },
-    {
-      id: 'dofollow-external',
-      label: 'Thêm liên kết DoFollow trỏ đến các tài nguyên bên ngoài.',
-      passed: hasContent && checkDofollowExternalLinks(doc),
-      tooltip: 'Liên kết ngoài không nên có thuộc tính rel="nofollow".',
     },
     {
       id: 'internal-links',

@@ -128,7 +128,13 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             !isOpen && 'lg:justify-center lg:px-0',
           )}
         >
-          <Link to="/admin/dashboard" className="flex items-center gap-3 w-full group">
+          <Link
+            to="/admin/dashboard"
+            className={cn(
+              'flex items-center gap-3 group',
+              isOpen ? 'w-full' : 'lg:w-full lg:justify-center',
+            )}
+          >
             <div className="relative shrink-0">
               <div className="absolute inset-0 bg-primary-500 rounded-full blur-[6px] opacity-0 group-hover:opacity-80 transition-opacity duration-300" />
               <img

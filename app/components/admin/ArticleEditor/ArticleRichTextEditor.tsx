@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useImperativeHandle, useState, forwardRef, useRef } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useState, forwardRef, useRef, type ReactNode } from 'react';
 import CharacterCount from '@tiptap/extension-character-count';
 import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
@@ -52,6 +52,7 @@ import { TableMenuDropdown } from './TableMenuDropdown';
 import { TableBubbleToolbar } from './TableBubbleToolbar';
 import { ArticleHeading } from './extensions/articleHeading';
 import { EditorLink } from './extensions/editorLink';
+import { LinkInsertModal, type LinkInsertValues } from './LinkInsertModal';
 import { toAbsoluteInternalUrl } from './seoConstants';
 
 type ArticleRichTextEditorProps = {
@@ -59,6 +60,10 @@ type ArticleRichTextEditorProps = {
   onChange: (html: string) => void;
   placeholder?: string;
   className?: string;
+  /** Ghim tiêu đề + thanh công cụ khi cuộn trang */
+  stickyChrome?: boolean;
+  /** Nội dung phía trên thanh công cụ (tiêu đề, permalink, …) */
+  chromePrefix?: ReactNode;
 };
 
 export type ArticleRichTextEditorHandle = {
@@ -125,11 +130,17 @@ const CustomTableHeader = TableHeader.extend({
 });
 
 export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, ArticleRichTextEditorProps>(
-  function ArticleRichTextEditor({ value, onChange, placeholder = 'Nhập nội dung bài viết...', className }, ref) {
+  function ArticleRichTextEditor(
+    { value, onChange, placeholder = 'Nhập nội dung bài viết...', className, stickyChrome, chromePrefix },
+    ref,
+  ) {
     const [mode, setMode] = useState<'visual' | 'code'>('visual');
     const [codeValue, setCodeValue] = useState(value);
     const [fullscreen, setFullscreen] = useState(false);
     const [mediaOpen, setMediaOpen] = useState(false);
+    const [linkModalOpen, setLinkModalOpen] = useState(false);
+    const [linkInitialUrl, setLinkInitialUrl] = useState('');
+    const [linkInitialText, setLinkInitialText] = useState('');
     const [, setToolbarTick] = useState(0);
 
     const uploadAndInsertImage = useCallback(async (file: File, ed: NonNullable<ReturnType<typeof useEditor>>) => {
@@ -171,7 +182,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
       editorProps: {
         attributes: {
           class:
-            'prose prose-sm max-w-none min-h-[320px] px-4 py-3 focus:outline-none article-editor-prose',
+            'prose prose-sm max-w-none min-h-[500px] px-4 py-3 focus:outline-none article-editor-prose',
           style: `font-family: ${DEFAULT_FONT}; font-size: ${DEFAULT_FONT_SIZE};`,
         },
         handlePaste: (_view, event) => {
@@ -263,16 +274,42 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
       setCodeValue(value);
     }, [editor, value, mode]);
 
-    const setLink = () => {
+    const openLinkModal = () => {
       if (!editor) return;
-      const prev = editor.getAttributes('link').href as string | undefined;
-      const url = window.prompt('URL liên kết', prev ?? 'https://');
-      if (url === null) return;
-      if (url === '') {
+      const prev = (editor.getAttributes('link').href as string | undefined) ?? '';
+      const { from, to } = editor.state.selection;
+      const selectedText = from !== to ? editor.state.doc.textBetween(from, to) : '';
+      setLinkInitialUrl(prev || 'https://');
+      setLinkInitialText(selectedText);
+      setLinkModalOpen(true);
+    };
+
+    const applyLink = ({ url, text }: LinkInsertValues) => {
+      if (!editor) return;
+      const href = url.trim();
+      if (!href) {
         editor.chain().focus().extendMarkRange('link').unsetLink().run();
         return;
       }
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      const display = text.trim();
+      const { from, to, empty } = editor.state.selection;
+      if (!empty) {
+        if (display && editor.state.doc.textBetween(from, to) !== display) {
+          editor.chain().focus().deleteSelection().insertContent(`<a href="${href}">${display}</a>`).run();
+        } else {
+          editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
+        }
+        return;
+      }
+      if (editor.isActive('link')) {
+        editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
+        return;
+      }
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<a href="${href}">${display || href}</a>`)
+        .run();
     };
 
     const insertImage = () => {
@@ -339,8 +376,9 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
         while (usedIds.has(id)) id = `${slugifyAnchor(text)}-${n++}`;
         usedIds.add(id);
         h.id = id;
-        const indent = h.tagName === 'H3' ? ' class="ml-4"' : h.tagName === 'H4' ? ' class="ml-8"' : '';
-        items.push(`<li${indent}><a href="#${id}">${text}</a></li>`);
+        const levelClass =
+          h.tagName === 'H2' ? 'toc-item toc-l2' : h.tagName === 'H3' ? 'toc-item toc-l3' : 'toc-item toc-l4';
+        items.push(`<li class="${levelClass}"><a href="#${id}">${text}</a></li>`);
       });
 
       if (items.length === 0) {
@@ -362,8 +400,9 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
     };
 
     const wrapperClass = cn(
-      'border border-[#c3c4c7] bg-white shadow-sm overflow-hidden',
-      fullscreen && 'fixed inset-4 z-50 flex flex-col shadow-2xl',
+      'border border-[#c3c4c7] bg-white shadow-sm',
+      stickyChrome ? 'flex flex-col max-h-[calc(100dvh-9rem)] min-h-[40rem]' : 'flex flex-col min-h-[500px] overflow-hidden',
+      fullscreen && 'fixed inset-4 z-50 flex flex-col shadow-2xl overflow-hidden max-h-none min-h-0',
       className,
     );
 
@@ -373,6 +412,8 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
 
     return (
       <div className={wrapperClass}>
+        <div className={cn(stickyChrome && 'shrink-0 z-50 bg-white shadow-md border-b border-[#c3c4c7]')}>
+          {chromePrefix}
         {mode === 'visual' && editor && (
           <>
             <div className="flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1">
@@ -387,7 +428,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
                 onFullscreenToggle={() => setFullscreen((f) => !f)}
                 onOpenMedia={() => setMediaOpen(true)}
                 onInsertImage={insertImage}
-                onSetLink={setLink}
+                onSetLink={openLinkModal}
                 onInsertToc={insertTableOfContents}
               />
               <Tabs
@@ -441,7 +482,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
                 <EditorToolbarButton active={editor.isActive({ textAlign: 'justify' })} onPress={() => editor.chain().focus().setTextAlign('justify').run()} label="Căn đều">
                   <RiAlignJustify size={16} />
                 </EditorToolbarButton>
-                <EditorToolbarButton onPress={setLink} label="Liên kết">
+                <EditorToolbarButton onPress={openLinkModal} label="Liên kết">
                   <RiLink size={16} />
                 </EditorToolbarButton>
                 <EditorToolbarButton onPress={insertImage} label="Chèn ảnh">
@@ -512,8 +553,6 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
                 )}
               </div>
             </div>
-            <ImageBubbleToolbar editor={editor} />
-            <TableBubbleToolbar editor={editor} />
           </>
         )}
 
@@ -530,7 +569,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
               onFullscreenToggle={() => setFullscreen((f) => !f)}
               onOpenMedia={() => setMediaOpen(true)}
               onInsertImage={insertImage}
-              onSetLink={setLink}
+              onSetLink={openLinkModal}
               onInsertToc={insertTableOfContents}
             />
             <Tabs
@@ -550,10 +589,13 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
             </Tabs>
           </div>
         )}
+        </div>
 
+        <div className={cn('flex-1 min-h-0 overflow-y-auto', stickyChrome && '')}>
         {mode === 'visual' && editor ? (
-          <div className={cn('overflow-auto relative', fullscreen && 'flex-1')}>
+          <div className={cn('relative', !stickyChrome && 'overflow-auto', fullscreen && 'flex-1')}>
             <ImageBubbleToolbar editor={editor} />
+            <TableBubbleToolbar editor={editor} />
             <EditorContent editor={editor} />
             <style>{`
               .article-editor-prose p {
@@ -578,37 +620,76 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
               }
               .article-editor-prose ul.article-toc {
                 list-style: none;
-                padding: 1rem 1.25rem;
+                padding: 1.25rem 1.5rem;
                 margin: 1.5rem 0;
-                border-left: 4px solid #2271b1;
-                border-radius: 0.25rem;
-                background: #f8f9fa;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                border: 1px solid rgba(255, 174, 200, 0.65);
+                border-left: 5px solid #ff6ea8;
+                border-radius: 0.75rem;
+                background: radial-gradient(100% 160% at 0% 0%, rgba(255, 110, 168, 0.10) 0%, rgba(255, 110, 168, 0.00) 55%), linear-gradient(135deg, rgba(255, 245, 248, 1) 0%, rgba(255, 255, 255, 1) 100%);
+                box-shadow: 0 8px 24px rgba(18, 18, 18, 0.08);
               }
               .article-editor-prose ul.article-toc > li:first-child {
-                font-size: 1.1em;
+                font-size: 1.1rem;
+                font-weight: 800;
+                letter-spacing: 0.2px;
                 margin-bottom: 0.75rem;
-                color: #1d2327;
-                border-bottom: 1px solid #dcdcde;
-                padding-bottom: 0.5rem;
+                color: #2a2226;
+                border-bottom: 1px solid rgba(255, 174, 200, 0.7);
+                padding-bottom: 0.6rem;
               }
-              .article-editor-prose ul.article-toc li {
-                margin: 0.5rem 0;
-                line-height: 1.5;
+              .article-editor-prose .article-toc .toc-item {
+                position: relative;
+                margin: 0.4rem 0;
+                line-height: 1.55;
+                padding: 0.15rem 0.25rem;
+                border-radius: 0.5rem;
               }
-              .article-editor-prose ul.article-toc .ml-4 {
-                margin-left: 1rem;
+              .article-editor-prose .article-toc .toc-l2 {
+                font-weight: 700;
+                font-size: 0.95rem;
+                padding-left: 1.25rem;
               }
-              .article-editor-prose ul.article-toc .ml-8 {
-                margin-left: 2rem;
+              .article-editor-prose .article-toc .toc-l3 {
+                padding-left: 2.75rem;
+                font-size: 0.875rem;
+                font-weight: 600;
               }
-              .article-editor-prose ul.article-toc a {
-                color: #2271b1 !important;
+              .article-editor-prose .article-toc .toc-l4 {
+                padding-left: 4.25rem;
+                font-size: 0.8125rem;
+                color: #6b5f66;
+              }
+              .article-editor-prose .article-toc a {
+                display: block;
+                color: #b42362 !important;
                 text-decoration: none !important;
-                font-weight: 500;
+                font-weight: inherit;
               }
-              .article-editor-prose ul.article-toc a:hover {
-                text-decoration: underline !important;
+              .article-editor-prose .article-toc a:hover {
+                text-decoration: none !important;
+                background: rgba(255, 110, 168, 0.12);
+              }
+              .article-editor-prose .article-toc .toc-item:before {
+                content: '';
+                position: absolute;
+                left: 0.25rem;
+                top: 0.78rem;
+                width: 0.45rem;
+                height: 0.45rem;
+                border-radius: 999px;
+                background: #ff6ea8;
+                box-shadow: 0 0 0 3px rgba(255, 110, 168, 0.18);
+              }
+              .article-editor-prose .article-toc .toc-l3:before {
+                left: 1.75rem;
+                background: #ff93bf;
+              }
+              .article-editor-prose .article-toc .toc-l4:before {
+                left: 3.25rem;
+                background: #ffc2d9;
+              }
+              .article-editor-prose .article-toc .toc-item:hover {
+                background: rgba(255, 110, 168, 0.08);
               }
               .article-editor-prose img.ProseMirror-selectednode {
                 outline: 2px solid #68cef8;
@@ -668,8 +749,9 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
             </Button>
           </div>
         ) : (
-          <div className="min-h-[320px] flex items-center justify-center text-sm text-[#50575e]">Đang tải trình soạn thảo…</div>
+          <div className="min-h-[500px] flex items-center justify-center text-sm text-[#50575e]">Đang tải trình soạn thảo…</div>
         )}
+        </div>
 
         {editor && mode === 'visual' && (
           <div className="border-t border-[#c3c4c7] bg-[#f6f7f7] px-3 py-1.5 text-xs text-[#50575e]">
@@ -677,6 +759,13 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
           </div>
         )}
 
+        <LinkInsertModal
+          isOpen={linkModalOpen}
+          onClose={() => setLinkModalOpen(false)}
+          initialUrl={linkInitialUrl}
+          initialText={linkInitialText}
+          onSubmit={applyLink}
+        />
         <MediaPickerModal isOpen={mediaOpen} onClose={() => setMediaOpen(false)} onInsert={insertAsset} />
       </div>
     );
