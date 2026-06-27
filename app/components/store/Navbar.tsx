@@ -43,7 +43,8 @@ export function Navbar() {
   useServerCart();
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
   const [authUser] = useAtom(authUserAtom);
-  const cartCount = authUser ? serverCartCount : localCartCount;
+  const sessionUser = authReady ? authUser : null;
+  const cartCount = sessionUser ? serverCartCount : localCartCount;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -95,8 +96,8 @@ export function Navbar() {
   };
 
   const displayName =
-    authUser?.fullName?.split(' ').filter(Boolean).pop() ??
-    authUser?.email?.split('@')[0] ??
+    sessionUser?.fullName?.split(' ').filter(Boolean).pop() ??
+    sessionUser?.email?.split('@')[0] ??
     'Tài khoản';
 
   return (
@@ -197,7 +198,7 @@ export function Navbar() {
         </NavbarItem>
 
         <NavbarItem>
-          {authReady && authUser ? (
+          {authReady && sessionUser ? (
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
                 <Button
@@ -214,7 +215,7 @@ export function Navbar() {
                 <DropdownItem key="profile">Thông tin tài khoản</DropdownItem>
                 <DropdownItem key="orders">Đơn hàng của tôi</DropdownItem>
                 <DropdownItem key="password">Đổi mật khẩu</DropdownItem>
-                {isAdminRole(authUser.role) ? (
+                {isAdminRole(sessionUser.role) ? (
                   <DropdownItem key="admin">Quản trị</DropdownItem>
                 ) : null}
                 <DropdownItem
@@ -257,7 +258,7 @@ export function Navbar() {
             </Link>
           </NavbarMenuItem>
         ))}
-        {authUser ? (
+        {sessionUser ? (
           <NavbarMenuItem>
             <Link
               to="/orders"
@@ -268,7 +269,7 @@ export function Navbar() {
             </Link>
           </NavbarMenuItem>
         ) : null}
-        {authUser && isAdminRole(authUser.role) ? (
+        {sessionUser && isAdminRole(sessionUser.role) ? (
           <NavbarMenuItem>
             <Link
               to="/admin/dashboard"

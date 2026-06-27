@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import toast from 'react-hot-toast';
-import { authUserAtom, serverCartItemsAtom, serverCartSubtotalAtom } from '~/utils/atoms';
+import { authBootstrapReadyAtom, authUserAtom, serverCartItemsAtom, serverCartSubtotalAtom } from '~/utils/atoms';
 import type { CartItem } from '~/utils/api/cart';
 import {
   addCartItem,
@@ -15,6 +15,7 @@ function calcSubtotal(items: CartItem[]) {
 }
 
 export function useServerCart() {
+  const authReady = useAtomValue(authBootstrapReadyAtom);
   const authUser = useAtomValue(authUserAtom);
   const items = useAtomValue(serverCartItemsAtom);
   const subtotal = useAtomValue(serverCartSubtotalAtom);
@@ -23,7 +24,7 @@ export function useServerCart() {
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!authUser) {
+    if (!authReady || !authUser) {
       setItems([]);
       setSubtotal(0);
       return;
@@ -39,7 +40,7 @@ export function useServerCart() {
     } finally {
       setLoading(false);
     }
-  }, [authUser, setItems, setSubtotal]);
+  }, [authReady, authUser, setItems, setSubtotal]);
 
   useEffect(() => {
     void refresh();

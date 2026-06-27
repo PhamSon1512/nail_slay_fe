@@ -76,27 +76,41 @@ export async function logoutApi() {
   }
 }
 
+function mapProfilePayload(data: Record<string, unknown>): AuthUser {
+  const user = (data.user as Record<string, unknown> | undefined) ?? data;
+  return {
+    id: String(user.id),
+    email: String(user.email),
+    fullName: ((user.full_name ?? user.fullName) as string | null) ?? null,
+    phone: (user.phone as string | null) ?? null,
+    role: String(user.role ?? 'user'),
+  };
+}
+
+function getHttpStatus(error: unknown): number | undefined {
+  return (error as { response?: { status?: number } } | undefined)?.response?.status;
+}
+
+/** Refresh access token using httpOnly refresh cookie (Safari session restore). */
+export async function refreshSessionApi() {
+  const { data } = await http.get<AuthResponse>('/auth/token');
+  const user = mapAuthUser(data.user);
+  persistAuth(data.token, user);
+  return { token: data.token, user };
+}
+
 export async function getProfileApi() {
-  // Prefer /auth/me (stable for bootstrap). Fallback to legacy /profile.
   try {
     const { data } = await http.get<Record<string, unknown>>('/auth/me');
-    const user = (data.user as Record<string, unknown> | undefined) ?? data;
-    return {
-      id: String(user.id),
-      email: String(user.email),
-      fullName: ((user.full_name ?? user.fullName) as string | null) ?? null,
-      phone: (user.phone as string | null) ?? null,
-      role: String(user.role ?? 'user'),
-    } satisfies AuthUser;
-  } catch {
-    const { data } = await http.get<Record<string, unknown>>('/profile');
-    return {
-      id: String(data.id),
-      email: String(data.email),
-      fullName: (data.fullName as string | null) ?? null,
-      phone: (data.phone as string | null) ?? null,
-      role: String(data.role ?? 'user'),
-    } satisfies AuthUser;
+    return mapProfilePayload(data);
+  } catch (error) {
+    const status = getHttpStatus(error);
+    if (status === 401 || status === 403) throw error;
+    if (status === 404) {
+      const { data } = await http.get<Record<string, unknown>>('/profile');
+      return mapProfilePayload(data);
+    }
+    throw error;
   }
 }
 

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import toast from 'react-hot-toast';
+import { useAuthReady } from '~/components/AuthBootstrap';
 import { authUserAtom, cartAtom, serverCartItemsAtom, serverCartSubtotalAtom } from '~/utils/atoms';
 import { addCartItem, fetchCart } from '~/utils/api/cart';
 
 /** Runs once per storefront session to merge guest cart into server cart. */
 export function ServerCartBootstrap() {
+  const authReady = useAuthReady();
   const authUser = useAtomValue(authUserAtom);
   const [localCart, setLocalCart] = useAtom(cartAtom);
   const setItems = useSetAtom(serverCartItemsAtom);
@@ -13,7 +15,7 @@ export function ServerCartBootstrap() {
   const mergedRef = useRef(false);
 
   useEffect(() => {
-    if (!authUser) {
+    if (!authReady || !authUser) {
       mergedRef.current = false;
       return;
     }
@@ -42,7 +44,7 @@ export function ServerCartBootstrap() {
         toast.error(`${dropped} sản phẩm không thêm được vào giỏ (hết hàng hoặc ngừng bán).`);
       }
     })();
-  }, [authUser, localCart, setItems, setLocalCart, setSubtotal]);
+  }, [authReady, authUser, localCart, setItems, setLocalCart, setSubtotal]);
 
   return null;
 }

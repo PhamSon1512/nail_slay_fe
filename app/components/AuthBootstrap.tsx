@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 import { useAtomValue } from 'jotai';
-import { clearAuth, getProfileApi, readStoredToken } from '~/utils/auth';
+import { clearAuth, getProfileApi, readStoredToken, refreshSessionApi } from '~/utils/auth';
 import { authBootstrapReadyAtom, authTokenAtom, authUserAtom } from '~/utils/atoms';
+
+function getHttpStatus(error: unknown): number | undefined {
+  return (error as { response?: { status?: number } } | undefined)?.response?.status;
+}
 
 /** Khôi phục phiên đăng nhập từ cookie/localStorage và xác thực với API. */
 export function AuthBootstrap() {
@@ -17,7 +21,12 @@ export function AuthBootstrap() {
       const token = readStoredToken();
 
       if (!token) {
-        if (!cancelled) setBootstrapReady(true);
+        clearAuth();
+        if (!cancelled) {
+          setAuthUser(null);
+          setAuthToken(null);
+          setBootstrapReady(true);
+        }
         return;
       }
 
@@ -27,9 +36,26 @@ export function AuthBootstrap() {
         const profile = await getProfileApi();
         if (!cancelled) setAuthUser(profile);
       } catch (e) {
-        // Some environments might not expose profile endpoints yet (404).
-        // In that case, keep local session to avoid breaking admin login UX.
-        const status = (e as { response?: { status?: number } } | undefined)?.response?.status;
+        const status = getHttpStatus(e);
+
+        if (status === 401 || status === 403) {
+          try {
+            const { token: newToken, user } = await refreshSessionApi();
+            if (!cancelled) {
+              setAuthToken(newToken);
+              setAuthUser(user);
+            }
+            return;
+          } catch {
+            clearAuth();
+            if (!cancelled) {
+              setAuthUser(null);
+              setAuthToken(null);
+            }
+            return;
+          }
+        }
+
         if (status === 404) {
           try {
             const cached = localStorage.getItem('nailslay_user');

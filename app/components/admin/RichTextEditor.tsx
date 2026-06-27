@@ -12,6 +12,8 @@ import {
   RiAlignLeft,
   RiAlignRight,
   RiBold,
+  RiH2,
+  RiH3,
   RiItalic,
   RiLink,
   RiListOrdered,
@@ -68,10 +70,12 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: false }),
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+      }),
       Underline,
       Link.configure({ openOnClick: false }),
-      TextAlign.configure({ types: ['paragraph'] }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TiptapImage.configure({ HTMLAttributes: { class: 'max-w-full h-auto my-4 mx-auto rounded-xl' } }),
       Placeholder.configure({ placeholder }),
     ],
@@ -79,7 +83,8 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
     onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none min-h-[160px] px-3 py-2 focus:outline-none',
+        class:
+          'prose prose-sm max-w-none min-h-[280px] px-3 py-3 focus:outline-none [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1.5 [&_p]:my-2 [&_p]:leading-relaxed',
       },
       handlePaste: (_view, event) => {
         const items = event.clipboardData?.items;
@@ -141,6 +146,12 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
         </ToolbarButton>
         <ToolbarButton active={editor.isActive('underline')} onPress={() => editor.chain().focus().toggleUnderline().run()} label="Gạch chân">
           <RiUnderline size={16} />
+        </ToolbarButton>
+        <ToolbarButton active={editor.isActive('heading', { level: 2 })} onPress={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} label="Tiêu đề H2">
+          <RiH2 size={16} />
+        </ToolbarButton>
+        <ToolbarButton active={editor.isActive('heading', { level: 3 })} onPress={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} label="Tiêu đề H3">
+          <RiH3 size={16} />
         </ToolbarButton>
         <ToolbarButton active={editor.isActive({ textAlign: 'left' })} onPress={() => editor.chain().focus().setTextAlign('left').run()} label="Căn trái">
           <RiAlignLeft size={16} />
