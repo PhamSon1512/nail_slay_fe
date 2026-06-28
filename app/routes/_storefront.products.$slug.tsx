@@ -1,11 +1,11 @@
 import type { Route } from './+types/_storefront.products.$slug';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge, Button } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import toast from 'react-hot-toast';
 import { RiArrowLeftLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri';
 import { Link, useParams } from 'react-router';
-import { ProductCard, ProductDiscountBadge, ProductImageGallery, ProductPriceDisplay, RichContent, ProductReviews } from '~/components';
+import { ProductCard, ProductDiscountBadge, ProductImageGallery, ProductPriceDisplay, RichContent, ProductReviews, type ProductGallerySlide } from '~/components';
 import { useRequireAuth, useServerCart } from '~/hooks';
 import { authUserAtom, cartAtom } from '~/utils/atoms';
 import { fetchStoreProduct, fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
@@ -23,6 +23,7 @@ type ProductVariant = {
   size?: string | null;
   price: number;
   stock: number;
+  imageUrl?: string | null;
 };
 
 const sectionCardClass =
@@ -40,6 +41,8 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryAutoplayPaused, setGalleryAutoplayPaused] = useState(false);
 
   const variants = product?.variants ?? [];
   const hasVariants = variants.length > 0;
@@ -47,6 +50,38 @@ export default function ProductDetailPage() {
     () => variants.find((v) => v.id === selectedVariantId) ?? null,
     [variants, selectedVariantId],
   );
+
+  const productImages = useMemo(
+    () => (product?.imageUrls?.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5),
+    [product?.imageUrls],
+  );
+
+  const gallerySlides = useMemo<ProductGallerySlide[]>(() => {
+    const baseSlides: ProductGallerySlide[] = productImages.map((src) => ({ src, kind: 'product' }));
+    const variantSlides: ProductGallerySlide[] = variants
+      .filter((v) => Boolean(v.imageUrl))
+      .map((v) => ({
+        src: v.imageUrl!,
+        kind: 'variant',
+        variantId: v.id,
+        variantLabel: [v.name, v.color, v.size].filter(Boolean).join(' · '),
+      }));
+    return [...baseSlides, ...variantSlides];
+  }, [productImages, variants]);
+
+  const scrollToVariantSlide = useCallback((variantId: string) => {
+    setGalleryAutoplayPaused(true);
+    const index = gallerySlides.findIndex((slide) => slide.kind === 'variant' && slide.variantId === variantId);
+    if (index >= 0) setGalleryIndex(index);
+  }, [gallerySlides]);
+
+  const handleGalleryIndexChange = useCallback((index: number, slide: ProductGallerySlide) => {
+    setGalleryIndex(index);
+    if (slide.kind === 'variant' && slide.variantId) {
+      setSelectedVariantId(slide.variantId);
+      setQty(1);
+    }
+  }, []);
   const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
   const displayStock = selectedVariant?.stock ?? (hasVariants ? 0 : product?.stock ?? 0);
   const maxQty = hasVariants && !selectedVariantId ? 1 : Math.max(displayStock, 1);
@@ -58,10 +93,22 @@ export default function ProductDetailPage() {
     if (!slug) return;
     setLoading(true);
     setSelectedVariantId(null);
+    setGalleryIndex(0);
+    setGalleryAutoplayPaused(false);
     setQty(1);
     fetchStoreProduct(slug)
       .then((data) => {
-        setProduct(data as StoreProduct & { variants?: ProductVariant[] });
+        const raw = data as StoreProduct & { variants?: Array<Record<string, unknown>> };
+        const normalizedVariants: ProductVariant[] = (raw.variants ?? []).map((v) => ({
+          id: String(v.id),
+          name: String(v.name ?? ''),
+          color: (v.color as string | null | undefined) ?? null,
+          size: (v.size as string | null | undefined) ?? null,
+          price: Number(v.price ?? 0),
+          stock: Number(v.stock ?? 0),
+          imageUrl: (v.imageUrl ?? v.image_url ?? null) as string | null,
+        }));
+        setProduct({ ...raw, variants: normalizedVariants });
         return fetchStoreProducts({ limit: 20 });
       })
       .then((list) => {
@@ -85,8 +132,6 @@ export default function ProductDetailPage() {
       </div>
     );
   }
-
-  const images = (product.imageUrls?.length ? product.imageUrls : ['/branding/brand-board.png']).slice(0, 5);
 
   const addToCart = () => {
     if (hasVariants && !selectedVariantId) {
@@ -130,7 +175,7 @@ export default function ProductDetailPage() {
           price: displayPrice,
           quantity: Math.min(displayStock, qty),
           slug: product.slug,
-          imageUrl: images[0],
+          imageUrl: selectedVariant?.imageUrl ?? productImages[0],
           stock: displayStock,
         },
       ]);
@@ -149,7 +194,13 @@ export default function ProductDetailPage() {
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-        <ProductImageGallery images={images} alt={product.name} />
+        <ProductImageGallery
+          slides={gallerySlides}
+          alt={product.name}
+          selectedIndex={galleryIndex}
+          onSelectedIndexChange={handleGalleryIndexChange}
+          pauseAutoplay={galleryAutoplayPaused}
+        />
 
         <div className="space-y-6">
           <div className={sectionCardClass}>
@@ -210,8 +261,9 @@ export default function ProductDetailPage() {
                         : 'bg-white/80 dark:bg-[#32282c]'
                     }
                     onPress={() => {
-                      setSelectedVariantId((prev) => (prev === v.id ? null : v.id));
+                      setSelectedVariantId(v.id);
                       setQty(1);
+                      scrollToVariantSlide(v.id);
                     }}
                     isDisabled={v.stock <= 0}
                   >

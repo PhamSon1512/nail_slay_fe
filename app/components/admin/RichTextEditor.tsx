@@ -72,6 +72,8 @@ export function RichTextEditor({ value, onChange, placeholder = 'Nhập nội du
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
+        link: false,
+        underline: false,
       }),
       Underline,
       Link.configure({ openOnClick: false }),

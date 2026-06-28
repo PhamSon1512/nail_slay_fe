@@ -154,7 +154,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
 
     const editor = useEditor({
       extensions: [
-        StarterKit.configure({ heading: false }),
+        StarterKit.configure({ heading: false, link: false, underline: false }),
         ArticleHeading.configure({ levels: [1, 2, 3, 4] }),
         Underline,
         EditorLink,

@@ -30,7 +30,9 @@ import {
   deleteProduct,
   fetchAdminCategories,
   fetchAdminProducts,
+  fetchAdminProduct,
   updateProduct,
+  uploadContentImage,
   type AdminCategory,
   type AdminProduct,
   type AdminProductVariant,
@@ -111,6 +113,42 @@ function sortProducts(list: AdminProduct[], sort: SortKey) {
   return sorted;
 }
 
+function normalizeAdminVariants(raw: unknown): Partial<AdminProductVariant>[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => {
+    const v = item as Record<string, unknown>;
+    return {
+      id: String(v.id ?? ''),
+      productId: String(v.productId ?? v.product_id ?? ''),
+      sku: (v.sku as string | null | undefined) ?? null,
+      name: String(v.name ?? ''),
+      color: (v.color as string | null | undefined) ?? null,
+      size: (v.size as string | null | undefined) ?? null,
+      price: Number(v.price ?? 0),
+      stock: Number(v.stock ?? 0),
+      imageUrl: (v.imageUrl ?? v.image_url ?? null) as string | null,
+      sortOrder: Number(v.sortOrder ?? v.sort_order ?? 0),
+    };
+  });
+}
+
+function productToFormState(p: AdminProduct): FormState {
+  return {
+    categoryId: p.categoryId,
+    sku: p.sku ?? '',
+    name: p.name,
+    slug: p.slug,
+    description: p.description ?? '',
+    status: p.status ?? 'active',
+    price: String(p.price),
+    originalPrice: String(p.originalPrice ?? p.price),
+    stock: String(p.stock),
+    imageFiles: [],
+    existingImages: p.imageUrls ?? [],
+    variants: normalizeAdminVariants(p.variants),
+  };
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
@@ -127,6 +165,8 @@ export default function AdminProductsPage() {
   const deleteModal = useDisclosure();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [variantImageUploading, setVariantImageUploading] = useState<number | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -170,7 +210,8 @@ export default function AdminProductsPage() {
         (v.color?.trim() ?? '') !== '' ||
         (v.size?.trim() ?? '') !== '' ||
         (v.price ?? 0) > 0 ||
-        (v.stock ?? 0) > 0,
+        (v.stock ?? 0) > 0 ||
+        (v.imageUrl?.trim() ?? '') !== '',
     );
     fd.append('categoryId', data.categoryId);
     fd.append('sku', data.sku.trim());
@@ -193,28 +234,45 @@ export default function AdminProductsPage() {
     formModal.onOpen();
   };
 
-  const openEdit = (p: AdminProduct) => {
+  const openEdit = async (p: AdminProduct) => {
     setEditingId(p.id);
-    setForm({
-      categoryId: p.categoryId,
-      sku: p.sku ?? '',
-      name: p.name,
-      slug: p.slug,
-      description: p.description ?? '',
-      status: p.status ?? 'active',
-      price: String(p.price),
-      originalPrice: String(p.originalPrice ?? p.price),
-      stock: String(p.stock),
-      imageFiles: [],
-      existingImages: p.imageUrls ?? [],
-      variants: p.variants ?? [],
-    });
+    setFormLoading(true);
     formModal.onOpen();
+    try {
+      const fresh = await fetchAdminProduct(p.id);
+      setForm(productToFormState(fresh));
+    } catch {
+      setForm(productToFormState(p));
+      toast.error('Không tải được biến thể, đang dùng dữ liệu từ danh sách');
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const openDetail = (p: AdminProduct) => {
     setDetailProduct(p);
     detailModal.onOpen();
+  };
+
+  const handleVariantImageUpload = async (index: number, file: File) => {
+    setVariantImageUploading(index);
+    try {
+      const { url } = await uploadContentImage(file);
+      const arr = [...form.variants];
+      arr[index] = { ...arr[index], imageUrl: url };
+      setForm({ ...form, variants: arr });
+      toast.success('Đã tải ảnh biến thể');
+    } catch {
+      // interceptor
+    } finally {
+      setVariantImageUploading(null);
+    }
+  };
+
+  const clearVariantImage = (index: number) => {
+    const arr = [...form.variants];
+    arr[index] = { ...arr[index], imageUrl: null };
+    setForm({ ...form, variants: arr });
   };
 
   const handleSubmit = async () => {
@@ -375,7 +433,7 @@ export default function AdminProductsPage() {
                       <Button isIconOnly size="sm" variant="light" aria-label="Xem" onPress={() => openDetail(p)}>
                         <RiEyeLine size={16} />
                       </Button>
-                      <Button isIconOnly size="sm" variant="flat" aria-label="Sửa" onPress={() => openEdit(p)}>
+                      <Button isIconOnly size="sm" variant="flat" aria-label="Sửa" onPress={() => void openEdit(p)}>
                         <RiPencilLine size={16} />
                       </Button>
                       <Button isIconOnly size="sm" color="danger" variant="light" aria-label="Xóa" onPress={() => handleDelete(p)}>
@@ -398,6 +456,10 @@ export default function AdminProductsPage() {
                 {editingId ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
               </ModalHeader>
               <ModalBody className="gap-4">
+                {formLoading ? (
+                  <div className="py-16 text-center text-sm text-[#8E8A8A]">Đang tải dữ liệu sản phẩm...</div>
+                ) : (
+                <>
                 <AdminMultipleImageUpload
                   label="Ảnh sản phẩm (tối đa 5)"
                   maxFiles={5}
@@ -510,8 +572,42 @@ export default function AdminProductsPage() {
                           {form.variants.map((v, i) => (
                             <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-[#32282d] transition-colors">
                               <td className="px-3 py-2">
-                                <div className="w-10 h-10 rounded bg-gray-100 dark:bg-[#1f1f1f] border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 hover:text-primary-500 cursor-pointer transition-colors" title="Chức năng upload ảnh phân loại đang cập nhật">
-                                  <RiImageLine size={18} />
+                                <div className="flex items-center gap-1">
+                                  <label
+                                    className="relative block w-10 h-10 rounded overflow-hidden bg-gray-100 dark:bg-[#1f1f1f] border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 hover:text-primary-500 hover:border-primary-400 cursor-pointer transition-colors"
+                                    title={v.imageUrl ? 'Đổi ảnh biến thể' : 'Tải ảnh biến thể'}
+                                  >
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="sr-only"
+                                      disabled={variantImageUploading === i}
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) void handleVariantImageUpload(i, file);
+                                        e.target.value = '';
+                                      }}
+                                    />
+                                    {variantImageUploading === i ? (
+                                      <span className="text-[10px] font-semibold text-primary-600 animate-pulse">...</span>
+                                    ) : v.imageUrl ? (
+                                      <img src={v.imageUrl} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      <RiImageLine size={18} />
+                                    )}
+                                  </label>
+                                  {v.imageUrl ? (
+                                    <Button
+                                      isIconOnly
+                                      size="sm"
+                                      variant="light"
+                                      color="danger"
+                                      aria-label="Xóa ảnh biến thể"
+                                      onPress={() => clearVariantImage(i)}
+                                    >
+                                      <RiDeleteBinLine size={14} />
+                                    </Button>
+                                  ) : null}
                                 </div>
                               </td>
                               <td className="px-3 py-2">
@@ -544,10 +640,12 @@ export default function AdminProductsPage() {
                     </div>
                   )}
                 </div>
+                </>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>Hủy</Button>
-                <Button color="primary" className="text-[#1D1D1D]" isLoading={saving} onPress={handleSubmit}>Lưu</Button>
+                <Button color="primary" className="text-[#1D1D1D]" isLoading={saving} isDisabled={formLoading} onPress={handleSubmit}>Lưu</Button>
               </ModalFooter>
             </>
           )}
@@ -580,7 +678,7 @@ export default function AdminProductsPage() {
                 </ModalBody>
                 <ModalFooter>
                   <Button variant="light" onPress={onClose}>Đóng</Button>
-                  <Button color="primary" className="text-[#1D1D1D]" onPress={() => { onClose(); openEdit(detailProduct); }}>Sửa sản phẩm</Button>
+                  <Button color="primary" className="text-[#1D1D1D]" onPress={() => { onClose(); void openEdit(detailProduct); }}>Sửa sản phẩm</Button>
                 </ModalFooter>
               </>
             ) : null

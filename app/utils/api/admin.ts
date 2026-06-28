@@ -115,6 +115,11 @@ export async function fetchAdminProducts(params?: { page?: number; limit?: numbe
   return data;
 }
 
+export async function fetchAdminProduct(id: string) {
+  const { data } = await http.get<AdminProduct>(`/admin/products/${id}`);
+  return data;
+}
+
 export async function createProduct(form: FormData) {
   const { data } = await http.post<AdminProduct>('/admin/products', form);
   return data;
