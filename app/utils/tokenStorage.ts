@@ -6,6 +6,8 @@ function normalizeToken(token: string): string {
 
 /** Read token from cookie/localStorage (handles jotai JSON storage). */
 export function readStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+
   const fromCookie = Cookies.get('token');
   if (fromCookie) {
     const clean = normalizeToken(fromCookie);
@@ -27,12 +29,14 @@ export function readStoredToken(): string | null {
 }
 
 export function writeStoredToken(token: string) {
+  if (typeof window === 'undefined') return;
   const clean = normalizeToken(token);
   Cookies.set('token', clean, { sameSite: 'Lax', path: '/' });
   localStorage.setItem('nailslay_token', JSON.stringify(clean));
 }
 
 export function clearStoredToken() {
+  if (typeof window === 'undefined') return;
   Cookies.remove('token', { path: '/' });
   localStorage.removeItem('nailslay_token');
 }

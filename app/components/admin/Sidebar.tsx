@@ -41,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Danh mục Bài viết', href: '/admin/articles/categories', icon: RiGridLine },
       { label: '404 Monitor', href: '/admin/seo/404', icon: RiSearchLine },
       { label: 'Redirects', href: '/admin/seo/redirects', icon: RiSearchLine },
+      { label: 'SEO & Tracking', href: '/admin/settings/tracking', icon: RiSettingsLine },
       { label: 'Sitemap', href: 'https://nailslaystudio.com/sitemap.xml', icon: RiExternalLinkLine, external: true },
     ],
   },

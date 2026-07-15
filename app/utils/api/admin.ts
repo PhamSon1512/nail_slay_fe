@@ -52,6 +52,7 @@ export async function fetchAdminSettings() {
   const { data } = await http.get<{
     homepage: HomepageConfig;
     contact_info: Record<string, string> | null;
+    tracking_codes?: { id: string; name: string; code: string; enabled: boolean }[];
   }>('/admin/settings');
   return data;
 }
@@ -171,6 +172,13 @@ export async function fetchBankSettings() {
 
 export async function updateBankSettings(form: FormData) {
   const { data } = await http.put<{ bank_info: BankInfo }>('/admin/settings/bank', form);
+  return data;
+}
+
+
+
+export async function updateAdminSettings(payload: Record<string, unknown>) {
+  const { data } = await http.put<Record<string, unknown>>('/admin/settings', payload);
   return data;
 }
 

@@ -1,10 +1,21 @@
 import type { ReactNode } from 'react';
 import type { Route } from './+types/root';
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from 'react-router';
 import { HeroUIProvider } from '@heroui/react';
 import { Toaster } from 'react-hot-toast';
 import { AuthBootstrap } from '~/components/AuthBootstrap';
+import { fetchPublicSettings } from '~/utils/api/settings';
+import type { TrackingCode } from '~/routes/admin.settings.tracking';
 import './app.css';
+
+export async function loader() {
+  try {
+    const settings = await fetchPublicSettings();
+    return { tracking_codes: settings.tracking_codes || [] };
+  } catch (e) {
+    return { tracking_codes: [] };
+  }
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -41,6 +52,28 @@ export default function App() {
   );
 }
 
+function TrackingInjector() {
+  const data = useRouteLoaderData<typeof loader>('root');
+  const codes = (data?.tracking_codes || []) as TrackingCode[];
+  
+  if (!codes.length) return null;
+
+  return (
+    <>
+      {codes.filter(c => c.enabled).map(c => {
+        const content = c.code.trim();
+        // Xử lý thông minh file HTML của GSC
+        if (content.startsWith('google-site-verification:') && content.endsWith('.html')) {
+          const id = content.replace('google-site-verification:', '').replace('.html', '').trim();
+          return <meta key={c.id} name="google-site-verification" content={id} />;
+        }
+        // Xử lý chèn Raw HTML (Scripts)
+        return <script key={c.id} dangerouslySetInnerHTML={{ __html: `</script>${content}<script>` }} />;
+      })}
+    </>
+  );
+}
+
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
@@ -49,20 +82,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        
-        {/* Google Analytics Tag */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-G4FV9FEV9P"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', 'G-G4FV9FEV9P');
-            `,
-          }}
-        />
+        <TrackingInjector />
       </head>
       <body>
         <HeroUIProvider>

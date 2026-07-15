@@ -6,6 +6,7 @@ export type PublicSettings = {
   contact_info: Record<string, string> | null;
   bank_info: Record<string, string> | null;
   qr_code_url?: string | null;
+  tracking_codes?: { id: string; name: string; code: string; enabled: boolean }[];
 };
 
 export async function fetchPublicSettings() {
