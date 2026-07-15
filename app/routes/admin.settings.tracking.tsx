@@ -36,7 +36,7 @@ export default function AdminTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
   const [editingCode, setEditingCode] = useState<TrackingCode | null>(null);
 
   const [formName, setFormName] = useState('');
@@ -64,7 +64,7 @@ export default function AdminTrackingPage() {
       await updateAdminSettings({ tracking_codes: newCodes });
       setCodes(newCodes);
       toast.success('Đã lưu thành công!');
-      onOpenChange(); // Close modal
+      onClose(); // Close modal
     } catch {
       toast.error('Có lỗi xảy ra khi lưu');
     } finally {
