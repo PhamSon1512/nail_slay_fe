@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import type { Route } from './+types/root';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from 'react-router';
 import { HeroUIProvider } from '@heroui/react';
@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthBootstrap } from '~/components/AuthBootstrap';
 import { fetchPublicSettings } from '~/utils/api/settings';
 import type { TrackingCode } from '~/routes/admin.settings.tracking';
+import parse from 'html-react-parser';
 import './app.css';
 
 export async function loader() {
@@ -67,8 +68,13 @@ function TrackingInjector() {
           const id = content.replace('google-site-verification:', '').replace('.html', '').trim();
           return <meta key={c.id} name="google-site-verification" content={id} />;
         }
-        // Xử lý chèn Raw HTML (Scripts)
-        return <script key={c.id} dangerouslySetInnerHTML={{ __html: `</script>${content}<script>` }} />;
+        
+        // Parse HTML an toàn thành React nodes
+        try {
+          return <Fragment key={c.id}>{parse(content)}</Fragment>;
+        } catch {
+          return null;
+        }
       })}
     </>
   );
