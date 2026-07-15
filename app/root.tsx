@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, type ReactNode, useState, useEffect } from 'react';
 import type { Route } from './+types/root';
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from 'react-router';
 import { HeroUIProvider } from '@heroui/react';
@@ -57,6 +57,12 @@ function TrackingInjector() {
   const data = useRouteLoaderData<typeof loader>('root');
   const codes = (data?.tracking_codes || []) as TrackingCode[];
   
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!codes.length) return null;
 
   return (
@@ -68,8 +74,8 @@ function TrackingInjector() {
           const id = content.replace('google-site-verification:', '').replace('.html', '').trim();
           return <meta key={c.id} name="google-site-verification" content={id} />;
         }
-        
-        // Parse HTML an toàn thành React nodes
+        // Parse HTML an toàn thành React nodes (chỉ thực hiện trên client để tránh hydration mismatch)
+        if (!mounted) return null;
         try {
           return <Fragment key={c.id}>{parse(content)}</Fragment>;
         } catch {
