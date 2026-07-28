@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.guide';
+import type { Route } from './+types/_storefront.huong-dan';
 import { Link } from 'react-router';
 import { InfoPageLayout } from '~/components/store/InfoPageLayout';
 import { BRAND } from '~/data';
@@ -12,8 +12,8 @@ const STEPS = [
     body: (
       <>
         Duyệt{' '}
-        <Link to="/products">danh sách sản phẩm</Link> hoặc{' '}
-        <Link to="/categories">danh mục</Link> (Y2K, Tiểu thư, Công sở, Phụ kiện). Mở trang chi tiết, chọn{' '}
+        <Link to="/san-pham">danh sách sản phẩm</Link> hoặc{' '}
+        <Link to="/danh-muc">danh mục</Link> (Y2K, Tiểu thư, Công sở, Phụ kiện). Mở trang chi tiết, chọn{' '}
         <strong>Size</strong> (XS–L) và <strong>Form móng</strong> phù hợp, sau đó ấn <strong>Thêm vào giỏ</strong>.
       </>
     ),
@@ -22,7 +22,7 @@ const STEPS = [
     title: 'Kiểm tra giỏ hàng',
     body: (
       <>
-        Vào <Link to="/cart">Giỏ hàng</Link> để xem lại số lượng, tạm tính và VAT. Bạn có thể chỉnh số lượng hoặc
+        Vào <Link to="/gio-hang">Giỏ hàng</Link> để xem lại số lượng, tạm tính và VAT. Bạn có thể chỉnh số lượng hoặc
         xóa sản phẩm trước khi thanh toán.
       </>
     ),
@@ -49,7 +49,7 @@ const STEPS = [
     title: 'Nhập địa chỉ & chuyển khoản',
     body: (
       <>
-        Tại trang <Link to="/checkout">Thanh toán đơn hàng</Link>, điền đầy đủ họ tên, số điện thoại và địa chỉ
+        Tại trang <Link to="/thanh-toan">Thanh toán đơn hàng</Link>, điền đầy đủ họ tên, số điện thoại và địa chỉ
         giao hàng. Chuyển khoản đúng số tiền theo thông tin ngân hàng hoặc quét mã QR, sau đó mới ấn{' '}
         <strong>Đặt hàng</strong>.
       </>
@@ -79,7 +79,7 @@ const STEPS = [
       <>
         Đơn được giao trong khoảng 2–3 ngày làm việc (tùy khu vực). Khi nhận hàng, xác nhận trên hệ thống. Nếu có
         vấn đề, gửi khiếu nại trong vòng 7 ngày — xem{' '}
-        <Link to="/policy">Chính sách đổi trả</Link>.
+        <Link to="/chinh-sach">Chính sách đổi trả</Link>.
       </>
     ),
   },
@@ -132,7 +132,7 @@ export default function GuidePage() {
       <section>
         <h2>Cần thêm trợ giúp?</h2>
         <p>
-          Xem <Link to="/about">Về NailSlay</Link> để biết thêm về sản phẩm và danh mục, hoặc liên hệ{' '}
+          Xem <Link to="/gioi-thieu">Về NailSlay</Link> để biết thêm về sản phẩm và danh mục, hoặc liên hệ{' '}
           <a href={`mailto:${BRAND.contact.email}`}>{BRAND.contact.email}</a> /{' '}
           <a href={`tel:${BRAND.contact.phone}`}>{BRAND.contact.phone}</a>.
         </p>

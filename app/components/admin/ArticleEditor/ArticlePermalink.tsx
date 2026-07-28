@@ -13,13 +13,13 @@ type ArticlePermalinkProps = {
 export function ArticlePermalink({ slug, onSlugChange, onSlugManualChange }: ArticlePermalinkProps) {
   const [editing, setEditing] = useState(false);
   const displaySlug = slug || '…';
-  const fullUrl = `${SITE_ORIGIN}/articles/${displaySlug}/`;
+  const fullUrl = `${SITE_ORIGIN}/bai-viet/${displaySlug}/`;
 
   if (editing) {
     return (
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-[#50575e] shrink-0">Đường dẫn:</span>
-        <span className="text-[#50575e] shrink-0">{SITE_ORIGIN}/articles/</span>
+        <span className="text-[#50575e] shrink-0">{SITE_ORIGIN}/bai-viet/</span>
         <Input
           size="sm"
           value={slug}

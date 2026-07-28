@@ -14,13 +14,13 @@ import { fetchPublicSettings } from '~/utils/api/settings';
 const LINKS = {
   shop: CATEGORIES.filter((c) => c.level === 'child').map((c) => ({
     label: `${c.code} - ${c.name}`,
-    href: `/products?category=${c.code}`,
+    href: `/san-pham?category=${c.code}`,
   })),
   info: [
-    { label: 'Về NailSlay', href: '/about' },
+    { label: 'Về NailSlay', href: '/gioi-thieu' },
     { label: 'Blog làm nail', href: '/#' },
-    { label: 'Chính sách đổi trả', href: '/policy' },
-    { label: 'Hướng dẫn mua hàng', href: '/guide' },
+    { label: 'Chính sách đổi trả', href: '/chinh-sach' },
+    { label: 'Hướng dẫn mua hàng', href: '/huong-dan' },
   ],
 };
 

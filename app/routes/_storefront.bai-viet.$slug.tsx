@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.articles.$slug';
+import type { Route } from './+types/_storefront.bai-viet.$slug';
 import { Link, useLoaderData } from 'react-router';
 import { RiArrowLeftLine, RiLink } from 'react-icons/ri';
 import { RichContent } from '~/components/store/RichContent';
@@ -34,7 +34,7 @@ export function meta({ data, params }: Route.MetaArgs) {
   const title = article.metaTitle || article.title;
   const description = article.metaDescription || article.excerpt || '';
   const image = article.ogImageUrl || article.coverImageUrl || '';
-  const canonical = article.canonicalUrl || `${SITE_ORIGIN}/articles/${article.slug}`;
+  const canonical = article.canonicalUrl || `${SITE_ORIGIN}/bai-viet/${article.slug}`;
   const robots = article.noIndex ? 'noindex, nofollow' : 'index, follow';
 
   const tags: ({ title?: string } | { name: string; content: string } | { tagName: string; content: string } | { property: string; content: string } | { rel: string; href: string })[] = [
@@ -47,6 +47,13 @@ export function meta({ data, params }: Route.MetaArgs) {
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: canonical },
   ];
+
+  const focusKeyword = article.focusKeyword ?? '';
+  const secondaryKeywords = article.secondaryKeywords ?? '';
+  const allKeywords = [focusKeyword, ...secondaryKeywords.split(',')].map(k => k.trim()).filter(Boolean).join(', ');
+  if (allKeywords) {
+    tags.push({ name: 'keywords', content: allKeywords });
+  }
 
   if (image) {
     tags.push({ property: 'og:image', content: image });
@@ -135,7 +142,7 @@ export default function ArticleDetailPage() {
 
         <div className="container relative z-20">
           <Link
-            to="/articles"
+            to="/bai-viet"
             className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors mb-4 backdrop-blur-sm bg-black/20 px-3 py-1.5 rounded-full w-fit"
           >
             <RiArrowLeftLine size={16} />
@@ -252,7 +259,7 @@ export default function ArticleDetailPage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Link
-                    to={`/articles/${item.slug}`}
+                    to={`/bai-viet/${item.slug}`}
                     className="group block rounded-[2rem] border border-primary-100 dark:border-[#2a2226] bg-white/80 dark:bg-[#1a1518]/80 backdrop-blur-md overflow-hidden hover:shadow-[0_20px_40px_rgb(255,110,168,0.15)] transition-all duration-500 hover:-translate-y-2 h-full flex flex-col"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">

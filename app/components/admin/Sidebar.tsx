@@ -38,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: RiArticleLine,
     children: [
       { label: 'Bài viết', href: '/admin/articles', icon: RiArticleLine },
-      { label: 'Danh mục Bài viết', href: '/admin/articles/categories', icon: RiGridLine },
+      { label: 'Danh mục Bài viết', href: '/admin/articles/danh-muc', icon: RiGridLine },
       { label: '404 Monitor', href: '/admin/seo/404', icon: RiSearchLine },
       { label: 'Redirects', href: '/admin/seo/redirects', icon: RiSearchLine },
       { label: 'SEO & Tracking', href: '/admin/settings/tracking', icon: RiSettingsLine },

@@ -16,12 +16,14 @@ export type StoreProduct = {
   createdAt?: string;
 };
 
-export async function fetchStoreProducts(params?: { limit?: number; q?: string; category_slug?: string }) {
+export async function fetchStoreProducts(params?: { limit?: number; q?: string; category_slug?: string; min_price?: number; max_price?: number; }) {
   const { data } = await http.get<{ items: StoreProduct[] }>('/products', {
     params: {
       limit: params?.limit?.toString() ?? '100',
       q: params?.q,
       category_slug: params?.category_slug,
+      min_price: params?.min_price?.toString(),
+      max_price: params?.max_price?.toString(),
     },
   });
   return data.items;

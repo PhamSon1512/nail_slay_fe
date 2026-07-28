@@ -39,6 +39,7 @@ type FormState = {
   metaTitle: string;
   metaDescription: string;
   focusKeyword: string;
+  secondaryKeywords: string;
   canonicalUrl: string;
   schemaType: string;
   noIndex: boolean;
@@ -63,6 +64,7 @@ const emptyForm = (): FormState => ({
   metaTitle: '',
   metaDescription: '',
   focusKeyword: '',
+  secondaryKeywords: '',
   canonicalUrl: '',
   schemaType: 'Article',
   noIndex: false,
@@ -87,6 +89,7 @@ function buildFormData(data: FormState, seoScore: number): FormData {
   fd.append('meta_title', data.metaTitle.trim());
   fd.append('meta_description', data.metaDescription.trim());
   fd.append('focus_keyword', data.focusKeyword.trim());
+  fd.append('secondary_keywords', data.secondaryKeywords.trim());
   fd.append('canonical_url', data.canonicalUrl.trim());
   fd.append('schema_type', data.schemaType);
   fd.append('no_index', data.noIndex ? 'true' : 'false');
@@ -149,6 +152,7 @@ export default function AdminArticleEditorPage() {
           metaTitle: a.metaTitle ?? '',
           metaDescription: a.metaDescription ?? '',
           focusKeyword: a.focusKeyword ?? '',
+          secondaryKeywords: a.secondaryKeywords ?? '',
           canonicalUrl: a.canonicalUrl ?? '',
           schemaType: a.schemaType ?? 'Article',
           noIndex: Boolean(a.noIndex),
@@ -233,6 +237,7 @@ export default function AdminArticleEditorPage() {
       metaTitle: form.metaTitle,
       metaDescription: form.metaDescription,
       focusKeyword: form.focusKeyword,
+      secondaryKeywords: form.secondaryKeywords,
       canonicalUrl: form.canonicalUrl,
       schemaType: form.schemaType,
       noIndex: form.noIndex,
@@ -249,6 +254,7 @@ export default function AdminArticleEditorPage() {
         patch({ metaDescription: v });
       },
       onFocusKeywordChange: (v: string) => patch({ focusKeyword: v }),
+      onSecondaryKeywordsChange: (v: string) => patch({ secondaryKeywords: v }),
       onSlugChange: (v: string) => patch({ slug: v }),
       onCanonicalUrlChange: (v: string) => patch({ canonicalUrl: v }),
       onSchemaTypeChange: (v: string) => patch({ schemaType: v }),

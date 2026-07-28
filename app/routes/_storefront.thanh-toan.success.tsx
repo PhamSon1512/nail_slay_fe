@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.checkout.success';
+import type { Route } from './+types/_storefront.thanh-toan.success';
 import { useEffect, useState } from 'react';
 import { Button, Card, CardBody } from '@heroui/react';
 import { Link, useLocation, useSearchParams } from 'react-router';
@@ -56,7 +56,7 @@ export default function CheckoutSuccessPage() {
     return (
       <div className="container py-16 text-center space-y-4">
         <h1 className="font-heading text-2xl">Không tìm thấy đơn hàng</h1>
-        <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+        <Button as={Link} to="/san-pham" color="primary" className="text-[#1D1D1D] font-semibold">
           Tiếp tục mua sắm
         </Button>
       </div>
@@ -105,7 +105,7 @@ export default function CheckoutSuccessPage() {
           <Button as={Link} to={`/orders/${orderId}`} color="primary" className="text-[#1D1D1D] font-semibold">
             Xem đơn hàng
           </Button>
-          <Button as={Link} to="/products" variant="flat">
+          <Button as={Link} to="/san-pham" variant="flat">
             Tiếp tục mua sắm
           </Button>
         </div>

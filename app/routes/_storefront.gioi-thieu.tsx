@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.about';
+import type { Route } from './+types/_storefront.gioi-thieu';
 import { BrandLogoFrame, SectionTitle } from '~/components';
 import { BRAND } from '~/data';
 

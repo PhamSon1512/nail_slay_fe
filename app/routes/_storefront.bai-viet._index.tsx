@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.articles._index';
+import type { Route } from './+types/_storefront.bai-viet._index';
 import { useEffect, useState } from 'react';
 import { Input, Select, SelectItem } from '@heroui/react';
 import { RiSearchLine } from 'react-icons/ri';
@@ -76,7 +76,7 @@ export default function ArticlesListPage() {
           {articles.map((article) => (
             <Link
               key={article.id}
-              to={`/articles/${article.slug}`}
+              to={`/bai-viet/${article.slug}`}
               className="group rounded-2xl border border-primary-200/70 bg-white/95 dark:bg-[#2a2226] overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="aspect-video bg-gradient-hero overflow-hidden">

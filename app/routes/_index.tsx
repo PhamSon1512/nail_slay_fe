@@ -116,7 +116,7 @@ export default function HomePage() {
               {activeBanners.map((banner) => (
                 <Link
                   key={banner.id}
-                  to={banner.link ?? '/products'}
+                  to={banner.link ?? '/san-pham'}
                   className="block relative w-full bg-[#1d1d1d]/5 dark:bg-black/30"
                 >
                   <BannerSlideImage
@@ -158,10 +158,10 @@ export default function HomePage() {
               đi chơi và sự kiện đặc biệt.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
-              <Button as={Link} to="/products" color="primary" className="font-semibold text-[#1D1D1D]">
+              <Button as={Link} to="/san-pham" color="primary" className="font-semibold text-[#1D1D1D]">
                 Mua sắm ngay
               </Button>
-              <Button as={Link} to="/categories" variant="flat" className="font-medium text-[#1D1D1D]">
+              <Button as={Link} to="/danh-muc" variant="flat" className="font-medium text-[#1D1D1D]">
                 Xem danh mục
               </Button>
             </div>
@@ -172,7 +172,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-6 gap-4">
             <SectionTitle title="Danh mục Nailbox" />
             <Link
-              to="/categories"
+              to="/danh-muc"
               className="text-sm text-[#1D1D1D] dark:text-[#FFDDE5] hover:underline font-semibold inline-flex items-center gap-1 shrink-0"
             >
               Xem tất cả <RiArrowRightLine size={14} />
@@ -186,7 +186,7 @@ export default function HomePage() {
                 code={category.code}
                 name={category.name}
                 imageUrl={category.imageUrl}
-                href={`/products?category=${category.code}`}
+                href={`/san-pham?category=${category.code}`}
               />
             ))}
           </HorizontalGallery>
@@ -223,7 +223,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-6 gap-4">
             <SectionTitle title="Sản phẩm nổi bật" />
             <Link
-              to="/products"
+              to="/san-pham"
               className="text-sm text-[#1D1D1D] dark:text-[#FFDDE5] hover:underline font-semibold inline-flex items-center gap-1 shrink-0"
             >
               Xem tất cả <RiArrowRightLine size={14} />

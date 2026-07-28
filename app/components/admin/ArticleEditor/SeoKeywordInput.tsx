@@ -5,6 +5,8 @@ import { SEO_PUBLISH_MIN_SCORE } from './seoConstants';
 type SeoKeywordInputProps = {
   value: string;
   onChange: (v: string) => void;
+  secondaryValue: string;
+  onSecondaryChange: (v: string) => void;
   score: number;
 };
 
@@ -14,7 +16,7 @@ function scoreBadgeClass(score: number): string {
   return 'bg-red-100 text-red-700 border-red-200';
 }
 
-export function SeoKeywordInput({ value, onChange, score }: SeoKeywordInputProps) {
+export function SeoKeywordInput({ value, onChange, secondaryValue, onSecondaryChange, score }: SeoKeywordInputProps) {
   return (
     <div className="space-y-2 pt-2">
       <div className="flex items-center justify-between">
@@ -47,6 +49,16 @@ export function SeoKeywordInput({ value, onChange, score }: SeoKeywordInputProps
         >
           {score} / 100
         </span>
+      </div>
+      <div className="pt-2">
+        <label className="mb-1 block text-sm font-semibold text-[#1d2327]">Từ khóa phụ</label>
+        <input
+          type="text"
+          value={secondaryValue}
+          onChange={(e) => onSecondaryChange(e.target.value)}
+          placeholder="Phân cách bằng dấu phẩy, ví dụ: SEO cơ bản, hướng dẫn SEO..."
+          className="w-full rounded border border-[#8c8f94] bg-white py-2 px-3 text-sm text-[#2c3338] placeholder:text-[#a7aaad] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
       </div>
     </div>
   );

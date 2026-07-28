@@ -1,4 +1,4 @@
-import type { Route } from './+types/admin.settings';
+import type { Route } from './+types/admin.settings._index';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, CardBody, Input, Textarea } from '@heroui/react';
 import toast from 'react-hot-toast';

@@ -46,7 +46,7 @@ http.interceptors.response.use(
     const url = error.config?.url;
 
     // Suppress noisy toasts during auth bootstrap / guest browsing (handled upstream).
-    const silentAuthPaths = ['/auth/me', '/profile', '/auth/token', '/cart'];
+    const silentAuthPaths = ['/auth/me', '/profile', '/auth/token', '/gio-hang'];
     if (
       silentAuthPaths.some((path) => url === path || url?.startsWith(`${path}?`)) &&
       status &&

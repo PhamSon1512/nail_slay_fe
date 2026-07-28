@@ -130,7 +130,7 @@ export function SidebarMeta({
           ) : displayCategories.length === 0 ? (
             <p className="text-xs text-[#50575e]">
               Chưa có danh mục.{' '}
-              <Link to="/admin/articles/categories" className="text-primary-600 hover:underline">
+              <Link to="/admin/articles/danh-muc" className="text-primary-600 hover:underline">
                 Quản lý danh mục
               </Link>{' '}
               từ sidebar.

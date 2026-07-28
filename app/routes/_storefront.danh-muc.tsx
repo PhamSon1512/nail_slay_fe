@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.categories';
+import type { Route } from './+types/_storefront.danh-muc';
 import { CategoryCard, SectionTitle } from '~/components';
 import { CATEGORIES } from '~/data';
 
@@ -22,7 +22,7 @@ export default function CategoriesPage() {
             code={group.code}
             name={group.name}
             imageUrl={group.imageUrl}
-            href={`/products?category=${group.code}`}
+            href={`/san-pham?category=${group.code}`}
           />
         ))}
       </div>

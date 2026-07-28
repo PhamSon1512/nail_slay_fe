@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.policy';
+import type { Route } from './+types/_storefront.chinh-sach';
 import { Link } from 'react-router';
 import { InfoPageLayout } from '~/components/store/InfoPageLayout';
 import { BRAND } from '~/data';
@@ -79,7 +79,7 @@ export default function PolicyPage() {
           Hotline: <a href={`tel:${BRAND.contact.phone}`}>{BRAND.contact.phone}</a>
           <br />
           Hoặc xem thêm{' '}
-          <Link to="/guide">Hướng dẫn mua hàng</Link> để nắm rõ luồng đặt hàng và thanh toán.
+          <Link to="/huong-dan">Hướng dẫn mua hàng</Link> để nắm rõ luồng đặt hàng và thanh toán.
         </p>
       </section>
     </InfoPageLayout>

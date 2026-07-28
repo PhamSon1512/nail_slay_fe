@@ -17,6 +17,7 @@ export type SeoPanelFormSlice = {
   metaTitle: string;
   metaDescription: string;
   focusKeyword: string;
+  secondaryKeywords: string;
   canonicalUrl: string;
   schemaType: string;
   noIndex: boolean;
@@ -27,6 +28,7 @@ export type SeoPanelFormSlice = {
   onMetaTitleChange: (v: string) => void;
   onMetaDescriptionChange: (v: string) => void;
   onFocusKeywordChange: (v: string) => void;
+  onSecondaryKeywordsChange: (v: string) => void;
   onSlugChange: (v: string) => void;
   onCanonicalUrlChange: (v: string) => void;
   onSchemaTypeChange: (v: string) => void;
@@ -62,6 +64,8 @@ export function SeoPanel({ analysis, form }: SeoPanelProps) {
               <SeoKeywordInput
                 value={form.focusKeyword}
                 onChange={form.onFocusKeywordChange}
+                secondaryValue={form.secondaryKeywords}
+                onSecondaryChange={form.onSecondaryKeywordsChange}
                 score={analysis.score}
               />
               <SnippetEditorModal

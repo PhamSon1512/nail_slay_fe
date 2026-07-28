@@ -211,7 +211,7 @@ export default function AdminSeoRedirectsPage() {
             />
             <Input
               label="Đến path hoặc URL"
-              placeholder="/articles/slug hoặc https://..."
+              placeholder="/bai-viet/slug hoặc https://..."
               value={form.toPath}
               onValueChange={(v) => setForm((f) => ({ ...f, toPath: v }))}
               classNames={adminInputClassNames}

@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.cart';
+import type { Route } from './+types/_storefront.gio-hang';
 import { Link } from 'react-router';
 import { Button, Card, CardBody } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -43,7 +43,7 @@ export default function CartPage() {
       <div className="container py-20 text-center space-y-4">
         <h1 className="section-title">Giỏ hàng trống</h1>
         <p className="text-sm text-[#8E8A8A]">Hãy thêm sản phẩm yêu thích để bắt đầu mua sắm.</p>
-        <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+        <Button as={Link} to="/san-pham" color="primary" className="text-[#1D1D1D] font-semibold">
           Mua sắm ngay
         </Button>
       </div>
@@ -70,7 +70,7 @@ export default function CartPage() {
                       ) : null}
                       <div className="min-w-0">
                         <Link
-                          to={`/products/${item.product.slug}`}
+                          to={`/san-pham/${item.product.slug}`}
                           className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5] hover:underline line-clamp-2"
                         >
                           {item.product.name}
@@ -120,7 +120,7 @@ export default function CartPage() {
                       ) : null}
                       <div className="min-w-0">
                         <Link
-                          to={`/products/${item.slug}`}
+                          to={`/san-pham/${item.slug}`}
                           className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5] hover:underline line-clamp-2"
                         >
                           {item.name}
@@ -193,7 +193,7 @@ export default function CartPage() {
                 <p className="text-xs text-[#8E8A8A] bg-[#FFDDE5]/40 dark:bg-[#2a2226] border border-primary-200/60 rounded-lg px-3 py-2 leading-relaxed">
                   Yên tâm — bạn chưa cần chuyển khoản ở bước này. Trang tiếp theo sẽ hiển thị thông tin thanh toán chi tiết.
                 </p>
-                <Button as={Link} to="/checkout" color="primary" size="lg" className="text-[#1D1D1D] font-semibold w-full">
+                <Button as={Link} to="/thanh-toan" color="primary" size="lg" className="text-[#1D1D1D] font-semibold w-full">
                   Tiến hành thanh toán
                 </Button>
               </>
@@ -202,7 +202,7 @@ export default function CartPage() {
                 Đăng nhập để thanh toán
               </Button>
             )}
-            <Button as={Link} to="/products" variant="flat" size="sm" className="w-full">
+            <Button as={Link} to="/san-pham" variant="flat" size="sm" className="w-full">
               Tiếp tục mua sắm
             </Button>
           </CardBody>

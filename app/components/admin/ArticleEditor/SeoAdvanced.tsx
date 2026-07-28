@@ -44,7 +44,7 @@ export function SeoAdvanced({
         label="Canonical URL"
         value={canonicalUrl}
         onValueChange={onCanonicalUrlChange}
-        placeholder="https://nailslay.com/articles/..."
+        placeholder="https://nailslay.com/bai-viet/..."
         classNames={adminInputClassNames}
       />
       <Switch isSelected={noIndex} onValueChange={onNoIndexChange}>

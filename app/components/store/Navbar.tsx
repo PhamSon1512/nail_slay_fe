@@ -26,12 +26,12 @@ import { authUserAtom, cartCountAtom, darkModeAtom, serverCartCountAtom } from '
 
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
-  { label: 'Sản phẩm', href: '/products' },
-  { label: 'Bài viết', href: '/articles' },
-  { label: 'Danh mục', href: '/categories' },
-  { label: 'Về NailSlay', href: '/about' },
-  { label: 'Chính sách Đổi trả', href: '/policy' },
-  { label: 'Hướng dẫn đặt hàng', href: '/guide' },
+  { label: 'Sản phẩm', href: '/san-pham' },
+  { label: 'Bài viết', href: '/bai-viet' },
+  { label: 'Danh mục', href: '/danh-muc' },
+  { label: 'Về NailSlay', href: '/gioi-thieu' },
+  { label: 'Chính sách Đổi trả', href: '/chinh-sach' },
+  { label: 'Hướng dẫn đặt hàng', href: '/huong-dan' },
 ];
 
 export function Navbar() {
@@ -162,7 +162,7 @@ export function Navbar() {
         </NavbarItem>
 
         <NavbarItem>
-          <Link to="/cart" className="relative inline-flex">
+          <Link to="/gio-hang" className="relative inline-flex">
             <Badge
               content={cartCount > 0 ? cartCount : null}
               isInvisible={cartCount <= 0}

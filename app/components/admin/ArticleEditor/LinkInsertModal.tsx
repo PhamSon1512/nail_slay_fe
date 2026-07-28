@@ -58,7 +58,7 @@ export function LinkInsertModal({
         <ModalBody className="gap-4">
           <Input
             label="Đường liên kết (URL)"
-            placeholder="https://nailslaystudio.com/articles/..."
+            placeholder="https://nailslaystudio.com/bai-viet/..."
             value={url}
             onValueChange={setUrl}
             classNames={adminInputClassNames}

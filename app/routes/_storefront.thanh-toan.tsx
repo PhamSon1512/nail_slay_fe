@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.checkout';
+import type { Route } from './+types/_storefront.thanh-toan';
 import { useEffect, useState } from 'react';
 import { Button, Card, CardBody, CardHeader, Divider, Input } from '@heroui/react';
 import toast from 'react-hot-toast';
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
       }
 
       const result = await checkoutOrder(addressId);
-      navigate(`/checkout/success?orderId=${result.order.id}`, {
+      navigate(`/thanh-toan/success?orderId=${result.order.id}`, {
         state: { checkout: result },
       });
     } catch {
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
     return (
       <div className="container py-20 text-center space-y-4">
         <h2 className="font-heading text-2xl">Giỏ hàng trống</h2>
-        <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+        <Button as={Link} to="/san-pham" color="primary" className="text-[#1D1D1D] font-semibold">
           Mua sắm ngay
         </Button>
       </div>

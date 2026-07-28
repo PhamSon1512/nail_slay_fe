@@ -137,7 +137,7 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       <CardBody className="p-0 overflow-hidden">
         <Link
-          to={`/products/${product.slug}`}
+          to={`/san-pham/${product.slug}`}
           className="block relative aspect-square bg-gradient-hero overflow-hidden"
         >
           {thumb ? (
@@ -191,7 +191,7 @@ export function ProductCard({ product }: ProductCardProps) {
         ) : null}
 
         <Link
-          to={`/products/${product.slug}`}
+          to={`/san-pham/${product.slug}`}
           className="text-sm font-semibold text-[#1D1D1D] dark:text-[#FFF3F5] line-clamp-2 leading-snug min-h-[40px] hover:underline"
         >
           {product.name}

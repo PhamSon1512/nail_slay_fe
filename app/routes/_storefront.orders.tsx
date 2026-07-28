@@ -66,7 +66,7 @@ export default function UserOrdersPage() {
       ) : orders.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <p className="text-sm text-[#8E8A8A]">Bạn chưa có đơn hàng nào.</p>
-          <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+          <Button as={Link} to="/san-pham" color="primary" className="text-[#1D1D1D] font-semibold">
             Mua sắm ngay
           </Button>
         </div>

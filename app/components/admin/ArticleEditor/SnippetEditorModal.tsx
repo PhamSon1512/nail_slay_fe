@@ -78,7 +78,7 @@ export function SnippetEditorModal({
 
   const displayTitle = metaTitle.trim() || articleTitle.trim() || `— ${SITE_NAME}`;
   const displayDesc = metaDescription.trim() || 'Mô tả meta sẽ hiển thị trong kết quả tìm kiếm.';
-  const permalink = `${siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}/articles/${slug || 'slug-bai-viet'}/`;
+  const permalink = `${siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}/bai-viet/${slug || 'slug-bai-viet'}/`;
 
   const titleLen = countSeoCharacters(metaTitle);
   const descLen = countSeoCharacters(metaDescription);

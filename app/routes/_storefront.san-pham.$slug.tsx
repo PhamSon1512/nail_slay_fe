@@ -1,4 +1,4 @@
-import type { Route } from './+types/_storefront.products.$slug';
+import type { Route } from './+types/_storefront.san-pham.$slug';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge, Button } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -126,7 +126,7 @@ export default function ProductDetailPage() {
     return (
       <div className="container py-20 text-center space-y-4">
         <h1 className="section-title">Không tìm thấy sản phẩm</h1>
-        <Button as={Link} to="/products" color="primary" className="text-[#1D1D1D] font-semibold">
+        <Button as={Link} to="/san-pham" color="primary" className="text-[#1D1D1D] font-semibold">
           Quay về danh sách
         </Button>
       </div>
@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
   return (
     <div className="container py-8 space-y-10">
       <Link
-        to="/products"
+        to="/san-pham"
         className="inline-flex items-center gap-1.5 text-sm text-[#8E8A8A] hover:text-[#1D1D1D] dark:hover:text-[#FFF3F5] transition-colors"
       >
         <RiArrowLeftLine size={16} />

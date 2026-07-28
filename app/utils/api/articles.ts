@@ -25,6 +25,7 @@ export type ArticleDetail = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   focusKeyword?: string | null;
+  secondaryKeywords?: string | null;
   ogImageUrl?: string | null;
   canonicalUrl?: string | null;
   schemaType?: string | null;

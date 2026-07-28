@@ -51,7 +51,7 @@ const emptyDraft = (sortOrder = 0): DraftBanner => ({
   imageUrl: '',
   title: '',
   subtitle: '',
-  link: '/products',
+  link: '/san-pham',
   isActive: true,
   sortOrder,
   imageFile: null,
@@ -610,7 +610,7 @@ function CreateEditBannerModal({
                   />
                   <Input
                     label="Liên kết (tuỳ chọn)"
-                    placeholder="/products"
+                    placeholder="/san-pham"
                     value={draft.link ?? ''}
                     onValueChange={(v) => setDraft((prev) => ({ ...prev, link: v }))}
                     classNames={adminInputClassNames}
