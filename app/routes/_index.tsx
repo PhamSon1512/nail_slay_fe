@@ -37,7 +37,7 @@ const FEATURE_ICONS = {
 } as const;
 
 export default function HomePage() {
-  const { homepage } = useHomepage();
+  const { homepage, loading: homepageLoading } = useHomepage();
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
 
   useEffect(() => {
@@ -144,6 +144,8 @@ export default function HomePage() {
               ))}
             </AutoSlideGallery>
           </section>
+        ) : homepageLoading ? (
+          <section className="w-full h-[clamp(200px,52vw,280px)] sm:h-[clamp(240px,45vw,380px)] md:h-[min(70vh,560px)] bg-default-100 animate-pulse" />
         ) : null}
 
         <section className="container py-12 md:py-14">
