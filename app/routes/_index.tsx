@@ -113,7 +113,7 @@ export default function HomePage() {
         {activeBanners.length > 0 ? (
           <section className="w-full">
             <AutoSlideGallery intervalMs={3000} showArrows showDots className="w-full">
-              {activeBanners.map((banner) => (
+              {activeBanners.map((banner, index) => (
                 <Link
                   key={banner.id}
                   to={banner.link ?? '/san-pham'}
@@ -122,6 +122,7 @@ export default function HomePage() {
                   <BannerSlideImage
                     src={banner.imageUrl}
                     alt={banner.title ?? BRAND.name}
+                    priority={index === 0}
                   />
                   {(banner.title || banner.subtitle) && (
                     <div className="absolute inset-0 z-20 flex items-end bg-gradient-to-t from-[#1D1D1D]/75 via-[#1D1D1D]/25 to-transparent md:items-center md:bg-gradient-to-r md:from-[#1D1D1D]/50 md:via-transparent md:to-transparent pointer-events-none">

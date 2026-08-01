@@ -26,6 +26,11 @@ export const links: Route.LinksFunction = () => [
     crossOrigin: 'anonymous',
   },
   {
+    rel: 'preload',
+    href: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Dancing+Script:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap',
+    as: 'style',
+  },
+  {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Dancing+Script:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap',
   },
