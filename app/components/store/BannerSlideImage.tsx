@@ -21,8 +21,8 @@ export function BannerSlideImage({ src, alt, className, priority }: BannerSlideI
         src={src}
         alt=""
         aria-hidden
-        loading={priority ? "eager" : "lazy"}
-        decoding={priority ? "sync" : "async"}
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-40 pointer-events-none select-none sm:blur-2xl sm:opacity-50"
       />
       <img
@@ -31,7 +31,7 @@ export function BannerSlideImage({ src, alt, className, priority }: BannerSlideI
         alt={alt}
         fetchPriority={priority ? "high" : "auto"}
         loading={priority ? "eager" : "lazy"}
-        decoding={priority ? "sync" : "async"}
+        decoding="async"
         className="relative z-10 mx-auto block h-full w-full object-contain object-center"
       />
     </div>
