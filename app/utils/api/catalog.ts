@@ -33,3 +33,17 @@ export async function fetchStoreProduct(slug: string) {
   const { data } = await http.get<StoreProduct & { variants?: Array<Record<string, unknown>> }>(`/products/${slug}`);
   return data;
 }
+
+export type StoreCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  code?: string | null;
+  parentId?: string | null;
+  imageUrl?: string | null;
+};
+
+export async function fetchStoreCategories() {
+  const { data } = await http.get<StoreCategory[]>('/categories/list');
+  return data;
+}

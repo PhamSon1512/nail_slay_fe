@@ -1,12 +1,21 @@
 import type { Route } from './+types/_storefront.danh-muc';
+import { useEffect, useState } from 'react';
 import { CategoryCard, SectionTitle } from '~/components';
-import { CATEGORIES } from '~/data';
+import { fetchStoreCategories, type StoreCategory } from '~/utils/api/catalog';
 
 export const handle = { pageTitle: 'Danh mục' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Danh mục - Nailslay' }];
 
 export default function CategoriesPage() {
-  const groups = CATEGORIES.filter((c) => c.level === 'child' || c.code === 'PK-02');
+  const [storeCategories, setStoreCategories] = useState<StoreCategory[]>([]);
+
+  useEffect(() => {
+    fetchStoreCategories()
+      .then(setStoreCategories)
+      .catch(() => setStoreCategories([]));
+  }, []);
+
+  const groups = storeCategories.filter((c) => c.parentId || (!c.parentId && c.code === 'PK-02'));
 
   return (
     <div className="container py-10 space-y-6">
@@ -18,11 +27,11 @@ export default function CategoriesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map((group) => (
           <CategoryCard
-            key={group.code}
-            code={group.code}
+            key={group.id}
+            code={group.code ?? group.slug}
             name={group.name}
-            imageUrl={group.imageUrl}
-            href={`/san-pham?category=${group.code}`}
+            imageUrl={group.imageUrl ?? undefined}
+            href={`/san-pham?category=${group.slug}`}
           />
         ))}
       </div>

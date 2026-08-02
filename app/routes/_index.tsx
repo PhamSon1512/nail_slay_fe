@@ -20,7 +20,7 @@ import {
 } from '~/components';
 import { BRAND, CATEGORIES, DEFAULT_HOMEPAGE_THANK_YOU } from '~/data';
 import { useHomepage } from '~/hooks';
-import { fetchStoreProducts, type StoreProduct } from '~/utils/api/catalog';
+import { fetchStoreCategories, fetchStoreProducts, type StoreCategory, type StoreProduct } from '~/utils/api/catalog';
 
 export const meta = (_: Route.MetaArgs) => [
   { title: `${BRAND.name} - Nail Box Premium` },
@@ -39,11 +39,21 @@ const FEATURE_ICONS = {
 export default function HomePage() {
   const { homepage, loading: homepageLoading } = useHomepage();
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
+  const [storeCategories, setStoreCategories] = useState<StoreCategory[]>([]);
 
   useEffect(() => {
-    fetchStoreProducts({ limit: 100 })
-      .then(setStoreProducts)
-      .catch(() => setStoreProducts([]));
+    Promise.all([
+      fetchStoreProducts({ limit: 100 }),
+      fetchStoreCategories(),
+    ])
+      .then(([products, cats]) => {
+        setStoreProducts(products);
+        setStoreCategories(cats);
+      })
+      .catch(() => {
+        setStoreProducts([]);
+        setStoreCategories([]);
+      });
   }, []);
 
   const activeBanners = useMemo(
@@ -57,9 +67,10 @@ export default function HomePage() {
 
   const childCategories = useMemo(
     () =>
-      CATEGORIES.filter((c) => c.level === 'child' || c.code === 'PK-02')
+      storeCategories
+        .filter((c) => c.parentId || (!c.parentId && c.code === 'PK-02'))
         .slice(0, 6),
-    [],
+    [storeCategories],
   );
 
   const featuredProducts = useMemo(() => {
@@ -185,11 +196,11 @@ export default function HomePage() {
           <HorizontalGallery intervalMs={3000} pauseOnHover>
             {childCategories.map((category) => (
               <CategoryCard
-                key={category.code}
-                code={category.code}
+                key={category.id}
+                code={category.code ?? category.slug}
                 name={category.name}
-                imageUrl={category.imageUrl}
-                href={`/san-pham?category=${category.code}`}
+                imageUrl={category.imageUrl ?? undefined}
+                href={`/san-pham?category=${category.slug}`}
               />
             ))}
           </HorizontalGallery>
