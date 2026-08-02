@@ -62,12 +62,6 @@ function TrackingInjector() {
   const data = useRouteLoaderData<typeof loader>('root');
   const codes = (data?.tracking_codes || []) as TrackingCode[];
   
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!codes.length) return null;
 
   return (
@@ -79,8 +73,7 @@ function TrackingInjector() {
           const id = content.replace('google-site-verification:', '').replace('.html', '').trim();
           return <meta key={c.id} name="google-site-verification" content={id} />;
         }
-        // Parse HTML an toàn thành React nodes (chỉ thực hiện trên client để tránh hydration mismatch)
-        if (!mounted) return null;
+        // Parse HTML an toàn thành React nodes (Thực thi ngay trên Server để kích hoạt script)
         try {
           return <Fragment key={c.id}>{parse(content)}</Fragment>;
         } catch {
