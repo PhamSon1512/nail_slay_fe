@@ -41,7 +41,7 @@ export default function ArticlesListPage() {
 
   return (
     <div className="container py-10 space-y-6">
-      <SectionTitle title="Bài viết" subtitle="Mẹo nail, xu hướng và câu chuyện từ NailSlay." />
+      <SectionTitle title="Bài viết" subtitle="Mẹo nail, xu hướng và câu chuyện từ Nailslay." />
 
       <div className="flex flex-col md:flex-row gap-3">
         <Input

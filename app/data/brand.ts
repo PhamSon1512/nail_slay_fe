@@ -1,5 +1,5 @@
 export const BRAND = {
-  name: 'NailSlay',
+  name: 'Nailslay',
   slogan: 'SLAY YOUR NAIL, EVERYDAY',
   colors: {
     primary: '#F2A7B7',

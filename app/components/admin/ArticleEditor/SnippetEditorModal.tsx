@@ -14,7 +14,7 @@ import { cn } from '~/utils';
 import { adminInputClassNames } from '~/utils/adminForm';
 import { countSeoCharacters } from './seoTextLength';
 
-const SITE_NAME = 'NailSlay';
+const SITE_NAME = 'Nailslay';
 const TITLE_CHAR_MAX = 60;
 const TITLE_PX_MAX = 580;
 const DESC_CHAR_MAX = 160;

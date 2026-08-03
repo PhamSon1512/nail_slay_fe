@@ -2,8 +2,8 @@ import type { Route } from './+types/_storefront.gioi-thieu';
 import { BrandLogoFrame, SectionTitle } from '~/components';
 import { BRAND } from '~/data';
 
-export const handle = { pageTitle: 'Về NailSlay' };
-export const meta = (_: Route.MetaArgs) => [{ title: 'Về NailSlay - NailSlay' }];
+export const handle = { pageTitle: 'Về Nailslay' };
+export const meta = (_: Route.MetaArgs) => [{ title: 'Về Nailslay - Nailslay' }];
 
 const COLOR_SWATCHES = [
   { name: 'Primary', hex: BRAND.colors.primary, usage: 'Nút bấm, điểm nhấn' },
@@ -29,7 +29,7 @@ export default function AboutPage() {
   return (
     <div className="container py-10 md:py-14">
       <SectionTitle
-        title="Về NailSlay"
+        title="Về Nailslay"
         subtitle="Thương hiệu nail box thiết kế — SLAY YOUR NAIL, EVERYDAY."
         align="center"
         className="mb-10 md:mb-14"
@@ -54,7 +54,7 @@ export default function AboutPage() {
               {BRAND.slogan}
             </p>
             <p className="text-sm leading-relaxed text-[#8E8A8A] md:text-base md:leading-7">
-              NailSlay mang đến bộ sưu tập nail box cao cấp — từ Y2K cá tính, tiểu thư đính đá đến tone công
+              Nailslay mang đến bộ sưu tập nail box cao cấp — từ Y2K cá tính, tiểu thư đính đá đến tone công
               sở nhẹ nhàng, cùng phụ kiện giúp bạn tự làm đẹp tại nhà.
             </p>
           </div>

@@ -10,6 +10,7 @@ import {
 } from 'react-icons/ri';
 import { BRAND, CATEGORIES } from '~/data';
 import { fetchPublicSettings } from '~/utils/api/settings';
+import { FloatingSocialButtons } from './FloatingSocialButtons';
 
 const LINKS = {
   shop: CATEGORIES.filter((c) => c.level === 'child').map((c) => ({
@@ -17,7 +18,7 @@ const LINKS = {
     href: `/san-pham?category=${c.code}`,
   })),
   info: [
-    { label: 'Về NailSlay', href: '/gioi-thieu' },
+    { label: 'Về Nailslay', href: '/gioi-thieu' },
     { label: 'Blog làm nail', href: '/#' },
     { label: 'Chính sách đổi trả', href: '/chinh-sach' },
     { label: 'Hướng dẫn mua hàng', href: '/huong-dan' },
@@ -158,7 +159,7 @@ export function Footer() {
       <div className="border-t border-[#3a3a3a]">
         <div className="container py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-[#FFDDE5]/80">
-            © {new Date().getFullYear()} NailSlay. All rights reserved.
+            © {new Date().getFullYear()} Nailslay. All rights reserved.
           </p>
           <p className="text-xs text-[#F2A7B7]">{BRAND.slogan}</p>
           <p className="text-xs text-[#FFDDE5]/70">
@@ -166,6 +167,8 @@ export function Footer() {
           </p>
         </div>
       </div>
+      {/* Floating Action Button */}
+      <FloatingSocialButtons contactInfo={contactInfo || undefined} />
     </footer>
   );
 }

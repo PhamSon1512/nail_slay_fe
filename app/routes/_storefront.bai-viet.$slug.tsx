@@ -247,7 +247,7 @@ export default function ArticleDetailPage() {
               viewport={{ once: true }}
               className="text-2xl md:text-3xl font-heading font-extrabold text-[#1D1D1D] dark:text-[#FFF3F5] mb-8 text-center"
             >
-              Cùng Chủ Đề <span className="text-[#ff6ea8]">NailSlay</span>
+              Cùng Chủ Đề <span className="text-[#ff6ea8]">Nailslay</span>
             </motion.h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
               {similar.map((item, index) => (

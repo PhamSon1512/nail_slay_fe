@@ -29,7 +29,7 @@ const NAV_LINKS = [
   { label: 'Sản phẩm', href: '/san-pham' },
   { label: 'Bài viết', href: '/bai-viet' },
   { label: 'Danh mục', href: '/danh-muc' },
-  { label: 'Về NailSlay', href: '/gioi-thieu' },
+  { label: 'Về Nailslay', href: '/gioi-thieu' },
   { label: 'Chính sách Đổi trả', href: '/chinh-sach' },
   { label: 'Hướng dẫn đặt hàng', href: '/huong-dan' },
 ];

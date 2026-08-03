@@ -11,7 +11,7 @@ import { DEMO_ORDER_ID, DEMO_ORDER_ROW } from '~/data/demoOrder';
 import { adminInputClassNames, adminSelectClassNames } from '~/utils/adminForm';
 
 export const handle = { pageTitle: 'Quản lý Đơn hàng' };
-export const meta = (_: Route.MetaArgs) => [{ title: 'Đơn hàng — NailSlay Admin' }];
+export const meta = (_: Route.MetaArgs) => [{ title: 'Đơn hàng — Nailslay Admin' }];
 
 const STATUSES: { value: string; label: string }[] = [
   { value: '', label: 'Tất cả trạng thái' },

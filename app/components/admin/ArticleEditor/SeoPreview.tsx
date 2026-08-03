@@ -1,6 +1,6 @@
 import { Button } from '@heroui/react';
 
-const SITE_NAME = 'NailSlay';
+const SITE_NAME = 'Nailslay';
 
 type SeoPreviewProps = {
   metaTitle: string;

@@ -29,6 +29,7 @@ type ContactInfo = {
   address: string;
   facebook: string;
   tiktok: string;
+  zalo: string;
 };
 
 const EMPTY_CONTACT: ContactInfo = {
@@ -37,6 +38,7 @@ const EMPTY_CONTACT: ContactInfo = {
   address: '',
   facebook: '',
   tiktok: '',
+  zalo: '',
 };
 
 function FeatureIconSelect({
@@ -91,6 +93,7 @@ export default function AdminSettingsPage() {
         address: settings.contact_info?.address ?? '',
         facebook: settings.contact_info?.facebook ?? '',
         tiktok: settings.contact_info?.tiktok ?? '',
+        zalo: settings.contact_info?.zalo ?? '',
       });
       setProducts(productPage.items);
     } catch {
@@ -338,6 +341,13 @@ export default function AdminSettingsPage() {
             label="Link TikTok"
             value={contactInfo.tiktok}
             onValueChange={(v) => setContactInfo((prev) => ({ ...prev, tiktok: v }))}
+            classNames={adminInputClassNames}
+            isDisabled={saving}
+          />
+          <Input
+            label="Số điện thoại / Link Zalo"
+            value={contactInfo.zalo}
+            onValueChange={(v) => setContactInfo((prev) => ({ ...prev, zalo: v }))}
             classNames={adminInputClassNames}
             isDisabled={saving}
           />

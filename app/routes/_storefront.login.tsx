@@ -43,7 +43,7 @@ export default function LoginPage() {
   return (
     <AuthFormLayout
       title="Đăng nhập"
-      subtitle="Chào mừng bạn quay lại NailSlay"
+      subtitle="Chào mừng bạn quay lại Nailslay"
       footer={
         <p className="text-[#8E8A8A]">
           Chưa có tài khoản?{' '}

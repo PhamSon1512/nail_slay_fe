@@ -16,7 +16,7 @@ export default function PolicyPage() {
         <h2>1. Phạm vi áp dụng</h2>
         <p>
           Chính sách này áp dụng cho toàn bộ sản phẩm nail box thiết kế và phụ kiện móng được mua trực tiếp trên
-          website NailSlay. Sản phẩm đã qua sử dụng, tự ý chỉnh sửa hoặc thiếu phụ kiện gốc có thể không được
+          website Nailslay. Sản phẩm đã qua sử dụng, tự ý chỉnh sửa hoặc thiếu phụ kiện gốc có thể không được
           hỗ trợ đổi trả.
         </p>
       </section>
@@ -29,7 +29,7 @@ export default function PolicyPage() {
             Yêu cầu được gửi trong vòng <strong>7 ngày</strong> kể từ khi bạn xác nhận đã nhận hàng trên hệ thống.
           </li>
           <li>
-            Lỗi do sản xuất (bong keo sớm bất thường, thiếu móng, sai size/form so với đơn) — NailSlay hỗ trợ đổi
+            Lỗi do sản xuất (bong keo sớm bất thường, thiếu móng, sai size/form so với đơn) — Nailslay hỗ trợ đổi
             miễn phí hoặc hoàn tiền tùy tình huống.
           </li>
           <li>
@@ -57,7 +57,7 @@ export default function PolicyPage() {
             <Link to="/orders">Đơn hàng của tôi</Link>, chọn đơn cần hỗ trợ và gửi khiếu nại (COMPLAINED) kèm
             mô tả và hình ảnh minh chứng.
           </li>
-          <li>Đội ngũ NailSlay phản hồi trong 24–48 giờ làm việc.</li>
+          <li>Đội ngũ Nailslay phản hồi trong 24–48 giờ làm việc.</li>
           <li>Nếu được duyệt đổi/trả, nhân viên hướng dẫn gửi hàng về kho và xử lý hoàn tiền hoặc gửi sản phẩm thay thế.</li>
         </ol>
       </section>
@@ -65,7 +65,7 @@ export default function PolicyPage() {
       <section>
         <h2>5. Hoàn tiền</h2>
         <p>
-          Hoàn tiền qua chuyển khoản ngân hàng trong vòng 3–7 ngày làm việc sau khi NailSlay nhận và kiểm tra hàng
+          Hoàn tiền qua chuyển khoản ngân hàng trong vòng 3–7 ngày làm việc sau khi Nailslay nhận và kiểm tra hàng
           trả về. Số tiền hoàn bằng giá trị sản phẩm lỗi; phí vận chuyển (nếu có) được quy định theo từng trường hợp
           ở mục 2.
         </p>

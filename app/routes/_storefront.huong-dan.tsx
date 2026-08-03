@@ -68,7 +68,7 @@ const STEPS = [
     title: 'Admin xác nhận thanh toán',
     body: (
       <>
-        NailSlay kiểm tra sao kê ngân hàng và xác nhận thanh toán. Đơn chuyển sang trạng thái đã thanh toán trước
+        Nailslay kiểm tra sao kê ngân hàng và xác nhận thanh toán. Đơn chuyển sang trạng thái đã thanh toán trước
         khi đóng gói — bạn không cần thực hiện thêm bước thanh toán nào sau khi đã chuyển khoản.
       </>
     ),
@@ -94,7 +94,7 @@ export default function GuidePage() {
       <section>
         <h2>Tổng quan</h2>
         <p>
-          NailSlay chỉ hỗ trợ <strong>thanh toán chuyển khoản ngân hàng</strong>. Vui lòng làm theo các bước dưới
+          Nailslay chỉ hỗ trợ <strong>thanh toán chuyển khoản ngân hàng</strong>. Vui lòng làm theo các bước dưới
           đây để đơn hàng được xử lý nhanh nhất.
         </p>
       </section>
@@ -132,7 +132,7 @@ export default function GuidePage() {
       <section>
         <h2>Cần thêm trợ giúp?</h2>
         <p>
-          Xem <Link to="/gioi-thieu">Về NailSlay</Link> để biết thêm về sản phẩm và danh mục, hoặc liên hệ{' '}
+          Xem <Link to="/gioi-thieu">Về Nailslay</Link> để biết thêm về sản phẩm và danh mục, hoặc liên hệ{' '}
           <a href={`mailto:${BRAND.contact.email}`}>{BRAND.contact.email}</a> /{' '}
           <a href={`tel:${BRAND.contact.phone}`}>{BRAND.contact.phone}</a>.
         </p>

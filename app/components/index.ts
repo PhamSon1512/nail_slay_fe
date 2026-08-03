@@ -20,6 +20,7 @@ export { AuthFormLayout } from './store/AuthFormLayout';
 export { BrandLogoFrame } from './store/BrandLogoFrame';
 export { InfoPageLayout } from './store/InfoPageLayout';
 export { ProductReviews } from './store/ProductReviews';
+export { FloatingSocialButtons } from './store/FloatingSocialButtons';
 
 // Admin components
 export { Sidebar } from './admin/Sidebar';
