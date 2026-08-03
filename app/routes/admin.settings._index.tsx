@@ -93,7 +93,7 @@ export default function AdminSettingsPage() {
         address: settings.contact_info?.address ?? '',
         facebook: settings.contact_info?.facebook ?? '',
         tiktok: settings.contact_info?.tiktok ?? '',
-        zalo: settings.contact_info?.zalo ?? '',
+        zalo: settings.contact_info?.zalo || settings.contact_info?.phone || '0988642036',
       });
       setProducts(productPage.items);
     } catch {
