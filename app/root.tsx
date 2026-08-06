@@ -93,6 +93,20 @@ export function Layout({ children }: { children: ReactNode }) {
         <Meta />
         <Links />
         <TrackingInjector />
+        {/* Google Ads Conversion Event Snippet - Lượt xem trang */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('event', 'conversion', {
+                  'send_to': 'AW-11542711085/ZjD1CJHx54IaEK2W__8q',
+                  'value': 1.0,
+                  'currency': 'VND'
+              });
+            `,
+          }}
+        />
       </head>
       <body>
         <HeroUIProvider>
