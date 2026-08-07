@@ -38,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: RiArticleLine,
     children: [
       { label: 'Bài viết', href: '/admin/articles', icon: RiArticleLine },
-      { label: 'Danh mục Bài viết', href: '/admin/articles/danh-muc', icon: RiGridLine },
+      { label: 'Danh mục Bài viết', href: '/admin/articles/categories', icon: RiGridLine },
       { label: '404 Monitor', href: '/admin/seo/404', icon: RiSearchLine },
       { label: 'Redirects', href: '/admin/seo/redirects', icon: RiSearchLine },
       { label: 'SEO & Tracking', href: '/admin/settings/tracking', icon: RiSettingsLine },
@@ -62,10 +62,15 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ 'articles-seo': true });
 
-  const isActive = (href: string) =>
-    location.pathname === href ||
-    (href === '/admin/articles' && location.pathname.startsWith('/admin/articles')) ||
-    location.pathname.startsWith(href + '/');
+  const isActive = (href: string) => {
+    if (href === '/admin/articles') {
+      return (
+        location.pathname === '/admin/articles' ||
+        (location.pathname.startsWith('/admin/articles/') && !location.pathname.startsWith('/admin/articles/categories'))
+      );
+    }
+    return location.pathname === href || location.pathname.startsWith(href + '/');
+  };
 
   const groupHasActive = (children: NavChild[]) => children.some((c) => !c.external && isActive(c.href));
 

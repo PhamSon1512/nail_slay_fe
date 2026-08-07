@@ -41,9 +41,10 @@ export type SeoPanelFormSlice = {
 type SeoPanelProps = {
   analysis: SeoAnalysisResult;
   form: SeoPanelFormSlice;
+  onChangeContent?: (html: string) => void;
 };
 
-export function SeoPanel({ analysis, form }: SeoPanelProps) {
+export function SeoPanel({ analysis, form, onChangeContent }: SeoPanelProps) {
   const [snippetOpen, setSnippetOpen] = useState(false);
 
   return (
@@ -130,3 +131,4 @@ export function SeoPanel({ analysis, form }: SeoPanelProps) {
     </div>
   );
 }
+

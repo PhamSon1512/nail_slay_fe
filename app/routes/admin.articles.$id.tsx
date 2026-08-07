@@ -379,7 +379,11 @@ export default function AdminArticleEditorPage() {
           </Suspense>
           </div>
 
-          <SeoPanel analysis={analysis} form={seoPanelForm} />
+          <SeoPanel
+            analysis={analysis}
+            form={seoPanelForm}
+            onChangeContent={(content) => patch({ content })}
+          />
         </div>
 
         <ArticleEditorSidebar
@@ -399,6 +403,7 @@ export default function AdminArticleEditorPage() {
           articleId={articleId ?? undefined}
           focusKeyword={form.focusKeyword}
           content={form.content}
+          images={analysis.imagesAnalysis || []}
           onStatusChange={(status) => patch({ status })}
           onVisibilityChange={(visibility) => patch({ visibility })}
           onPreview={() => setPreviewOpen(true)}
@@ -410,6 +415,8 @@ export default function AdminArticleEditorPage() {
           onCategoryIdsChange={(categoryIds) => patch({ categoryIds })}
           onTagNamesChange={(tagNames) => patch({ tagNames })}
           onInsertLink={(url, title) => editorRef.current?.insertInternalLink(url, title)}
+          onChangeContent={(content) => patch({ content })}
+          onInsertImage={(url, alt) => editorRef.current?.insertImage(url, alt)}
         />
       </div>
 

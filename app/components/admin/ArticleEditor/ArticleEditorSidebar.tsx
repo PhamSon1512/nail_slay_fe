@@ -1,7 +1,9 @@
 import { LinkSuggestionsPanel } from './LinkSuggestionsPanel';
 import { SidebarFormat } from './SidebarFormat';
+import { SidebarImageOptimizer } from './SidebarImageOptimizer';
 import { SidebarMeta } from './SidebarMeta';
 import { SidebarPublish } from './SidebarPublish';
+import type { ImageSeoCheck } from './useSeoAnalysis';
 
 type ArticleEditorSidebarProps = {
   status: 'draft' | 'published';
@@ -20,6 +22,7 @@ type ArticleEditorSidebarProps = {
   articleId?: string;
   focusKeyword: string;
   content: string;
+  images: ImageSeoCheck[];
   onStatusChange: (s: 'draft' | 'published') => void;
   onVisibilityChange: (v: 'public' | 'private') => void;
   onPreview: () => void;
@@ -31,6 +34,8 @@ type ArticleEditorSidebarProps = {
   onCategoryIdsChange: (ids: string[]) => void;
   onTagNamesChange: (names: string[]) => void;
   onInsertLink: (url: string, title: string) => void;
+  onChangeContent: (html: string) => void;
+  onInsertImage: (url: string, alt: string) => void;
 };
 
 export function ArticleEditorSidebar(props: ArticleEditorSidebarProps) {
@@ -48,6 +53,13 @@ export function ArticleEditorSidebar(props: ArticleEditorSidebarProps) {
         onPreview={props.onPreview}
         onSaveDraft={props.onSaveDraft}
         onPublish={props.onPublish}
+      />
+      <SidebarImageOptimizer
+        images={props.images}
+        contentHtml={props.content}
+        focusKeyword={props.focusKeyword}
+        onChangeContent={props.onChangeContent}
+        onInsertImage={props.onInsertImage}
       />
       <SidebarFormat schemaType={props.schemaType} onSchemaTypeChange={props.onSchemaTypeChange} />
       <SidebarMeta

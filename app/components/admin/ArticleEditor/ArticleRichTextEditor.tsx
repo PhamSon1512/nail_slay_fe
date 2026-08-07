@@ -69,6 +69,7 @@ type ArticleRichTextEditorProps = {
 export type ArticleRichTextEditorHandle = {
   insertInternalLink: (url: string, title: string) => void;
   openMediaPicker: () => void;
+  insertImage: (url: string, alt: string) => void;
 };
 
 const DEFAULT_FONT = 'Arial, sans-serif';
@@ -154,7 +155,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
 
     const editor = useEditor({
       extensions: [
-        StarterKit.configure({ heading: false, link: false, underline: false }),
+        StarterKit.configure({ heading: false, link: false, underline: false, horizontalRule: false }),
         ArticleHeading.configure({ levels: [1, 2, 3, 4] }),
         Underline,
         EditorLink,
@@ -182,7 +183,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
       editorProps: {
         attributes: {
           class:
-            'prose prose-sm max-w-none min-h-[500px] px-4 py-3 focus:outline-none article-editor-prose',
+            'prose prose-sm max-w-none min-h-[650px] px-4 py-3 focus:outline-none article-editor-prose',
           style: `font-family: ${DEFAULT_FONT}; font-size: ${DEFAULT_FONT_SIZE};`,
         },
         handlePaste: (_view, event) => {
@@ -331,6 +332,9 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
           editor?.chain().focus().insertContent(`<a href="${href}">${title}</a>`).run();
         },
         openMediaPicker: () => setMediaOpen(true),
+        insertImage: (url: string, alt: string) => {
+          editor?.chain().focus().setImage({ src: url, alt }).run();
+        },
       }),
       [editor],
     );
@@ -401,7 +405,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
 
     const wrapperClass = cn(
       'border border-[#c3c4c7] bg-white shadow-sm',
-      stickyChrome ? 'flex flex-col max-h-[calc(100dvh-9rem)] min-h-[40rem]' : 'flex flex-col min-h-[500px] overflow-hidden',
+      stickyChrome ? 'flex flex-col min-h-[850px] h-auto' : 'flex flex-col min-h-[700px] overflow-hidden',
       fullscreen && 'fixed inset-4 z-50 flex flex-col shadow-2xl overflow-hidden max-h-none min-h-0',
       className,
     );
@@ -412,10 +416,11 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
 
     return (
       <div className={wrapperClass}>
-        <div className={cn(stickyChrome && 'shrink-0 z-50 bg-white shadow-md border-b border-[#c3c4c7]')}>
+        <div className={cn(stickyChrome && 'shrink-0 bg-white border-b border-[#c3c4c7]')}>
           {chromePrefix}
+        </div>
         {mode === 'visual' && editor && (
-          <>
+          <div className={cn(stickyChrome && 'sticky top-0 z-40 bg-[#fafafa] shadow-sm border-b border-[#c3c4c7] shrink-0')}>
             <div className="flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1">
               <EditorMenuBar
                 editor={editor}
@@ -553,11 +558,11 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
                 )}
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {mode === 'code' && editor && (
-          <div className="flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1">
+          <div className={cn('flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1', stickyChrome && 'sticky top-0 z-40 shrink-0 shadow-sm')}>
             <EditorMenuBar
               editor={editor}
               mode={mode}
@@ -589,11 +594,10 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
             </Tabs>
           </div>
         )}
-        </div>
 
-        <div className={cn('flex-1 min-h-0 overflow-y-auto', stickyChrome && '')}>
+        <div className={cn('flex-1 min-h-0', !fullscreen && 'overflow-visible', fullscreen && 'overflow-y-auto')}>
         {mode === 'visual' && editor ? (
-          <div className={cn('relative', !stickyChrome && 'overflow-auto', fullscreen && 'flex-1')}>
+          <div className={cn('relative', fullscreen && 'flex-1')}>
             <ImageBubbleToolbar editor={editor} />
             <TableBubbleToolbar editor={editor} />
             <EditorContent editor={editor} />
@@ -738,7 +742,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
         ) : mode === 'code' ? (
           <div className="p-2 space-y-2">
             <Textarea
-              minRows={12}
+              minRows={30}
               value={codeValue}
               onValueChange={setCodeValue}
               classNames={{ input: 'font-mono text-xs' }}

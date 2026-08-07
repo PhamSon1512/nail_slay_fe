@@ -31,6 +31,17 @@ export type SeoAnalysisInput = {
   focusKeywordUnique?: boolean | null;
 };
 
+export type ImageSeoCheck = {
+  src: string;
+  fileName: string;
+  alt: string;
+  title: string;
+  isNameSeo: boolean;
+  isFormatOk: boolean;
+  hasAlt: boolean;
+  hasKeywordInAlt: boolean;
+};
+
 export type SeoAnalysisResult = {
   score: number;
   keywordDensity: number;
@@ -39,7 +50,9 @@ export type SeoAnalysisResult = {
   additionalChecks: SeoCheck[];
   titleReadability: SeoCheck[];
   contentReadability: SeoCheck[];
+  imagesAnalysis: ImageSeoCheck[];
 };
+
 
 function stripHtml(html: string): string {
   if (typeof document !== 'undefined') {
@@ -285,6 +298,40 @@ export function analyzeSeo(input: SeoAnalysisInput): SeoAnalysisResult {
     },
   ];
 
+  const imagesAnalysis: ImageSeoCheck[] = [];
+  if (doc) {
+    const imgTags = doc.querySelectorAll('img');
+    imgTags.forEach((img) => {
+      const src = img.getAttribute('src') ?? '';
+      if (!src) return;
+      const alt = img.getAttribute('alt') ?? '';
+      const title = img.getAttribute('title') ?? '';
+      const fileName = src.split('/').pop() || '';
+      const ext = fileName.split('.').pop()?.toLowerCase() || '';
+      const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+      
+      // Gỡ bỏ prefix số (như timestamp) nếu có
+      const cleanName = nameWithoutExt.replace(/^\d+-/, '');
+      
+      // Rule: không dấu, ngăn cách bằng -
+      const isNameSeo = /^[a-z0-9-]+$/.test(cleanName);
+      const isFormatOk = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
+      const hasAlt = alt.trim().length > 0;
+      const hasKeywordInAlt = hasKeyword && keywordInText(alt, kw);
+
+      imagesAnalysis.push({
+        src,
+        fileName,
+        alt,
+        title,
+        isNameSeo,
+        isFormatOk,
+        hasAlt,
+        hasKeywordInAlt,
+      });
+    });
+  }
+
   const allChecks = [...basicChecks, ...additionalChecks, ...titleReadability, ...contentReadability];
   const passedCount = allChecks.filter((c) => c.passed).length;
   const score = allChecks.length > 0 ? Math.round((passedCount / allChecks.length) * 100) : 0;
@@ -297,6 +344,7 @@ export function analyzeSeo(input: SeoAnalysisInput): SeoAnalysisResult {
     additionalChecks,
     titleReadability,
     contentReadability,
+    imagesAnalysis,
   };
 }
 
