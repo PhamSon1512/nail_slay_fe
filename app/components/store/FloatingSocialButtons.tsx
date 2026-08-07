@@ -10,20 +10,20 @@ export type SocialContactInfo = {
   phone?: string;
 };
 
-// SVG Facebook chuẩn xác với thiết kế tròn hiện đại
-function FacebookBadgeIcon({ size = 32 }: { size?: number }) {
+// SVG Messenger chuẩn xác (Xanh trắng không dải màu)
+function MessengerBadgeIcon({ size = 48, style }: { size?: number; style?: React.CSSProperties }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 0C8.059 0 0 8.059 0 18c0 8.978 6.57 16.42 15.188 17.785V23.21h-4.57v-5.21h4.57v-3.972c0-4.512 2.686-7.008 6.812-7.008 1.967 0 4.027.352 4.027.352v4.426h-2.27c-2.234 0-2.932 1.386-2.932 2.812v3.39h5.0l-.8 5.21h-4.2v12.575C29.43 34.42 36 26.978 36 18c0-9.941-8.059-18-18-18z" fill="#1877F2"/>
-      <path d="M23.633 23.21l.8-5.21h-5.0v-3.39c0-1.426.698-2.812 2.932-2.812h2.27V7.37s-2.06-.352-4.027-.352c-4.126 0-6.812 2.496-6.812 7.008v3.972h-4.57v5.21h4.57v12.575a18.17 18.17 0 005.625 0V23.21h4.2z" fill="#FFF"/>
+    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+      <path d="M18 0C8.059 0 0 7.627 0 17.021c0 5.342 2.656 10.158 6.812 13.31v5.669l6.232-3.435c1.58.441 3.24.677 4.956.677 9.941 0 18-7.627 18-17.021C36 7.627 27.941 0 18 0z" fill="#0084FF"/>
+      <path d="M19.82 22.181l-4.821-5.147-9.421 5.147 10.384-11.04 4.962 5.147 9.26-5.147-10.364 11.04z" fill="#FFF"/>
     </svg>
   );
 }
 
 // SVG Zalo Badge Official
-function ZaloBadgeIcon({ size = 32 }: { size?: number }) {
+function ZaloBadgeIcon({ size = 32, style }: { size?: number; style?: React.CSSProperties }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
       <path fillRule="evenodd" clipRule="evenodd" d="M22.782 0.166016H27.199C33.2653 0.166016 36.8103 1.05701 39.9572 2.74421C43.1041 4.4314 45.5875 6.89585 47.2557 10.0428C48.9429 13.1897 49.8339 16.7347 49.8339 22.801V27.1991C49.8339 33.2654 48.9429 36.8104 47.2557 39.9573C45.5685 43.1042 43.1041 45.5877 39.9572 47.2559C36.8103 48.9431 33.2653 49.8341 27.199 49.8341H22.8009C16.7346 49.8341 13.1896 48.9431 10.0427 47.2559C6.89583 45.5687 4.41243 43.1042 2.7442 39.9573C1.057 36.8104 0.166016 33.2654 0.166016 27.1991V22.801C0.166016 16.7347 1.057 13.1897 2.7442 10.0428C4.43139 6.89585 6.89583 4.41245 10.0427 2.74421C13.1707 1.05701 16.7346 0.166016 22.782 0.166016Z" fill="#0068FF" />
       <path opacity="0.12" fillRule="evenodd" clipRule="evenodd" d="M49.8336 26.4736V27.1994C49.8336 33.2657 48.9427 36.8107 47.2555 39.9576C45.5683 43.1045 43.1038 45.5879 39.9569 47.2562C36.81 48.9434 33.265 49.8344 27.1987 49.8344H22.8007C17.8369 49.8344 14.5612 49.2378 11.8104 48.0966L7.27539 43.4267L49.8336 26.4736Z" fill="#001A33" />
       <path fillRule="evenodd" clipRule="evenodd" d="M7.779 43.5892C10.1019 43.846 13.0061 43.1836 15.0682 42.1825C24.0225 47.1318 38.0197 46.8954 46.4923 41.4732C46.8209 40.9803 47.1279 40.4677 47.4128 39.9363C49.1062 36.7779 50.0004 33.22 50.0004 27.1316V22.7175C50.0004 16.629 49.1062 13.0711 47.4128 9.91273C45.7385 6.75436 43.2461 4.28093 40.0877 2.58758C36.9293 0.894239 33.3714 0 27.283 0H22.8499C17.6644 0 14.2982 0.652754 11.4699 1.89893C11.3153 2.03737 11.1636 2.17818 11.0151 2.32135C2.71734 10.3203 2.08658 27.6593 9.12279 37.0782C9.13064 37.0921 9.13933 37.1061 9.14889 37.1203C10.2334 38.7185 9.18694 41.5154 7.55068 43.1516C7.28431 43.399 7.37944 43.5512 7.779 43.5892Z" fill="white" />
@@ -62,20 +62,30 @@ export function FloatingSocialButtons({ contactInfo }: { contactInfo?: SocialCon
   const socialLinks = [
     {
       id: 'zalo',
-      icon: <ZaloBadgeIcon size={48} />,
+      icon: (
+        <ZaloBadgeIcon
+          size={48}
+          style={{ filter: 'drop-shadow(1.5px 2px 3px rgba(0,80,201,0.35))' }}
+        />
+      ),
       url: getZaloLink(contactInfo?.zalo, contactInfo?.phone),
-      containerClass: 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]',
-      ringClass: 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]',
+      containerClass: 'bg-transparent',
+      ringClass: 'bg-[#0068FF]',
       label: 'Chat Zalo',
       delay: 'delay-100',
     },
     {
       id: 'facebook',
-      icon: <FacebookBadgeIcon size={48} />,
-      url: contactInfo?.facebook || 'https://www.facebook.com/nailslay21',
-      containerClass: 'bg-white shadow-[0_0_15px_rgba(24,119,242,0.6)]',
-      ringClass: 'bg-[#1877F2]',
-      label: 'Chat Facebook',
+      icon: (
+        <MessengerBadgeIcon
+          size={48}
+          style={{ filter: 'drop-shadow(1.5px 2px 3px rgba(0,132,255,0.35))' }}
+        />
+      ),
+      url: contactInfo?.facebook || 'https://m.me/nailslay21',
+      containerClass: 'bg-transparent',
+      ringClass: 'bg-[#0084FF]',
+      label: 'Chat Messenger',
       delay: 'delay-[200ms]',
     },
     {

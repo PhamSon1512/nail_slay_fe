@@ -8,7 +8,7 @@ import { useRequireAuth, useServerCart } from '~/hooks';
 import { createAddress, fetchAddresses, type Address } from '~/utils/api/addresses';
 import { checkoutOrder } from '~/utils/api/orders';
 import { fetchPublicSettings } from '~/utils/api/settings';
-import { formatVND, calcVatIncluded } from '~/utils/format';
+import { formatVND, calcVat } from '~/utils/format';
 
 export const handle = { pageTitle: 'Thanh toán' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Thanh toán - Nailslay' }];
@@ -17,7 +17,8 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const { authUser, requireAuth } = useRequireAuth();
   const { items, subtotal, loading } = useServerCart();
-  const vatIncluded = calcVatIncluded(subtotal);
+  const vat = calcVat(subtotal);
+  const total = subtotal + vat;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bankInfo, setBankInfo] = useState<Record<string, string>>({});
   const qrPreviewUrl = bankInfo.qr_code_url ?? '';
@@ -241,16 +242,16 @@ export default function CheckoutPage() {
                     <span>{formatVND(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#8E8A8A]">Trong đó thuế VAT (10%)</span>
-                    <span className="text-[#8E8A8A]">{formatVND(vatIncluded)}</span>
+                    <span className="text-[#8E8A8A]">Thuế VAT (10%)</span>
+                    <span className="text-[#8E8A8A]">{formatVND(vat)}</span>
                   </div>
                   <p className="text-xs text-[#8E8A8A] leading-relaxed">
-                    Giá đã bao gồm VAT 10%. Tổng chuyển khoản bằng tạm tính, không cộng thêm thuế.
+                    Tổng tiền thanh toán đã bao gồm 10% thuế VAT.
                   </p>
                 </div>
                 <div className="flex justify-between font-bold pt-1 border-t border-primary-100/80">
                   <span>Tổng thanh toán</span>
-                  <span className="text-lg">{formatVND(subtotal)}</span>
+                  <span className="text-lg">{formatVND(total)}</span>
                 </div>
                 <p className="text-xs text-amber-800 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg px-3 py-2 leading-relaxed">
                   Hãy chuyển khoản thành công theo thông tin ngân hàng bên trái, rồi mới ấn <strong>Đặt hàng</strong> để gửi đơn.

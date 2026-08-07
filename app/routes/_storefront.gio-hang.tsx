@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri';
 import { useServerCart } from '~/hooks';
 import { authUserAtom, cartAtom, cartSubtotalAtom } from '~/utils/atoms';
-import { formatVND, calcVatIncluded } from '~/utils/format';
+import { formatVND, calcVat } from '~/utils/format';
 
 export const handle = { pageTitle: 'Giỏ hàng' };
 export const meta = (_: Route.MetaArgs) => [{ title: 'Giỏ hàng - Nailslay' }];
@@ -19,7 +19,8 @@ export default function CartPage() {
   const usingServer = !!authUser;
   const isEmpty = usingServer ? items.length === 0 : localCart.length === 0;
   const displayTotal = usingServer ? subtotal : localSubtotal;
-  const vatIncluded = calcVatIncluded(displayTotal);
+  const vat = calcVat(displayTotal);
+  const total = displayTotal + vat;
 
   const updateLocalQty = (productId: string, nextQty: number, maxStock?: number) => {
     if (nextQty <= 0) {
@@ -175,17 +176,17 @@ export default function CartPage() {
                 <span className="font-semibold text-[#1D1D1D] dark:text-[#FFF3F5]">{formatVND(displayTotal)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[#8E8A8A]">Trong đó thuế VAT (10%)</span>
-                <span className="text-[#8E8A8A]">{formatVND(vatIncluded)}</span>
+                <span className="text-[#8E8A8A]">Thuế VAT (10%)</span>
+                <span className="text-[#8E8A8A]">{formatVND(vat)}</span>
               </div>
               <p className="text-xs text-[#8E8A8A] leading-relaxed">
-                Giá sản phẩm đã bao gồm thuế VAT 10%. Số tiền thanh toán không cộng thêm VAT.
+                Tổng tiền thanh toán đã bao gồm 10% thuế VAT.
               </p>
             </div>
             <div className="flex justify-between items-center pt-1 border-t border-primary-100/80">
               <span className="text-sm font-medium text-[#1D1D1D] dark:text-[#FFF3F5]">Tổng thanh toán</span>
               <span className="text-2xl font-bold text-[#1D1D1D] dark:text-[#FFF3F5]">
-                {formatVND(displayTotal)}
+                {formatVND(total)}
               </span>
             </div>
             {usingServer ? (
