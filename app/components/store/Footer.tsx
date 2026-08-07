@@ -45,9 +45,9 @@ export function Footer() {
 
   const socials = useMemo(
     () => [
-      { label: 'Facebook', href: contactInfo?.facebook || '#', icon: RiFacebookFill },
+      { label: 'Facebook', href: contactInfo?.footer_facebook || '#', icon: RiFacebookFill },
       { label: 'Instagram', href: '#', icon: RiInstagramLine },
-      { label: 'TikTok', href: contactInfo?.tiktok || '#', icon: RiTiktokFill },
+      { label: 'TikTok', href: contactInfo?.footer_tiktok || '#', icon: RiTiktokFill },
     ],
     [contactInfo],
   );
@@ -150,6 +150,36 @@ export function Footer() {
                   {contact.email}
                 </a>
               </li>
+              {(contactInfo?.footer_facebook || contactInfo?.footer_tiktok) && (
+                <li className="pt-2">
+                  <div className="flex items-center gap-3">
+                    {contactInfo?.footer_facebook && (
+                      <a
+                        href={contactInfo.footer_facebook}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-sm text-[#FFDDE5] hover:text-[#F2A7B7] transition-colors"
+                        aria-label="Facebook"
+                      >
+                        <RiFacebookFill size={18} />
+                        <span>Facebook</span>
+                      </a>
+                    )}
+                    {contactInfo?.footer_tiktok && (
+                      <a
+                        href={contactInfo.footer_tiktok}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-sm text-[#FFDDE5] hover:text-[#F2A7B7] transition-colors"
+                        aria-label="TikTok"
+                      >
+                        <RiTiktokFill size={18} />
+                        <span>TikTok</span>
+                      </a>
+                    )}
+                  </div>
+                </li>
+              )}
             </ul>
           </div>
         </div>

@@ -30,6 +30,8 @@ type ContactInfo = {
   facebook: string;
   tiktok: string;
   zalo: string;
+  footer_facebook: string;
+  footer_tiktok: string;
 };
 
 const EMPTY_CONTACT: ContactInfo = {
@@ -39,6 +41,8 @@ const EMPTY_CONTACT: ContactInfo = {
   facebook: '',
   tiktok: '',
   zalo: '',
+  footer_facebook: '',
+  footer_tiktok: '',
 };
 
 function FeatureIconSelect({
@@ -94,6 +98,8 @@ export default function AdminSettingsPage() {
         facebook: settings.contact_info?.facebook ?? '',
         tiktok: settings.contact_info?.tiktok ?? '',
         zalo: settings.contact_info?.zalo || settings.contact_info?.phone || '0988642036',
+        footer_facebook: settings.contact_info?.footer_facebook ?? '',
+        footer_tiktok: settings.contact_info?.footer_tiktok ?? '',
       });
       setProducts(productPage.items);
     } catch {
@@ -331,21 +337,49 @@ export default function AdminSettingsPage() {
             isDisabled={saving}
           />
           <Input
-            label="Link Facebook"
+            label="Link Facebook (Footer)"
+            value={contactInfo.footer_facebook}
+            onValueChange={(v) => setContactInfo((prev) => ({ ...prev, footer_facebook: v }))}
+            classNames={adminInputClassNames}
+            isDisabled={saving}
+          />
+          <Input
+            label="Link TikTok (Footer)"
+            value={contactInfo.footer_tiktok}
+            onValueChange={(v) => setContactInfo((prev) => ({ ...prev, footer_tiktok: v }))}
+            classNames={adminInputClassNames}
+            isDisabled={saving}
+          />
+        </div>
+      </section>
+
+      {/* CHAT BUBBLE SETTINGS */}
+      <section className="bg-white dark:bg-[#1a1418] rounded-2xl border border-primary-100 p-6 md:p-8">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-[#1D1D1D] dark:text-[#FFF3F5] font-heading">
+            Bong bóng chat
+          </h2>
+          <p className="text-sm text-[#8E8A8A] mt-1">
+            Hiển thị các nút liên hệ nổi (Floating Buttons) ở góc màn hình.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label="Link Facebook (Bong bóng chat)"
             value={contactInfo.facebook}
             onValueChange={(v) => setContactInfo((prev) => ({ ...prev, facebook: v }))}
             classNames={adminInputClassNames}
             isDisabled={saving}
           />
           <Input
-            label="Link TikTok"
+            label="Link TikTok (Bong bóng chat)"
             value={contactInfo.tiktok}
             onValueChange={(v) => setContactInfo((prev) => ({ ...prev, tiktok: v }))}
             classNames={adminInputClassNames}
             isDisabled={saving}
           />
           <Input
-            label="Số điện thoại / Link Zalo"
+            label="Số điện thoại / Link Zalo (Bong bóng chat)"
             value={contactInfo.zalo}
             onValueChange={(v) => setContactInfo((prev) => ({ ...prev, zalo: v }))}
             classNames={adminInputClassNames}
