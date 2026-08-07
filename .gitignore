@@ -13,3 +13,5 @@
 .dev.vars*
 .esc
 
+# Secret keys
+service_account.json
