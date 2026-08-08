@@ -50,6 +50,7 @@ import { ImageBubbleToolbar } from './ImageBubbleToolbar';
 import { MediaPickerModal } from './MediaPickerModal';
 import { TableMenuDropdown } from './TableMenuDropdown';
 import { TableBubbleToolbar } from './TableBubbleToolbar';
+import { TextBubbleToolbar } from './TextBubbleToolbar';
 import { ArticleHeading } from './extensions/articleHeading';
 import { EditorLink } from './extensions/editorLink';
 import { LinkInsertModal, type LinkInsertValues } from './LinkInsertModal';
@@ -420,7 +421,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
           {chromePrefix}
         </div>
         {mode === 'visual' && editor && (
-          <div className={cn(stickyChrome && 'sticky top-0 z-40 bg-[#fafafa] shadow-sm border-b border-[#c3c4c7] shrink-0')}>
+          <div className={cn(stickyChrome && 'sticky z-40 bg-[#fafafa] shadow-sm border-b border-[#c3c4c7] shrink-0', stickyChrome && (fullscreen ? 'top-0' : 'top-16'))}>
             <div className="flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1">
               <EditorMenuBar
                 editor={editor}
@@ -562,7 +563,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
         )}
 
         {mode === 'code' && editor && (
-          <div className={cn('flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1', stickyChrome && 'sticky top-0 z-40 shrink-0 shadow-sm')}>
+          <div className={cn('flex items-center justify-between border-b border-[#c3c4c7] bg-[#f6f7f7] px-2 py-1', stickyChrome && 'sticky z-40 shrink-0 shadow-sm', stickyChrome && (fullscreen ? 'top-0' : 'top-16'))}>
             <EditorMenuBar
               editor={editor}
               mode={mode}
@@ -598,6 +599,7 @@ export const ArticleRichTextEditor = forwardRef<ArticleRichTextEditorHandle, Art
         <div className={cn('flex-1 min-h-0', !fullscreen && 'overflow-visible', fullscreen && 'overflow-y-auto')}>
         {mode === 'visual' && editor ? (
           <div className={cn('relative', fullscreen && 'flex-1')}>
+            <TextBubbleToolbar editor={editor} onOpenLinkModal={openLinkModal} />
             <ImageBubbleToolbar editor={editor} />
             <TableBubbleToolbar editor={editor} />
             <EditorContent editor={editor} />
