@@ -56,22 +56,24 @@ http.interceptors.response.use(
     }
     if ((url === '/profile' || url === '/auth/me') && status === 404) return Promise.reject(error);
 
-    if (status && status < 500) {
-      let message = getApiErrorMessage(error.response?.data) || 'Đã xảy ra lỗi, vui lòng thử lại sau.';
-      
-      // Dịch nhanh các lỗi tiếng Anh phổ biến do backend hoặc network trả về
-      if (typeof message === 'string') {
-        const lowerMsg = message.toLowerCase();
-        if (lowerMsg.includes('unauthorized')) message = 'Vui lòng đăng nhập để tiếp tục.';
-        else if (lowerMsg.includes('forbidden')) message = 'Bạn không có quyền thực hiện thao tác này.';
-        else if (lowerMsg.includes('problem with the request')) message = 'Yêu cầu không hợp lệ, vui lòng thử lại.';
-        else if (lowerMsg.includes('not found')) message = 'Không tìm thấy dữ liệu.';
-        else if (lowerMsg.includes('validation error') || lowerMsg.includes('bad request')) message = 'Dữ liệu không hợp lệ.';
-      }
+    if (typeof window !== 'undefined') {
+      if (status && status < 500) {
+        let message = getApiErrorMessage(error.response?.data) || 'Đã xảy ra lỗi, vui lòng thử lại sau.';
+        
+        // Dịch nhanh các lỗi tiếng Anh phổ biến do backend hoặc network trả về
+        if (typeof message === 'string') {
+          const lowerMsg = message.toLowerCase();
+          if (lowerMsg.includes('unauthorized')) message = 'Vui lòng đăng nhập để tiếp tục.';
+          else if (lowerMsg.includes('forbidden')) message = 'Bạn không có quyền thực hiện thao tác này.';
+          else if (lowerMsg.includes('problem with the request')) message = 'Yêu cầu không hợp lệ, vui lòng thử lại.';
+          else if (lowerMsg.includes('not found')) message = 'Không tìm thấy dữ liệu.';
+          else if (lowerMsg.includes('validation error') || lowerMsg.includes('bad request')) message = 'Dữ liệu không hợp lệ.';
+        }
 
-      toast.error(message);
-    } else if (status && status >= 500) {
-      toast.error('Máy chủ đang gặp sự cố. Vui lòng thử lại sau.');
+        toast.error(message);
+      } else if (status && status >= 500) {
+        toast.error('Máy chủ đang gặp sự cố. Vui lòng thử lại sau.');
+      }
     }
     return Promise.reject(error);
   },
