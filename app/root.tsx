@@ -93,12 +93,15 @@ export function Layout({ children }: { children: ReactNode }) {
         <Meta />
         <Links />
         <TrackingInjector />
-        {/* Google Ads Conversion Event Snippet - Lượt xem trang */}
+        {/* Google Ads Global Site Tag & Conversion Event Snippet */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11542711085" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-11542711085');
               gtag('event', 'conversion', {
                   'send_to': 'AW-11542711085/ZjD1CJHx54IaEK2W__8q',
                   'value': 1.0,
