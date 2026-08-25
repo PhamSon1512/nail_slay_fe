@@ -7,6 +7,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Input,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
@@ -16,7 +17,7 @@ import {
   Navbar as HeroNavbar,
 } from '@heroui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { RiMoonLine, RiShoppingBag3Line, RiSunLine, RiUserLine } from 'react-icons/ri';
+import { RiMoonLine, RiShoppingBag3Line, RiSunLine, RiUserLine, RiSearchLine } from 'react-icons/ri';
 import { useAuthReady } from '~/components/AuthBootstrap';
 import { useServerCart } from '~/hooks';
 import { BRAND } from '~/data';
@@ -28,10 +29,9 @@ const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Sản phẩm', href: '/san-pham' },
   { label: 'Bài viết', href: '/bai-viet' },
-  { label: 'Danh mục', href: '/danh-muc' },
   { label: 'Về Nailslay', href: '/gioi-thieu' },
-  { label: 'Chính sách Đổi trả', href: '/chinh-sach' },
   { label: 'Hướng dẫn đặt hàng', href: '/huong-dan' },
+  { label: 'Liên hệ', href: '/lien-he' },
 ];
 
 export function Navbar() {
@@ -47,6 +47,15 @@ export function Navbar() {
   const cartCount = sessionUser ? serverCartCount : localCartCount;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/san-pham?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     const html = document.documentElement;
@@ -148,6 +157,22 @@ export function Navbar() {
       </NavbarContent>
 
       <NavbarContent justify="end" className="gap-2">
+        <NavbarItem className="hidden md:flex">
+          <form onSubmit={handleSearchSubmit} className="relative max-w-[180px]">
+            <Input
+              size="sm"
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Tìm kiếm..."
+              startContent={<RiSearchLine size={16} className="text-[#8E8A8A]" />}
+              variant="bordered"
+              classNames={{
+                inputWrapper: 'h-8 px-2.5 min-h-8 border-primary-200 bg-white/50 hover:border-primary-300 dark:bg-[#1a1518]/50 dark:border-primary-800 rounded-full',
+                input: 'text-xs',
+              }}
+            />
+          </form>
+        </NavbarItem>
         <NavbarItem>
           <Button
             isIconOnly
@@ -243,6 +268,21 @@ export function Navbar() {
       </NavbarContent>
 
       <NavbarMenu className="pt-4 gap-1 bg-[color:var(--color-brand-header)] dark:bg-[color:var(--color-brand-header-dark)]">
+        <NavbarMenuItem className="px-4 pb-4">
+          <form onSubmit={handleSearchSubmit}>
+            <Input
+              size="sm"
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Tìm kiếm sản phẩm..."
+              startContent={<RiSearchLine size={16} className="text-[#8E8A8A]" />}
+              variant="bordered"
+              classNames={{
+                inputWrapper: 'border-primary-200 bg-white dark:bg-[#1a1518] rounded-full',
+              }}
+            />
+          </form>
+        </NavbarMenuItem>
         {NAV_LINKS.map((link) => (
           <NavbarMenuItem key={link.href}>
             <Link

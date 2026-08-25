@@ -193,7 +193,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <HorizontalGallery intervalMs={3000} pauseOnHover>
+          <HorizontalGallery intervalMs={3000} pauseOnHover itemClassName="basis-[82%] sm:basis-[46%] md:basis-[31%] lg:basis-[23.5%]">
             {childCategories.map((category) => (
               <CategoryCard
                 key={category.id}
@@ -245,7 +245,7 @@ export default function HomePage() {
           </div>
 
           {featuredProducts.length > 0 ? (
-            <HorizontalGallery intervalMs={3000} pauseOnHover>
+            <HorizontalGallery intervalMs={3000} pauseOnHover itemClassName="basis-[82%] sm:basis-[46%] md:basis-[31%] lg:basis-[23.5%]">
               {featuredProducts.map((product) => (
                 <ProductCard key={product!.id} product={mapProduct(product!)} />
               ))}

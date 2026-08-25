@@ -1,5 +1,15 @@
 import type { Route } from './+types/_storefront.san-pham._index';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
+
+const formatK = (price: number) => {
+  if (price >= 1000000) {
+    return `${(price / 1000000).toLocaleString('vi-VN')}M`;
+  }
+  if (price >= 1000) {
+    return `${(price / 1000).toLocaleString('vi-VN')}k`;
+  }
+  return `${price}đ`;
+};
 import { useSearchParams } from 'react-router';
 import { Button, Input, Slider } from '@heroui/react';
 import { RiFilterOffLine, RiSearchLine } from 'react-icons/ri';
@@ -15,10 +25,12 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [category, setCategory] = useState(searchParams.get('category') ?? '');
+  const [maxPriceLimit, setMaxPriceLimit] = useState(1000000);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
   const [debouncedPrice, setDebouncedPrice] = useState<[number, number]>([0, 1000000]);
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const lastParamsRef = useRef('');
 
   const categoryOptions = CATEGORIES.filter((c) => c.level === 'child' || c.code === 'PK-02');
   const categorySlugMap = useMemo(
@@ -34,19 +46,36 @@ export default function ProductsPage() {
   }, [priceRange]);
 
   useEffect(() => {
-    setLoading(true);
     const slug = category ? categorySlugMap.get(category) : undefined;
+    const min_price = debouncedPrice[0] > 0 ? debouncedPrice[0] : undefined;
+    const max_price = debouncedPrice[1] < maxPriceLimit ? debouncedPrice[1] : undefined;
+    
+    const paramsKey = JSON.stringify({ search, category, slug, min_price, max_price });
+    if (paramsKey === lastParamsRef.current) {
+      return;
+    }
+    lastParamsRef.current = paramsKey;
+
+    setLoading(true);
     fetchStoreProducts({
       limit: 100,
       q: search || undefined,
       category_slug: slug,
-      min_price: debouncedPrice[0] > 0 ? debouncedPrice[0] : undefined,
-      max_price: debouncedPrice[1] < 1000000 ? debouncedPrice[1] : undefined,
+      min_price,
+      max_price,
     })
-      .then(setProducts)
+      .then((items) => {
+        setProducts(items);
+        if (maxPriceLimit === 1000000 && !search && !category && debouncedPrice[0] === 0 && debouncedPrice[1] === 1000000) {
+          const highest = items.reduce((max, p) => (p.price > max ? p.price : max), 0) || 1000000;
+          setMaxPriceLimit(highest);
+          setPriceRange([0, highest]);
+          setDebouncedPrice([0, highest]);
+        }
+      })
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
-  }, [search, category, categorySlugMap, debouncedPrice]);
+  }, [search, category, categorySlugMap, debouncedPrice, maxPriceLimit]);
 
   const handleCategorySelect = (code: string) => {
     const nextCategory = category === code ? '' : code;
@@ -63,7 +92,7 @@ export default function ProductsPage() {
   const handleResetFilters = () => {
     setSearch('');
     setCategory('');
-    setPriceRange([0, 1000000]);
+    setPriceRange([0, maxPriceLimit]);
     setSearchParams(new URLSearchParams(), { replace: true });
   };
 
@@ -81,7 +110,7 @@ export default function ProductsPage() {
             <h3 className="font-semibold text-lg text-primary-900 dark:text-primary-100">
               Bộ lọc sản phẩm
             </h3>
-            {(search || category || priceRange[0] > 0 || priceRange[1] < 1000000) && (
+            {(search || category || priceRange[0] > 0 || priceRange[1] < maxPriceLimit) && (
               <Button
                 size="sm"
                 variant="light"
@@ -124,7 +153,7 @@ export default function ProductsPage() {
             <Slider
               step={10000}
               minValue={0}
-              maxValue={1000000}
+              maxValue={maxPriceLimit}
               value={priceRange}
               onChange={(val) => {
                 if (Array.isArray(val)) setPriceRange(val as [number, number]);
@@ -140,8 +169,8 @@ export default function ProductsPage() {
             />
             <div className="flex justify-between text-[11px] text-[#8E8A8A]">
               <span>0đ</span>
-              <span>500k</span>
-              <span>1,000k</span>
+              <span>{formatK(maxPriceLimit / 2)}</span>
+              <span>{formatK(maxPriceLimit)}</span>
             </div>
           </div>
 
