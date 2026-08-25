@@ -6,7 +6,6 @@ import { Toaster } from 'react-hot-toast';
 import { AuthBootstrap } from '~/components/AuthBootstrap';
 import { fetchPublicSettings } from '~/utils/api/settings';
 import type { TrackingCode } from '~/routes/admin.settings.tracking';
-import parse from 'html-react-parser';
 import './app.css';
 
 export async function loader() {
@@ -61,7 +60,54 @@ export default function App() {
 function TrackingInjector() {
   const data = useRouteLoaderData<typeof loader>('root');
   const codes = (data?.tracking_codes || []) as TrackingCode[];
-  
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !codes.length) return;
+
+    // Tránh chèn trùng lặp script
+    const injectedKeys = new Set<string>();
+
+    codes.filter(c => c.enabled).forEach(c => {
+      const content = c.code.trim();
+      
+      // Bỏ qua google-site-verification (đã được render dưới dạng thẻ meta)
+      if (content.startsWith('google-site-verification:')) {
+        return;
+      }
+
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const scripts = doc.querySelectorAll('script');
+
+        scripts.forEach((script, index) => {
+          const src = script.getAttribute('src');
+          const inlineCode = script.textContent || '';
+          const scriptKey = src ? `src:${src}` : `inline:${c.id}:${index}`;
+
+          if (injectedKeys.has(scriptKey)) return;
+          injectedKeys.add(scriptKey);
+
+          // Nếu script tag có src này đã tồn tại trong DOM thì bỏ qua
+          if (src && document.querySelector(`script[src="${src}"]`)) {
+            return;
+          }
+
+          const newScript = document.createElement('script');
+          Array.from(script.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          if (inlineCode) {
+            newScript.textContent = inlineCode;
+          }
+          document.head.appendChild(newScript);
+        });
+      } catch (err) {
+        console.error('Failed to inject tracking script:', err);
+      }
+    });
+  }, [codes]);
+
   if (!codes.length) return null;
 
   return (
@@ -73,12 +119,7 @@ function TrackingInjector() {
           const id = content.replace('google-site-verification:', '').replace('.html', '').trim();
           return <meta key={c.id} name="google-site-verification" content={id} />;
         }
-        // Parse HTML an toàn thành React nodes (Thực thi ngay trên Server để kích hoạt script)
-        try {
-          return <Fragment key={c.id}>{parse(content)}</Fragment>;
-        } catch {
-          return null;
-        }
+        return null;
       })}
     </>
   );
